@@ -1,0 +1,17 @@
+<settings>
+    <profiles>
+        <profile>
+            <id>use-central</id>
+            <repositories>
+                <repository>
+                    <id>central</id>
+                    <url>https://repo.maven.apache.org/maven2</url>
+                    <snapshots><enabled>false</enabled></snapshots>
+                </repository>
+            </repositories>
+        </profile>
+    </profiles>
+    <activeProfiles>
+        <activeProfile>use-central</activeProfile>
+    </activeProfiles>
+</settings>
