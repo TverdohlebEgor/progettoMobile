@@ -4,7 +4,7 @@ import lombok.Data;
 
 @Data
 public class Debt {
-    private UserAccount debtor;
-    private UserAccount beneficiary;
+    private String debtorUserCode;
+    private String beneficiaryUserCode;
     private int amount;
 }

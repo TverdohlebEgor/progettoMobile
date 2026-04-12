@@ -2,12 +2,13 @@ package cohappy.backend.model;
 
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.springframework.data.annotation.Id;
 
 import java.util.List;
 
 @Data
 public class UserAccount extends Anagrafica{
-    //user code is unique
+    @Id
     private String userCode;
     private List<byte[]> images;
     private String email;
