@@ -11,4 +11,5 @@ public class HouseAdvertisement {
    private String houseCode;
    private HouseState state;
    private String publishedBy;
+   private String description;
 }

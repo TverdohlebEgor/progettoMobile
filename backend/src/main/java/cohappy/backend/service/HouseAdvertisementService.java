@@ -60,6 +60,11 @@ public class HouseAdvertisementService {
         List<GetHouseAdvertesimentDTO> result = new ArrayList<>();
 
         for(HouseAdvertisement houseAdvertisement : houseAdvertisements){
+
+            if(houseAdvertisement.getState() == HouseState.PRIVATE){
+                continue;
+            }
+
             Optional<House> houseOptional = houseRepository.findByHouseCode(houseAdvertisement.getHouseCode());
             if (houseOptional.isEmpty()) {
                 throw new NotFoundException("house with code %s not found".formatted(houseAdvertisement.getHouseCode()));
@@ -103,6 +108,9 @@ public class HouseAdvertisementService {
             throw new NoPatchException("The state was already the one given");
         }
 
+        if(modifyHouseAdvertisementDTO.getDescription() != null){
+            houseAdvertisement.setDescription(modifyHouseAdvertisementDTO.getDescription());
+        }
         houseAdvertisement.setState(modifyHouseAdvertisementDTO.getState());
         houseAdvertisementRepository.save(houseAdvertisement);
     }
@@ -125,6 +133,7 @@ public class HouseAdvertisementService {
 
         HouseAdvertisement result = new HouseAdvertisement();
         result.setHouseCode(houseCode);
+        result.setDescription(createHouseAdvertisementDTO.getDescription());
         result.setState(createHouseAdvertisementDTO.getState());
         if(result.getState() == null){
             result.setState(HouseState.PUBLIC);

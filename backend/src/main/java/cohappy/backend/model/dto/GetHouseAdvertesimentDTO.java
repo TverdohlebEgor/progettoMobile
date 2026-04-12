@@ -19,4 +19,5 @@ public class GetHouseAdvertesimentDTO {
     private List<byte[]> publishedByImages;
     private String publishedByEmail;
     private String publishedByPhoneNumber;
+    private String description;
 }

@@ -34,6 +34,7 @@ public class HouseAdvertisementMapper {
         }
         result.setPublishedByEmail(userAccount.getEmail());
         result.setPublishedByPhoneNumber(userAccount.getPhoneNumber());
+        result.setDescription(houseAdvertisement.getDescription());
 
         return result;
     }

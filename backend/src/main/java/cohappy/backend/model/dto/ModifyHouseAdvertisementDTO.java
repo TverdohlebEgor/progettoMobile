@@ -7,4 +7,5 @@ import lombok.Data;
 public class ModifyHouseAdvertisementDTO {
     private String houseCode;
     private HouseState state;
+    private String description;
 }

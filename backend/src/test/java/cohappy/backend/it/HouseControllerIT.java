@@ -82,7 +82,8 @@ public class HouseControllerIT {
                 .andExpect(jsonPath("$[0].publishedByCode").value("USR-999"))
                 .andExpect(jsonPath("$[0].publishedByImages").isArray())
                 .andExpect(jsonPath("$[0].publishedByEmail").value("test@cohappy.it"))
-                .andExpect(jsonPath("$[0].publishedByPhoneNumber").value("123"));
+                .andExpect(jsonPath("$[0].publishedByPhoneNumber").value("123"))
+                .andExpect(jsonPath("$[0].description").value("desc"));
     }
 
     @Test
@@ -101,7 +102,8 @@ public class HouseControllerIT {
                 .andExpect(jsonPath("$.publishedByCode").value("USR-999"))
                 .andExpect(jsonPath("$.publishedByImages").isArray())
                 .andExpect(jsonPath("$.publishedByEmail").value("test@cohappy.it"))
-                .andExpect(jsonPath("$.publishedByPhoneNumber").value("123"));
+                .andExpect(jsonPath("$.publishedByPhoneNumber").value("123"))
+                .andExpect(jsonPath("$.description").value("desc"));
     }
 
     @Test
@@ -192,6 +194,7 @@ public class HouseControllerIT {
         ModifyHouseAdvertisementDTO request = new ModifyHouseAdvertisementDTO();
         request.setHouseCode("houseCode");
         request.setState(HouseState.PRIVATE);
+        request.setDescription("desc2");
 
         HouseAdvertisement houseAdvertisement = houseAdvertisementRepository.findByHouseCode("houseCode")
                 .orElseThrow(() -> new AssertionError("House advertisement not found"));
@@ -205,6 +208,7 @@ public class HouseControllerIT {
         houseAdvertisement = houseAdvertisementRepository.findByHouseCode("houseCode")
                 .orElseThrow(() -> new AssertionError("House advertisement not found"));
         assertThat(houseAdvertisement.getState()).isEqualTo(HouseState.PRIVATE);
+        assertThat(houseAdvertisement.getDescription()).isEqualTo("desc2");
     }
 
     @Test
@@ -1315,6 +1319,7 @@ public class HouseControllerIT {
         houseAdvertisement.setHouseCode("houseCode");
         houseAdvertisement.setState(HouseState.PUBLIC);
         houseAdvertisement.setPublishedBy("USR-999");
+        houseAdvertisement.setDescription("desc");
         return houseAdvertisement;
     }
 
