@@ -9,14 +9,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.testcontainers.service.connection.ServiceConnection;
-import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
 import org.springframework.http.MediaType;
-import org.springframework.test.context.ActiveProfiles;
-import org.springframework.test.web.servlet.MockMvc;
-import org.testcontainers.containers.MongoDBContainer;
-import org.testcontainers.junit.jupiter.Container;
-import org.testcontainers.junit.jupiter.Testcontainers;
 import tools.jackson.databind.ObjectMapper;
 
 import java.util.ArrayList;
@@ -27,22 +20,9 @@ import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
-import static org.testcontainers.containers.wait.strategy.Wait.forListeningPort;
 
 @SpringBootTest
-@AutoConfigureMockMvc
-@ActiveProfiles("test")
-@Testcontainers
-public class HouseControllerIT {
-    @Container
-    @ServiceConnection
-    static MongoDBContainer mongoDBContainer = new MongoDBContainer("mongo:latest")
-            .withReuse(true)
-            .waitingFor(forListeningPort());
-
-    @Autowired
-    private MockMvc mockMvc;
-
+public class HouseControllerIT extends BaseIT{
     @Autowired
     private HouseAdvertisementRepository houseAdvertisementRepository;
 
@@ -1301,11 +1281,10 @@ public class HouseControllerIT {
         user.setPassword("secret123");
         user.setUserCode("USR-999");
 
-        Portafolio portafolio = new Portafolio();
-        portafolio.setCurrency(Currency.EUR);
-        portafolio.setDebts(new ArrayList<>());
-        portafolio.setAmount(0);
-        user.setPortafolio(portafolio);
+        Portfolio portfolio = new Portfolio();
+        portfolio.setDebts(new ArrayList<>());
+        portfolio.setAmount(0);
+        user.setPortfolio(portfolio);
 
         return user;
     }

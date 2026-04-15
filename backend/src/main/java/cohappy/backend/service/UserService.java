@@ -67,10 +67,6 @@ public class UserService {
         validateInput(registerDTO.getEmail(), "email");
         validateInput(registerDTO.getPhoneNumber(), "phone number");
         validateInput(registerDTO.getPassword(), "password");
-        if (registerDTO.getCurrency() == null) {
-            throw new IllegalInputException("Currency cannot be null");
-        }
-        validateInput(registerDTO.getCurrency().name(), "currency of the portafolio");
 
         Optional<UserAccount> account = userRepository.findByEmail(registerDTO.getEmail());
         if (account.isPresent()) {

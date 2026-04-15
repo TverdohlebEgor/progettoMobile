@@ -12,6 +12,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import static cohappy.backend.model.OperationResultMessages.OPERATION_COMPLETED;
+
 @RestController
 @RequestMapping("/api/user")
 @Slf4j
@@ -36,7 +38,7 @@ public class UserController {
     public ResponseEntity<String> deleteProfile(@PathVariable String userCode) {
         try {
             if(userService.deleteProfile(userCode)){
-                return ResponseEntity.ok("Account deleted correctly");
+                return ResponseEntity.ok(OPERATION_COMPLETED);
             } else {
                 return ResponseEntity.notFound().build();
             }

@@ -1,7 +1,6 @@
 package cohappy.backend.it;
 
-import cohappy.backend.model.Currency;
-import cohappy.backend.model.Portafolio;
+import cohappy.backend.model.Portfolio;
 import cohappy.backend.model.UserAccount;
 import cohappy.backend.model.dto.LoginDTO;
 import cohappy.backend.model.dto.RegisterDTO;
@@ -10,14 +9,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.testcontainers.service.connection.ServiceConnection;
-import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
 import org.springframework.http.MediaType;
-import org.springframework.test.context.ActiveProfiles;
-import org.springframework.test.web.servlet.MockMvc;
-import org.testcontainers.containers.MongoDBContainer;
-import org.testcontainers.junit.jupiter.Container;
-import org.testcontainers.junit.jupiter.Testcontainers;
 import tools.jackson.databind.ObjectMapper;
 
 import java.util.ArrayList;
@@ -29,22 +21,9 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
-import static org.testcontainers.containers.wait.strategy.Wait.forListeningPort;
 
 @SpringBootTest
-@AutoConfigureMockMvc
-@ActiveProfiles("test")
-@Testcontainers
-public class UserControllerIT {
-    @Container
-    @ServiceConnection
-    static MongoDBContainer mongoDBContainer = new MongoDBContainer("mongo:latest")
-            .withReuse(true)
-            .waitingFor(forListeningPort());
-
-    @Autowired
-    private MockMvc mockMvc;
-
+public class UserControllerIT extends BaseIT{
     @Autowired
     private UserRepository userRepository;
 
@@ -211,7 +190,6 @@ public class UserControllerIT {
         registerDTO.setEmail(newUser.getEmail());
         registerDTO.setPhoneNumber(newUser.getPhoneNumber());
         registerDTO.setPassword(newUser.getPassword());
-        registerDTO.setCurrency(newUser.getPortafolio().getCurrency());
 
         AtomicReference<String> userCode = new AtomicReference<>();
         mockMvc.perform(post("/api/user/register")
@@ -226,9 +204,8 @@ public class UserControllerIT {
         assertThat(findedUserAccount.get().getEmail()).isEqualTo(newUser.getEmail());
         assertThat(findedUserAccount.get().getPhoneNumber()).isEqualTo(newUser.getPhoneNumber());
         assertThat(findedUserAccount.get().getPassword()).isEqualTo(newUser.getPassword());
-        assertThat(findedUserAccount.get().getPortafolio().getCurrency()).isEqualTo(newUser.getPortafolio().getCurrency());
-        assertThat(findedUserAccount.get().getPortafolio().getAmount()).isZero();
-        assertThat(findedUserAccount.get().getPortafolio().getDebts().size()).isZero();
+        assertThat(findedUserAccount.get().getPortfolio().getAmount()).isZero();
+        assertThat(findedUserAccount.get().getPortfolio().getDebts().size()).isZero();
     }
 
     @Test
@@ -240,7 +217,6 @@ public class UserControllerIT {
         registerDTO.setEmail("  ");
         registerDTO.setPhoneNumber("123");
         registerDTO.setPassword("secret123");
-        registerDTO.setCurrency(Currency.EUR);
 
         mockMvc.perform(post("/api/user/register")
                         .contentType(MediaType.APPLICATION_JSON)
@@ -263,7 +239,6 @@ public class UserControllerIT {
         registerDTO.setEmail("test@cohappy.it");
         registerDTO.setPhoneNumber(" ");
         registerDTO.setPassword("secret123");
-        registerDTO.setCurrency(Currency.EUR);
 
         mockMvc.perform(post("/api/user/register")
                         .contentType(MediaType.APPLICATION_JSON)
@@ -286,7 +261,6 @@ public class UserControllerIT {
         registerDTO.setEmail("test@cohappy.it");
         registerDTO.setPhoneNumber("123");
         registerDTO.setPassword("  ");
-        registerDTO.setCurrency(Currency.EUR);
 
         mockMvc.perform(post("/api/user/register")
                         .contentType(MediaType.APPLICATION_JSON)
@@ -294,23 +268,6 @@ public class UserControllerIT {
                 .andExpect(status().isBadRequest());
 
         registerDTO.setPassword(null);
-        mockMvc.perform(post("/api/user/register")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(registerDTO)))
-                .andExpect(status().isBadRequest());
-    }
-
-    @Test
-    void shouldFailRegisterForCurrency() throws Exception {
-        saveDefaultUser();
-
-        RegisterDTO registerDTO = new RegisterDTO();
-        registerDTO.setImages(new ArrayList<>());
-        registerDTO.setEmail("test@cohappy.it");
-        registerDTO.setPhoneNumber("123");
-        registerDTO.setPassword("secret123");
-        registerDTO.setCurrency(null);
-
         mockMvc.perform(post("/api/user/register")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(registerDTO)))
@@ -326,7 +283,6 @@ public class UserControllerIT {
         registerDTO.setEmail("test@cohappy.it");
         registerDTO.setPhoneNumber("123");
         registerDTO.setPassword("secret123");
-        registerDTO.setCurrency(null);
 
         mockMvc.perform(post("/api/user/register")
                         .contentType(MediaType.APPLICATION_JSON)
@@ -349,7 +305,6 @@ public class UserControllerIT {
         registerDTO.setEmail("test@cohappy.it");
         registerDTO.setPhoneNumber("123");
         registerDTO.setPassword("secret123");
-        registerDTO.setCurrency(null);
 
         mockMvc.perform(post("/api/user/register")
                         .contentType(MediaType.APPLICATION_JSON)
@@ -371,11 +326,10 @@ public class UserControllerIT {
         user.setPassword("secret123");
         user.setUserCode("USR-999");
 
-        Portafolio portafolio = new Portafolio();
-        portafolio.setCurrency(Currency.EUR);
-        portafolio.setDebts(new ArrayList<>());
-        portafolio.setAmount(0);
-        user.setPortafolio(portafolio);
+        Portfolio portfolio = new Portfolio();
+        portfolio.setDebts(new ArrayList<>());
+        portfolio.setAmount(0);
+        user.setPortfolio(portfolio);
 
         return user;
     }

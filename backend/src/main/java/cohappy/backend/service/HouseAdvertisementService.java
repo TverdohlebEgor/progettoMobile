@@ -21,6 +21,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
+import static cohappy.backend.model.OperationResultMessages.*;
+
 @AllArgsConstructor
 @Service
 public class HouseAdvertisementService {
@@ -33,17 +35,17 @@ public class HouseAdvertisementService {
     public GetHouseAdvertesimentDTO getHouseAdvertisement(String houseCode) {
         Optional<HouseAdvertisement> houseAdvertisementOptional = houseAdvertisementRepository.findByHouseCode(houseCode);
         if (houseAdvertisementOptional.isEmpty()) {
-            throw new NotFoundException("house advertisemenet with code %s not found".formatted(houseCode));
+            throw new NotFoundException(HOUSE_ADVERTISEMENT_NOT_FOUND .formatted(houseCode));
         }
 
         Optional<House> houseOptional = houseRepository.findByHouseCode(houseCode);
         if (houseOptional.isEmpty()) {
-            throw new NotFoundException("house with code %s not found".formatted(houseCode));
+            throw new NotFoundException(HOUSE_NOT_FOUND.formatted(houseCode));
         }
 
         Optional<UserAccount> userAccountOptional = userRepository.findByUserCode(houseAdvertisementOptional.get().getPublishedBy());
         if (userAccountOptional.isEmpty()) {
-            throw new NotFoundException("user with code %s not found".formatted(houseAdvertisementOptional.get().getPublishedBy()));
+            throw new NotFoundException(USER_NOT_FOUND.formatted(houseAdvertisementOptional.get().getPublishedBy()));
         }
 
         return mapper.houseAdvertesimentToGetDTO(
@@ -67,12 +69,12 @@ public class HouseAdvertisementService {
 
             Optional<House> houseOptional = houseRepository.findByHouseCode(houseAdvertisement.getHouseCode());
             if (houseOptional.isEmpty()) {
-                throw new NotFoundException("house with code %s not found".formatted(houseAdvertisement.getHouseCode()));
+                throw new NotFoundException(HOUSE_NOT_FOUND.formatted(houseAdvertisement.getHouseCode()));
             }
 
             Optional<UserAccount> userAccountOptional = userRepository.findByUserCode(houseAdvertisement.getPublishedBy());
             if (userAccountOptional.isEmpty()) {
-                throw new NotFoundException("user with code %s not found".formatted(houseAdvertisement.getPublishedBy()));
+                throw new NotFoundException(USER_NOT_FOUND.formatted(houseAdvertisement.getPublishedBy()));
             }
 
             result.add(mapper.houseAdvertesimentToGetDTO(
@@ -92,20 +94,20 @@ public class HouseAdvertisementService {
     public void modifyHouseAdvertisement(ModifyHouseAdvertisementDTO modifyHouseAdvertisementDTO) {
         String houseCode = modifyHouseAdvertisementDTO.getHouseCode();
         if (houseCode == null) {
-            throw new IllegalInputException("House code can't be null");
+            throw new IllegalInputException(INVALID_INPUT.formatted("HouseCode"));
         }
 
         HouseAdvertisement houseAdvertisement = houseAdvertisementRepository.findByHouseCode(houseCode)
                 .orElseThrow(
-                        () -> new NotFoundException("house advertisemenet with code %s not found".formatted(houseCode))
+                        () -> new NotFoundException(HOUSE_ADVERTISEMENT_NOT_FOUND.formatted(houseCode))
                 );
 
         if (modifyHouseAdvertisementDTO.getState() == null) {
-            throw new IllegalInputException("state value can't be null");
+            throw new IllegalInputException(INVALID_INPUT.formatted("State"));
         }
 
         if (houseAdvertisement.getState() == modifyHouseAdvertisementDTO.getState()) {
-            throw new NoPatchException("The state was already the one given");
+            throw new NoPatchException(NO_PATCH.formatted("State"));
         }
 
         if(modifyHouseAdvertisementDTO.getDescription() != null){
@@ -118,17 +120,17 @@ public class HouseAdvertisementService {
     public void createHouseAdvertisement(CreateHouseAdvertisementDTO createHouseAdvertisementDTO) {
         String houseCode = createHouseAdvertisementDTO.getHouseCode();
         if (houseCode == null) {
-            throw new IllegalInputException("House code can't be null");
+            throw new IllegalInputException(INVALID_INPUT.formatted("HouseCode"));
         }
 
         Optional<House> houseOptional = houseRepository.findByHouseCode(houseCode);
         if(houseOptional.isEmpty()){
-            throw new NotFoundException("The house with code %s has not been found".formatted(houseCode));
+            throw new NotFoundException(HOUSE_NOT_FOUND.formatted(houseCode));
         }
 
         Optional<HouseAdvertisement> houseAdvertisementOptional = houseAdvertisementRepository.findByHouseCode(houseCode);
         if(houseAdvertisementOptional.isPresent()){
-            throw new IllegalInputException("The house code %s is already connected to an advertisement".formatted(houseCode));
+            throw new IllegalInputException(HOUSE_HAS_ALREADY_AN_ADVERTISEMENT.formatted(houseCode));
         }
 
         HouseAdvertisement result = new HouseAdvertisement();
@@ -141,11 +143,11 @@ public class HouseAdvertisementService {
 
         String userCode = createHouseAdvertisementDTO.getPublishedBy();
         if(userCode == null){
-            throw new IllegalInputException("Published by is a mandatory value");
+            throw new IllegalInputException(INVALID_INPUT.formatted("Published"));
         }
         Optional<UserAccount> userOptional = userRepository.findByUserCode(userCode);
         if(userOptional.isEmpty()){
-            throw new NotFoundException("The user with code %s has not been found".formatted(userCode));
+            throw new NotFoundException(USER_NOT_FOUND.formatted(userCode));
         }
 
         result.setPublishedBy(createHouseAdvertisementDTO.getPublishedBy());

@@ -13,6 +13,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.Optional;
 
+import static cohappy.backend.model.OperationResultMessages.*;
 import static cohappy.backend.util.StringCheckUtil.isEmptyString;
 
 @AllArgsConstructor
@@ -25,7 +26,7 @@ public class HouseService {
     public GetHouseDTO getHouse(String houseCode) {
         Optional<House> houseOptional = houseRepository.findByHouseCode(houseCode);
         if (houseOptional.isEmpty()) {
-            throw new NotFoundException("house with code %s not found".formatted(houseCode));
+            throw new NotFoundException(HOUSE_NOT_FOUND.formatted(houseCode));
         }
         return mapper.houseToGetDTO(houseOptional.get());
     }
@@ -36,15 +37,15 @@ public class HouseService {
 
     public void modifyHouse(ModifyHouseDTO modifyHouseDTO) {
         if (modifyHouseDTO.getHouseCode() == null) {
-            throw new IllegalInputException("House code is an mandatory value");
+            throw new IllegalInputException(INVALID_INPUT.formatted("HouseCode"));
         }
         if (modifyHouseDTO.areAllNull()) {
-            throw new IllegalInputException("At least one value of the request must be not null");
+            throw new IllegalInputException(REQUEST_CONTAINS_ONLY_NULL );
         }
 
         House house = houseRepository.findByHouseCode(modifyHouseDTO.getHouseCode())
                 .orElseThrow(
-                        () -> new NotFoundException("house with code %s not found".formatted(modifyHouseDTO.getHouseCode()))
+                        () -> new NotFoundException(HOUSE_NOT_FOUND.formatted(modifyHouseDTO.getHouseCode()))
                 );
 
 
@@ -70,7 +71,7 @@ public class HouseService {
         }
 
         if (newHouse.isEqualTo(house)) {
-            throw new NoPatchException("The value given were already set in the house");
+            throw new NoPatchException(NO_PATCH.formatted("All the house values"));
         }
 
         houseRepository.save(newHouse);
@@ -91,7 +92,7 @@ public class HouseService {
 
         userRepository.findByUserCode(createHouseDTO.getUserCode())
                 .orElseThrow(
-                        () -> new NotFoundException("The user with code %s has not been found".formatted(userCode))
+                        () -> new NotFoundException(USER_NOT_FOUND.formatted(userCode))
                 );
 
         House newHouse = mapper.CreateDTOToHouse(createHouseDTO);
@@ -109,12 +110,12 @@ public class HouseService {
 
         House house = houseRepository.findByHouseCode(houseCode)
                 .orElseThrow(
-                        () -> new NotFoundException("house with code %s not found".formatted(houseCode))
+                        () -> new NotFoundException(HOUSE_NOT_FOUND.formatted(houseCode))
                 );
 
         userRepository.findByUserCode(userCode)
                 .orElseThrow(
-                        () -> new NotFoundException("The user with code %s has not been found".formatted(userCode))
+                        () -> new NotFoundException(USER_NOT_FOUND.formatted(userCode))
                 );
 
         if(house.getAdmins().contains(userCode)){
@@ -140,12 +141,12 @@ public class HouseService {
 
         House house = houseRepository.findByHouseCode(houseCode)
                 .orElseThrow(
-                        () -> new NotFoundException("house with code %s not found".formatted(houseCode))
+                        () -> new NotFoundException(HOUSE_NOT_FOUND.formatted(houseCode))
                 );
 
         userRepository.findByUserCode(userCode)
                 .orElseThrow(
-                        () -> new NotFoundException("The user with code %s has not been found".formatted(userCode))
+                        () -> new NotFoundException(USER_NOT_FOUND.formatted(userCode))
                 );
 
         if(!house.getAdmins().contains(userCode)){
@@ -170,12 +171,12 @@ public class HouseService {
 
         House house = houseRepository.findByHouseCode(houseCode)
                 .orElseThrow(
-                        () -> new NotFoundException("house with code %s not found".formatted(houseCode))
+                        () -> new NotFoundException(HOUSE_NOT_FOUND.formatted(houseCode))
                 );
 
         userRepository.findByUserCode(userCode)
                 .orElseThrow(
-                        () -> new NotFoundException("The user with code %s has not been found".formatted(userCode))
+                        () -> new NotFoundException(USER_NOT_FOUND.formatted(userCode))
                 );
 
         if(house.getUsers().contains(userCode)){
@@ -199,12 +200,12 @@ public class HouseService {
 
         House house = houseRepository.findByHouseCode(houseCode)
                 .orElseThrow(
-                        () -> new NotFoundException("house with code %s not found".formatted(houseCode))
+                        () -> new NotFoundException(HOUSE_NOT_FOUND.formatted(houseCode))
                 );
 
         userRepository.findByUserCode(userCode)
                 .orElseThrow(
-                        () -> new NotFoundException("The user with code %s has not been found".formatted(userCode))
+                        () -> new NotFoundException(USER_NOT_FOUND.formatted(userCode))
                 );
 
         if(!house.getUsers().contains(userCode)){
@@ -217,7 +218,7 @@ public class HouseService {
 
     private void validateInput(String str, String fieldName) {
         if (isEmptyString(str)) {
-            throw new IllegalInputException("the value %s must be filled and not empty".formatted(fieldName));
+            throw new IllegalInputException(INVALID_INPUT.formatted(fieldName));
         }
     }
 

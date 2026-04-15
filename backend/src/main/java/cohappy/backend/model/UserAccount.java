@@ -1,7 +1,6 @@
 package cohappy.backend.model;
 
 import lombok.Data;
-import lombok.NoArgsConstructor;
 import org.springframework.data.annotation.Id;
 
 import java.util.List;
@@ -14,5 +13,5 @@ public class UserAccount extends Anagrafica{
     private String email;
     private String phoneNumber;
     private String password;
-    private Portafolio portafolio;
+    private Portfolio portfolio;
 }

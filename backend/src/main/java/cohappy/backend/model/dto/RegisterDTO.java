@@ -1,6 +1,5 @@
 package cohappy.backend.model.dto;
 
-import cohappy.backend.model.Currency;
 import lombok.Data;
 
 import java.util.List;
@@ -11,5 +10,4 @@ public class RegisterDTO {
     private String email;
     private String phoneNumber;
     private String password;
-    private Currency currency;
 }

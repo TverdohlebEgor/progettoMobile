@@ -5,8 +5,7 @@ import lombok.Data;
 import java.util.List;
 
 @Data
-public class Portafolio {
-    private int amount;
-    private Currency currency;
+public class Portfolio {
+    private float amount;
     private List<Debt> debts;
 }

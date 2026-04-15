@@ -8,10 +8,13 @@ import cohappy.backend.service.HouseAdvertisementService;
 import cohappy.backend.service.HouseService;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+
+import static cohappy.backend.model.OperationResultMessages.OPERATION_COMPLETED;
 
 @RestController
 @RequestMapping("/api/house")
@@ -59,9 +62,9 @@ public class HouseController {
     public ResponseEntity<String> deleteHouseAdvertisement(@PathVariable String houseCode) {
         try {
             if (houseAdvertisementService.deleteHouseAdvertisement(houseCode)) {
-                return ResponseEntity.ok("Account deleted correctly");
+                return ResponseEntity.ok(OPERATION_COMPLETED);
             } else {
-                return ResponseEntity.notFound().build();
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
             }
         } catch (Exception e) {
             return ResponseEntity.internalServerError().body(e.getMessage());
@@ -72,9 +75,9 @@ public class HouseController {
     public ResponseEntity<String> deleteHouse(@PathVariable String houseCode) {
         try {
             if (houseService.deleteHouse(houseCode)) {
-                return ResponseEntity.ok("Account deleted correctly");
+                return ResponseEntity.ok(OPERATION_COMPLETED);
             } else {
-                return ResponseEntity.notFound().build();
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
             }
         } catch (Exception e) {
             return ResponseEntity.internalServerError().body(e.getMessage());
@@ -85,15 +88,15 @@ public class HouseController {
     public ResponseEntity<String> modifyHouseAdvertisement(@RequestBody ModifyHouseAdvertisementDTO modifyHouseAdvertisementDTO) {
         try {
             houseAdvertisementService.modifyHouseAdvertisement(modifyHouseAdvertisementDTO);
-            return ResponseEntity.ok("Patched correctly");
+            return ResponseEntity.ok(OPERATION_COMPLETED);
         } catch (IllegalInputException e) {
             return ResponseEntity.badRequest().body(e.getMessage());
         } catch (NotFoundException e) {
-            return ResponseEntity.notFound().build();
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
         } catch (NoPatchException e) {
-            return ResponseEntity.noContent().build();
+            return ResponseEntity.status(HttpStatus.NO_CONTENT).body(e.getMessage());
         } catch (Exception e) {
-            return ResponseEntity.internalServerError().build();
+            return ResponseEntity.internalServerError().body(e.getMessage());
         }
     }
 
@@ -101,15 +104,15 @@ public class HouseController {
     public ResponseEntity<String> modifyHouse(@RequestBody ModifyHouseDTO modifyHouseDTO) {
         try {
             houseService.modifyHouse(modifyHouseDTO);
-            return ResponseEntity.ok("Patched correctly");
+            return ResponseEntity.ok(OPERATION_COMPLETED);
         } catch (IllegalInputException e) {
             return ResponseEntity.badRequest().body(e.getMessage());
         } catch (NotFoundException e) {
-            return ResponseEntity.notFound().build();
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
         } catch (NoPatchException e) {
-            return ResponseEntity.noContent().build();
+            return ResponseEntity.status(HttpStatus.NO_CONTENT).body(e.getMessage());
         } catch (Exception e) {
-            return ResponseEntity.internalServerError().build();
+            return ResponseEntity.internalServerError().body(e.getMessage());
         }
     }
 
@@ -117,13 +120,13 @@ public class HouseController {
     public ResponseEntity<String> createHouseAdvertisement(@RequestBody CreateHouseAdvertisementDTO createHouseAdvertisementDTO) {
         try {
             houseAdvertisementService.createHouseAdvertisement(createHouseAdvertisementDTO);
-            return ResponseEntity.ok("created correctly");
+            return ResponseEntity.ok(OPERATION_COMPLETED);
         } catch (IllegalInputException e) {
             return ResponseEntity.badRequest().body(e.getMessage());
         } catch (NotFoundException e) {
-            return ResponseEntity.notFound().build();
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
         } catch (Exception e) {
-            return ResponseEntity.internalServerError().build();
+            return ResponseEntity.internalServerError().body(e.getMessage());
         }
     }
 
@@ -135,9 +138,9 @@ public class HouseController {
         } catch (IllegalInputException e) {
             return ResponseEntity.badRequest().body(e.getMessage());
         } catch (NotFoundException e) {
-            return ResponseEntity.notFound().build();
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
         } catch (Exception e) {
-            return ResponseEntity.internalServerError().build();
+            return ResponseEntity.internalServerError().body(e.getMessage());
         }
     }
 
@@ -145,13 +148,13 @@ public class HouseController {
     public ResponseEntity<String> addAdmin(@RequestBody AddAdminDTO addAdminDTO) {
         try {
             houseService.addAdmin(addAdminDTO);
-            return ResponseEntity.ok("User %s is now admin of house %s".formatted(addAdminDTO.getUserCode(),addAdminDTO.getHouseCode()));
+            return ResponseEntity.ok(OPERATION_COMPLETED);
         } catch (IllegalInputException e) {
             return ResponseEntity.badRequest().body(e.getMessage());
         } catch (NotFoundException e) {
-            return ResponseEntity.notFound().build();
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
         } catch (Exception e) {
-            return ResponseEntity.internalServerError().build();
+            return ResponseEntity.internalServerError().body(e.getMessage());
         }
     }
 
@@ -159,13 +162,13 @@ public class HouseController {
     public ResponseEntity<String> removeAdmin(@RequestBody RemoveAdminDTO removeAdminDTO) {
         try {
             houseService.removeAdmin(removeAdminDTO);
-            return ResponseEntity.ok("User %s is not an admin anymore of house %s".formatted(removeAdminDTO.getUserCode(),removeAdminDTO.getHouseCode()));
+            return ResponseEntity.ok(OPERATION_COMPLETED);
         } catch (IllegalInputException e) {
             return ResponseEntity.badRequest().body(e.getMessage());
         } catch (NotFoundException e) {
-            return ResponseEntity.notFound().build();
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
         } catch (Exception e) {
-            return ResponseEntity.internalServerError().build();
+            return ResponseEntity.internalServerError().body(e.getMessage());
         }
     }
 
@@ -173,13 +176,13 @@ public class HouseController {
     public ResponseEntity<String> addUser(@RequestBody AddUserDTO addUserDTO) {
         try {
             houseService.addUser(addUserDTO);
-            return ResponseEntity.ok("User %s has been added to the house %s".formatted(addUserDTO.getUserCode(),addUserDTO.getHouseCode()));
+            return ResponseEntity.ok(OPERATION_COMPLETED);
         } catch (IllegalInputException e) {
             return ResponseEntity.badRequest().body(e.getMessage());
         } catch (NotFoundException e) {
-            return ResponseEntity.notFound().build();
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
         } catch (Exception e) {
-            return ResponseEntity.internalServerError().build();
+            return ResponseEntity.internalServerError().body(e.getMessage());
         }
     }
 
@@ -187,13 +190,13 @@ public class HouseController {
     public ResponseEntity<String> removeUser(@RequestBody RemoveUserDTO removeUserDTO) {
         try {
             houseService.removeUser(removeUserDTO);
-            return ResponseEntity.ok("User %s is not an user anymore of house %s".formatted(removeUserDTO.getUserCode(),removeUserDTO.getHouseCode()));
+            return ResponseEntity.ok(OPERATION_COMPLETED);
         } catch (IllegalInputException e) {
             return ResponseEntity.badRequest().body(e.getMessage());
         } catch (NotFoundException e) {
-            return ResponseEntity.notFound().build();
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
         } catch (Exception e) {
-            return ResponseEntity.internalServerError().build();
+            return ResponseEntity.internalServerError().body(e.getMessage());
         }
     }
 }

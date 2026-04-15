@@ -1,6 +1,6 @@
 package cohappy.backend.mappers;
 
-import cohappy.backend.model.Portafolio;
+import cohappy.backend.model.Portfolio;
 import cohappy.backend.model.UserAccount;
 import cohappy.backend.model.dto.RegisterDTO;
 
@@ -17,12 +17,11 @@ public class UserMapper {
         result.setPhoneNumber(registerDTO.getPhoneNumber());
         result.setPassword(registerDTO.getPassword());
 
-        Portafolio resultPortafolio = new Portafolio();
-        resultPortafolio.setAmount(0);
-        resultPortafolio.setCurrency(registerDTO.getCurrency());
-        resultPortafolio.setDebts(new ArrayList<>());
+        Portfolio resultPortfolio = new Portfolio();
+        resultPortfolio.setAmount(0);
+        resultPortfolio.setDebts(new ArrayList<>());
 
-        result.setPortafolio(resultPortafolio);
+        result.setPortfolio(resultPortfolio);
 
         return result;
     }
