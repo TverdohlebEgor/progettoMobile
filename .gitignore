@@ -1,0 +1,35 @@
+# --- Android / Gradle ---
+# Ignore build folders (this is where KSP/Kotlin generated code lives)
+build/
+.gradle/
+/captures/
+*.apk
+*.aar
+*.jks
+*.keystore
+
+# Local configuration (DO NOT SHARE YOUR SDK PATH)
+local.properties
+
+# --- Kotlin / KSP ---
+# Generated code is recreated every time you run ./gradlew
+.kotlin/
+kotlin-daemon-embeddable-*.jar
+
+# --- macOS (Since you are on it) ---
+.DS_Store
+.AppleDouble
+.LSOverride
+Icon
+._*
+
+# --- IDEs (In case you ever open it in Android Studio/IntelliJ) ---
+.idea/
+*.iml
+.navigation/
+externalBuildConfigurations/
+gen/
+
+# --- Logs & Temp ---
+*.log
+captures/
