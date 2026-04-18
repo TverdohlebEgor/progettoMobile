@@ -106,14 +106,14 @@ public class HouseAdvertisementService {
             throw new IllegalInputException(INVALID_INPUT.formatted("State"));
         }
 
-        if (houseAdvertisement.getState() == modifyHouseAdvertisementDTO.getState()) {
+        if (houseAdvertisement.getState() == mapper.DTOToHouseState(modifyHouseAdvertisementDTO.getState())){
             throw new NoPatchException(NO_PATCH.formatted("State"));
         }
 
         if(modifyHouseAdvertisementDTO.getDescription() != null){
             houseAdvertisement.setDescription(modifyHouseAdvertisementDTO.getDescription());
         }
-        houseAdvertisement.setState(modifyHouseAdvertisementDTO.getState());
+        houseAdvertisement.setState(mapper.DTOToHouseState(modifyHouseAdvertisementDTO.getState()));
         houseAdvertisementRepository.save(houseAdvertisement);
     }
 
@@ -136,7 +136,7 @@ public class HouseAdvertisementService {
         HouseAdvertisement result = new HouseAdvertisement();
         result.setHouseCode(houseCode);
         result.setDescription(createHouseAdvertisementDTO.getDescription());
-        result.setState(createHouseAdvertisementDTO.getState());
+        result.setState(mapper.DTOToHouseState(createHouseAdvertisementDTO.getState()));
         if(result.getState() == null){
             result.setState(HouseState.PUBLIC);
         }

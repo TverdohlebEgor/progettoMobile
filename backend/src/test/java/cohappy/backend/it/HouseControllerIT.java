@@ -173,7 +173,7 @@ public class HouseControllerIT extends BaseIT{
 
         ModifyHouseAdvertisementDTO request = new ModifyHouseAdvertisementDTO();
         request.setHouseCode("houseCode");
-        request.setState(HouseState.PRIVATE);
+        request.setState(HouseStateDTO.PRIVATE);
         request.setDescription("desc2");
 
         HouseAdvertisement houseAdvertisement = houseAdvertisementRepository.findByHouseCode("houseCode")
@@ -197,7 +197,7 @@ public class HouseControllerIT extends BaseIT{
 
         ModifyHouseAdvertisementDTO request = new ModifyHouseAdvertisementDTO();
         request.setHouseCode("NOTEXSTING");
-        request.setState(HouseState.PRIVATE);
+        request.setState(HouseStateDTO.PRIVATE);
 
         mockMvc.perform(patch(path("/advertisement/modify"))
                         .contentType(MediaType.APPLICATION_JSON)
@@ -237,7 +237,7 @@ public class HouseControllerIT extends BaseIT{
 
         ModifyHouseAdvertisementDTO request = new ModifyHouseAdvertisementDTO();
         request.setHouseCode("houseCode");
-        request.setState(HouseState.PUBLIC);
+        request.setState(HouseStateDTO.PUBLIC);
 
         mockMvc.perform(patch(path("/advertisement/modify"))
                         .contentType(MediaType.APPLICATION_JSON)
@@ -339,7 +339,7 @@ public class HouseControllerIT extends BaseIT{
         CreateHouseAdvertisementDTO request = new CreateHouseAdvertisementDTO();
         request.setHouseCode("houseCode");
         request.setPublishedBy("USR-999");
-        request.setState(HouseState.PUBLIC);
+        request.setState(HouseStateDTO.PUBLIC);
 
         mockMvc.perform(post(path("/advertisement/create"))
                         .contentType(MediaType.APPLICATION_JSON)
@@ -360,7 +360,7 @@ public class HouseControllerIT extends BaseIT{
         CreateHouseAdvertisementDTO request = new CreateHouseAdvertisementDTO();
         request.setHouseCode(null);
         request.setPublishedBy("USR-999");
-        request.setState(HouseState.PUBLIC);
+        request.setState(HouseStateDTO.PUBLIC);
 
         mockMvc.perform(post(path("/advertisement/create"))
                         .contentType(MediaType.APPLICATION_JSON)
@@ -376,7 +376,7 @@ public class HouseControllerIT extends BaseIT{
         CreateHouseAdvertisementDTO request = new CreateHouseAdvertisementDTO();
         request.setHouseCode("houseCode");
         request.setPublishedBy("USR-999");
-        request.setState(HouseState.PUBLIC);
+        request.setState(HouseStateDTO.PUBLIC);
 
         mockMvc.perform(post(path("/advertisement/create"))
                         .contentType(MediaType.APPLICATION_JSON)
@@ -393,7 +393,7 @@ public class HouseControllerIT extends BaseIT{
         CreateHouseAdvertisementDTO request = new CreateHouseAdvertisementDTO();
         request.setHouseCode("houseCode");
         request.setPublishedBy("USR-999");
-        request.setState(HouseState.PUBLIC);
+        request.setState(HouseStateDTO.PUBLIC);
 
         mockMvc.perform(post(path("/advertisement/create"))
                         .contentType(MediaType.APPLICATION_JSON)
@@ -409,7 +409,7 @@ public class HouseControllerIT extends BaseIT{
         CreateHouseAdvertisementDTO request = new CreateHouseAdvertisementDTO();
         request.setHouseCode("houseCode");
         request.setPublishedBy(null);
-        request.setState(HouseState.PUBLIC);
+        request.setState(HouseStateDTO.PUBLIC);
 
         mockMvc.perform(post(path("/advertisement/create"))
                         .contentType(MediaType.APPLICATION_JSON)
@@ -424,7 +424,7 @@ public class HouseControllerIT extends BaseIT{
         CreateHouseAdvertisementDTO request = new CreateHouseAdvertisementDTO();
         request.setHouseCode("houseCode");
         request.setPublishedBy("USR-999");
-        request.setState(HouseState.PUBLIC);
+        request.setState(HouseStateDTO.PUBLIC);
 
         mockMvc.perform(post(path("/advertisement/create"))
                         .contentType(MediaType.APPLICATION_JSON)

@@ -2,7 +2,9 @@ package cohappy.backend.mappers;
 
 import cohappy.backend.model.House;
 import cohappy.backend.model.HouseAdvertisement;
+import cohappy.backend.model.HouseState;
 import cohappy.backend.model.UserAccount;
+import cohappy.backend.model.dto.request.HouseStateDTO;
 import cohappy.backend.model.dto.response.GetHouseAdvertesimentDTO;
 
 import java.util.ArrayList;
@@ -37,5 +39,19 @@ public class HouseAdvertisementMapper {
         result.setDescription(houseAdvertisement.getDescription());
 
         return result;
+    }
+
+    public HouseStateDTO houseStateToDTO(HouseState state){
+        return switch (state){
+            case PUBLIC -> HouseStateDTO.PUBLIC;
+            case PRIVATE -> HouseStateDTO.PRIVATE;
+        };
+    }
+
+    public HouseState DTOToHouseState(HouseStateDTO state){
+        return switch (state){
+            case PUBLIC -> HouseState.PUBLIC;
+            case PRIVATE -> HouseState.PRIVATE;
+        };
     }
 }

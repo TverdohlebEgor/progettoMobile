@@ -1,4 +1,16 @@
 services:
+  javaApp:
+    image: openjdk:27-ea-oraclelinux9
+    ports:
+      - 8000:8000
+    working_dir: /app
+    volumes:
+      - ./:/app
+      - ./target/docker-java-jar-0.0.1-SNAPSHOT.jar :/app/app.jar
+
+    entrypoint:
+      ./javaEntrypoint.sh
+
   mongodb:
     image: mongo:latest
     container_name: cohappy-mongo
