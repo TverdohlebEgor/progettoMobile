@@ -38,6 +38,8 @@ android {
     buildFeatures {
         compose = true
     }
+
+
 }
 
 dependencies {
@@ -49,6 +51,9 @@ dependencies {
     implementation(libs.androidx.compose.ui.graphics)
     implementation(libs.androidx.compose.ui.tooling.preview)
     implementation(libs.androidx.compose.material3)
+    implementation("androidx.compose.material:material-icons-extended")
+    implementation("dev.chrisbanes.haze:haze:0.6.2")
+    implementation("androidx.navigation:navigation-compose:2.8.5")
 
     implementation(libs.retrofit.core)
     implementation(libs.retrofit.converter.moshi)
@@ -67,4 +72,5 @@ dependencies {
     androidTestImplementation(libs.androidx.compose.ui.test.junit4)
     debugImplementation(libs.androidx.compose.ui.tooling)
     debugImplementation(libs.androidx.compose.ui.test.manifest)
+
 }
