@@ -4,8 +4,9 @@ import cohappy.backend.exceptions.IllegalInputException;
 import cohappy.backend.exceptions.NotFoundException;
 import cohappy.backend.mappers.UserMapper;
 import cohappy.backend.model.UserAccount;
-import cohappy.backend.model.dto.LoginDTO;
-import cohappy.backend.model.dto.RegisterDTO;
+import cohappy.backend.model.dto.request.LoginDTO;
+import cohappy.backend.model.dto.request.RegisterDTO;
+import cohappy.backend.model.dto.response.UserAccountDTO;
 import cohappy.backend.repositories.UserRepository;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -21,11 +22,11 @@ public class UserService {
     private final UserRepository userRepository;
     private final UserMapper userMapper = new UserMapper();
 
-    public UserAccount getUserProfile(String userCode) {
+    public UserAccountDTO getUserProfile(String userCode) {
         Optional<UserAccount> account = userRepository.findByUserCode(userCode);
-        return account.orElseThrow(
+        return userMapper.userAcountToDTO(account.orElseThrow(
                 () -> new NotFoundException("user with code %s not found".formatted(userCode))
-        );
+        ));
     }
 
     public boolean deleteProfile(String userCode) {

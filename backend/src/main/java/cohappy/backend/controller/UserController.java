@@ -2,9 +2,9 @@ package cohappy.backend.controller;
 
 import cohappy.backend.exceptions.IllegalInputException;
 import cohappy.backend.exceptions.NotFoundException;
-import cohappy.backend.model.UserAccount;
-import cohappy.backend.model.dto.LoginDTO;
-import cohappy.backend.model.dto.RegisterDTO;
+import cohappy.backend.model.dto.request.LoginDTO;
+import cohappy.backend.model.dto.request.RegisterDTO;
+import cohappy.backend.model.dto.response.UserAccountDTO;
 import cohappy.backend.service.UserService;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -22,9 +22,9 @@ public class UserController {
     private final UserService userService;
 
     @GetMapping("/profile/{userCode}")
-    public ResponseEntity<UserAccount> getUserProfile(@PathVariable String userCode) {
+    public ResponseEntity<UserAccountDTO> getUserProfile(@PathVariable String userCode) {
         try {
-            UserAccount account = userService.getUserProfile(userCode);
+            UserAccountDTO account = userService.getUserProfile(userCode);
             return ResponseEntity.ok(account);
         } catch (NotFoundException e) {
             return ResponseEntity.notFound().build();

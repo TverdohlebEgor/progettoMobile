@@ -2,12 +2,16 @@ package cohappy.backend.mappers;
 
 import cohappy.backend.model.Portfolio;
 import cohappy.backend.model.UserAccount;
-import cohappy.backend.model.dto.RegisterDTO;
+import cohappy.backend.model.dto.request.RegisterDTO;
+import cohappy.backend.model.dto.response.UserAccountDTO;
 
 import java.util.ArrayList;
 import java.util.UUID;
 
 public class UserMapper {
+
+    private final PortafolioMapper portafolioMapper = new PortafolioMapper();
+
     public UserAccount registerDTOtoUserAccount(RegisterDTO registerDTO) {
         UserAccount result = new UserAccount();
 
@@ -24,5 +28,21 @@ public class UserMapper {
         result.setPortfolio(resultPortfolio);
 
         return result;
+    }
+
+    public UserAccountDTO userAcountToDTO(UserAccount userAccount){
+        return new UserAccountDTO(
+                userAccount.getName(),
+                userAccount.getSurname(),
+                userAccount.getBirthDate(),
+                userAccount.getCv(),
+                userAccount.getAge(),
+                userAccount.getUserCode(),
+                userAccount.getImages(),
+                userAccount.getEmail(),
+                userAccount.getPhoneNumber(),
+                userAccount.getPassword(),
+                portafolioMapper.portfolioToDTO(userAccount.getPortfolio())
+        );
     }
 }

@@ -2,8 +2,8 @@ package cohappy.backend.it;
 
 import cohappy.backend.model.Portfolio;
 import cohappy.backend.model.UserAccount;
-import cohappy.backend.model.dto.LoginDTO;
-import cohappy.backend.model.dto.RegisterDTO;
+import cohappy.backend.model.dto.request.LoginDTO;
+import cohappy.backend.model.dto.request.RegisterDTO;
 import cohappy.backend.repositories.UserRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;

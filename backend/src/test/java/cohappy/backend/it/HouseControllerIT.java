@@ -1,7 +1,7 @@
 package cohappy.backend.it;
 
 import cohappy.backend.model.*;
-import cohappy.backend.model.dto.*;
+import cohappy.backend.model.dto.request.*;
 import cohappy.backend.repositories.HouseAdvertisementRepository;
 import cohappy.backend.repositories.HouseRepository;
 import cohappy.backend.repositories.UserRepository;

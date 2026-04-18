@@ -2,8 +2,8 @@ package cohappy.backend.mappers;
 
 import cohappy.backend.model.House;
 import cohappy.backend.model.Location;
-import cohappy.backend.model.dto.CreateHouseDTO;
-import cohappy.backend.model.dto.GetHouseDTO;
+import cohappy.backend.model.dto.request.CreateHouseDTO;
+import cohappy.backend.model.dto.response.GetHouseDTO;
 
 import java.util.ArrayList;
 import java.util.List;

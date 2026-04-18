@@ -1,11 +1,12 @@
-package cohappy.backend.model.dto;
+package cohappy.backend.model.dto.request;
 
 import cohappy.backend.model.HouseState;
 import lombok.Data;
 
 @Data
-public class ModifyHouseAdvertisementDTO {
+public class CreateHouseAdvertisementDTO {
     private String houseCode;
     private HouseState state;
+    private String publishedBy;
     private String description;
 }

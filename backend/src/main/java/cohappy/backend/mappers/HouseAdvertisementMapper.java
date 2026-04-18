@@ -3,7 +3,7 @@ package cohappy.backend.mappers;
 import cohappy.backend.model.House;
 import cohappy.backend.model.HouseAdvertisement;
 import cohappy.backend.model.UserAccount;
-import cohappy.backend.model.dto.GetHouseAdvertesimentDTO;
+import cohappy.backend.model.dto.response.GetHouseAdvertesimentDTO;
 
 import java.util.ArrayList;
 

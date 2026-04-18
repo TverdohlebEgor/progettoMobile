@@ -1,4 +1,4 @@
-package cohappy.backend.model.dto;
+package cohappy.backend.model.dto.request;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -7,9 +7,10 @@ import lombok.NoArgsConstructor;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class SendMoneyDTO {
+public class CreateDebtDTO {
     private String senderUserCode;
     private String receiverUserCode;
     private float amount;
+    private String description;
 }
 

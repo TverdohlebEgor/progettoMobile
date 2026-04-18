@@ -1,11 +1,11 @@
 package cohappy.backend.controller;
 
 import cohappy.backend.exceptions.*;
-import cohappy.backend.model.Portfolio;
-import cohappy.backend.model.dto.CreateDebtDTO;
-import cohappy.backend.model.dto.MoveMoneyDTO;
-import cohappy.backend.model.dto.MoveMoneyOperationEnum;
-import cohappy.backend.model.dto.SendMoneyDTO;
+import cohappy.backend.model.dto.request.CreateDebtDTO;
+import cohappy.backend.model.dto.request.MoveMoneyDTO;
+import cohappy.backend.model.dto.request.MoveMoneyOperationEnum;
+import cohappy.backend.model.dto.request.SendMoneyDTO;
+import cohappy.backend.model.dto.response.PortfolioDTO;
 import cohappy.backend.service.PortfolioService;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -23,9 +23,9 @@ public class PortafolioController {
     private final PortfolioService portafolioService;
 
     @GetMapping("/{userCode}")
-    public ResponseEntity<Portfolio> getUserPortafolio(@PathVariable String userCode) {
+    public ResponseEntity<PortfolioDTO> getUserPortafolio(@PathVariable String userCode) {
         try {
-            Portfolio portfolio = portafolioService.getUserPortfolio(userCode);
+            PortfolioDTO portfolio = portafolioService.getUserPortfolio(userCode);
             return ResponseEntity.ok(portfolio);
         } catch (NotFoundException e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).build();

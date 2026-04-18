@@ -1,20 +1,16 @@
-package cohappy.backend.model;
+package cohappy.backend.model.dto.request;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.springframework.data.annotation.Id;
 
 import java.util.List;
 
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class Chat {
-    @Id
-    private String chatCode;
+public class CreateChatDTO {
     private List<String> participating;
     private String name;
     private byte[] immage;
-    private List<ChatMessage> messages;
 }

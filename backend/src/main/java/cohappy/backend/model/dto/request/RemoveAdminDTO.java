@@ -1,9 +1,9 @@
-package cohappy.backend.model.dto;
+package cohappy.backend.model.dto.request;
 
 import lombok.Data;
 
 @Data
-public class AddAdminDTO {
+public class RemoveAdminDTO {
     private String houseCode;
     private String userCode;
 }

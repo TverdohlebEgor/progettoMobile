@@ -4,13 +4,14 @@ import cohappy.backend.exceptions.FundExcededException;
 import cohappy.backend.exceptions.FundInsufficientException;
 import cohappy.backend.exceptions.IllegalInputException;
 import cohappy.backend.exceptions.NotFoundException;
+import cohappy.backend.mappers.PortafolioMapper;
 import cohappy.backend.model.Debt;
-import cohappy.backend.model.Portfolio;
 import cohappy.backend.model.UserAccount;
-import cohappy.backend.model.dto.CreateDebtDTO;
-import cohappy.backend.model.dto.MoveMoneyDTO;
-import cohappy.backend.model.dto.MoveMoneyOperationEnum;
-import cohappy.backend.model.dto.SendMoneyDTO;
+import cohappy.backend.model.dto.request.CreateDebtDTO;
+import cohappy.backend.model.dto.request.MoveMoneyDTO;
+import cohappy.backend.model.dto.request.MoveMoneyOperationEnum;
+import cohappy.backend.model.dto.request.SendMoneyDTO;
+import cohappy.backend.model.dto.response.PortfolioDTO;
 import cohappy.backend.repositories.DebtRepository;
 import cohappy.backend.repositories.UserRepository;
 import lombok.AllArgsConstructor;
@@ -27,13 +28,14 @@ import static cohappy.backend.model.OperationResultMessages.*;
 public class PortfolioService {
     private final UserRepository userRepository;
     private final DebtRepository debtRepository;
+    private final PortafolioMapper mapper = new PortafolioMapper();
     private static final float MAX_MONEY_ACCOUNT = 1000000f;
 
-    public Portfolio getUserPortfolio(String userCode) {
+    public PortfolioDTO getUserPortfolio(String userCode) {
         UserAccount userAccount = userRepository.findByUserCode(userCode)
                 .orElseThrow(() -> new NotFoundException(USER_NOT_FOUND.formatted(userCode)));
 
-        return userAccount.getPortfolio();
+        return mapper.portfolioToDTO(userAccount.getPortfolio());
     }
 
     public void addMoneyToPortfolio(MoveMoneyDTO moveMoneyDTO) {

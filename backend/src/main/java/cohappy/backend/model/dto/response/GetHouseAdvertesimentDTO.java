@@ -1,4 +1,4 @@
-package cohappy.backend.model.dto;
+package cohappy.backend.model.dto.response;
 
 import cohappy.backend.model.HouseState;
 import lombok.Data;

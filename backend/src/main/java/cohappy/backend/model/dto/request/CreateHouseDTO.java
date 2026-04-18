@@ -1,4 +1,4 @@
-package cohappy.backend.model.dto;
+package cohappy.backend.model.dto.request;
 
 import lombok.Data;
 
