@@ -6,7 +6,7 @@ import lombok.Data;
 @Data
 public class CreateHouseAdvertisementDTO {
     private String houseCode;
-    private HouseState state;
+    private HouseStateDTO state;
     private String publishedBy;
     private String description;
 }

@@ -6,6 +6,6 @@ import lombok.Data;
 @Data
 public class ModifyHouseAdvertisementDTO {
     private String houseCode;
-    private HouseState state;
+    private HouseStateDTO state;
     private String description;
 }
