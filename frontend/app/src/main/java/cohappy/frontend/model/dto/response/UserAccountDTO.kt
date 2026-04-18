@@ -1,0 +1,19 @@
+package cohappy.frontend.model.dto.response
+
+import java.time.LocalDate
+import com.squareup.moshi.JsonClass
+
+@JsonClass(generateAdapter = true)
+data class UserAccountDTO(
+    var name: String? = null,
+    var surname: String? = null,
+    var birthDate: LocalDate? = null,
+    var cv: String? = null,
+    var age: Int? = null,
+    var userCode: String,
+    var images: List<ByteArray>? = null,
+    var email: String? = null,
+    var phoneNumber: String? = null,
+    var password: String? = null,
+    var portfolio: PortfolioDTO? = null
+)
