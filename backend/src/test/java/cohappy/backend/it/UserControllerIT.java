@@ -12,11 +12,13 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
 import tools.jackson.databind.ObjectMapper;
 
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicReference;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
+import static org.assertj.core.api.AssertionsForClassTypes.setRemoveAssertJRelatedElementsFromStackTrace;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
@@ -186,6 +188,10 @@ public class UserControllerIT extends BaseIT{
         UserAccount newUser = createDefaultUser();
 
         RegisterDTO registerDTO = new RegisterDTO();
+        registerDTO.setName(newUser.getName());
+        registerDTO.setSurname(newUser.getSurname());
+        registerDTO.setCf(newUser.getCf());
+        registerDTO.setBirthDate(newUser.getBirthDate().toString());
         registerDTO.setImages(new ArrayList<>());
         registerDTO.setEmail(newUser.getEmail());
         registerDTO.setPhoneNumber(newUser.getPhoneNumber());
@@ -321,6 +327,10 @@ public class UserControllerIT extends BaseIT{
 
     private UserAccount createDefaultUser(){
         UserAccount user = new UserAccount();
+        user.setName("testName");
+        user.setSurname("testSurname");
+        user.setCf("testCf");
+        user.setBirthDate(LocalDate.of(1999,10,10));
         user.setEmail("test@cohappy.it");
         user.setPhoneNumber("123");
         user.setPassword("secret123");

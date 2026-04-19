@@ -9,6 +9,6 @@ public class Anagrafica {
     private String name;
     private String surname;
     private LocalDate birthDate;
-    private String cv;
+    private String cf;
     private int age;
 }

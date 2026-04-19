@@ -12,5 +12,4 @@ public interface ChatRepository extends MongoRepository<Chat, String> {
     List<Chat> findByParticipatingContains(String userCode);
 
     Optional<Chat> findByChatCode(String chatCode);
-
 }

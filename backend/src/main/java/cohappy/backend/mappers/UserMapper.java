@@ -5,6 +5,7 @@ import cohappy.backend.model.UserAccount;
 import cohappy.backend.model.dto.request.RegisterDTO;
 import cohappy.backend.model.dto.response.UserAccountDTO;
 
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.UUID;
 
@@ -15,6 +16,10 @@ public class UserMapper {
     public UserAccount registerDTOtoUserAccount(RegisterDTO registerDTO) {
         UserAccount result = new UserAccount();
 
+        result.setName(registerDTO.getName());
+        result.setSurname(registerDTO.getSurname());
+        result.setCf(registerDTO.getCf());
+        result.setBirthDate(LocalDate.parse(registerDTO.getBirthDate()));
         result.setUserCode(UUID.randomUUID().toString());
         result.setImages(registerDTO.getImages());
         result.setEmail(registerDTO.getEmail());
@@ -35,7 +40,7 @@ public class UserMapper {
                 userAccount.getName(),
                 userAccount.getSurname(),
                 userAccount.getBirthDate(),
-                userAccount.getCv(),
+                userAccount.getCf(),
                 userAccount.getAge(),
                 userAccount.getUserCode(),
                 userAccount.getImages(),

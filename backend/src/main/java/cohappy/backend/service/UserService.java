@@ -65,6 +65,10 @@ public class UserService {
     }
 
     public String register(RegisterDTO registerDTO) {
+        validateInput(registerDTO.getName(), "name");
+        validateInput(registerDTO.getSurname(), "surname");
+        validateInput(registerDTO.getCf(), "fiscal code");
+        validateInput(registerDTO.getBirthDate(), "Birth date");
         validateInput(registerDTO.getEmail(), "email");
         validateInput(registerDTO.getPhoneNumber(), "phone number");
         validateInput(registerDTO.getPassword(), "password");
