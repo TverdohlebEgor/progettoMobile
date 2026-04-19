@@ -1,15 +1,21 @@
 services:
   javaApp:
-    image: openjdk:27-ea-oraclelinux9
+    image: eclipse-temurin:21-jre-jammy
     ports:
-      - 8000:8000
-    working_dir: /app
+      - "8080:8080"
     volumes:
-      - ./:/app
-      - ./target/docker-java-jar-0.0.1-SNAPSHOT.jar :/app/app.jar
-
-    entrypoint:
-      ./javaEntrypoint.sh
+      - ./backend-0.0.1-SNAPSHOT.jar:/app/app.jar
+    working_dir: /app
+    entrypoint: [
+      "java", 
+      "-jar", 
+      "app.jar", 
+      "--spring.data.mongodb.uri=mongodb://mongodb:27017/cohappy",
+      "--spring.mongodb.uri=mongodb://mongodb:27017/cohappy"
+    ]
+    depends_on:
+      mongodb:
+        condition: service_healthy
 
   mongodb:
     image: mongo:latest
