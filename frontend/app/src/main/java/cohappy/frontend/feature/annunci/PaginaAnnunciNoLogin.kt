@@ -17,9 +17,10 @@ import dev.chrisbanes.haze.haze
 
 @Composable
 fun PaginaAnnunci(
-    onLoginClick: () -> Unit,
+    onLoginClick: (String, String) -> Unit,
     onRegisterClick: () -> Unit,
-    onAnnuncioClick: (Int) -> Unit
+    onAnnuncioClick: (Int) -> Unit,
+    showError: Boolean
 ) {
     var activeTab by remember { mutableStateOf("annunci") }
     val isDark = isSystemInDarkTheme()
@@ -58,6 +59,7 @@ fun PaginaAnnunci(
 
 
                 "profilo" -> PaginaLogin(
+                    showError = showError,
                     onLoginClick = onLoginClick,
                     onRegisterClick = onRegisterClick
                 )

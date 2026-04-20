@@ -1,5 +1,7 @@
 package cohappy.frontend.feature.auth
 
+import android.app.DatePickerDialog
+import android.widget.DatePicker
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -17,21 +19,42 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
-import cohappy.frontend.components.LoginRegisterButtonForLogin
-import cohappy.frontend.components.LoginRegistration
+import cohappy.frontend.components.RegisterButton
+import cohappy.frontend.components.Registration
 import cohappy.frontend.components.Titoli
+import java.util.Calendar
 
-import cohappy.frontend.client.ClientSingleton
-import cohappy.frontend.model.dto.request.LoginDTO
 @Composable
-fun PaginaLogin(onLoginClick: (String, String) -> Unit, onRegisterClick: () -> Unit,showError: Boolean,) {
+fun PaginaRegistrazione(
+    onRegisterClick: (String, String, String, String, String, String) -> Unit,
+    onLoginClick: () -> Unit,
+    showError: Boolean
+) {
     val isDark = isSystemInDarkTheme()
     val BgColor = if (isDark) Color.Black else Color.White
     val ContentColor = if (isDark) Color.White else Color.Black
 
+    var name by remember { mutableStateOf("") }
+    var surname by remember { mutableStateOf("") }
+    var birthDate by remember { mutableStateOf("") }
     var email by remember { mutableStateOf("") }
+    var phoneNumber by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
+
+    val context = LocalContext.current
+    val calendar = Calendar.getInstance()
+
+    val datePickerDialog = DatePickerDialog(
+        context,
+        { _: DatePicker, year: Int, month: Int, dayOfMonth: Int ->
+            birthDate = "$year-${month + 1}-$dayOfMonth"
+        },
+        calendar.get(Calendar.YEAR),
+        calendar.get(Calendar.MONTH),
+        calendar.get(Calendar.DAY_OF_MONTH)
+    )
 
     Surface(
         modifier = Modifier.fillMaxSize(),
@@ -43,40 +66,46 @@ fun PaginaLogin(onLoginClick: (String, String) -> Unit, onRegisterClick: () -> U
                 .fillMaxSize()
                 .padding(horizontal = 24.dp)
         ) {
-            // Intestazione della schermata.
-            // L'utilizzo di titolo e sottotitolo migliora la gerarchia visiva.
             Titoli(
-                titolo1 = "Login",
-                sottotitolo = "Bentornato, inserisci le tue credenziali.",
+                titolo1 = "Registati",
+                sottotitolo = "Benvenuto, crea il tuo profilo.",
                 color = ContentColor
             )
 
-            // Spacer flessibile per centrare verticalmente il form di login.
             Spacer(modifier = Modifier.weight(1f))
 
-            // Contenitore per i campi di input e i pulsanti.
             Column(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalAlignment = Alignment.CenterHorizontally,
                 verticalArrangement = Arrangement.Center
             ) {
-                LoginRegistration(
-                    onEmailChange = { nuovaEmail -> email = nuovaEmail },
-                    onPasswordChange = { nuovaPassword -> password = nuovaPassword },
+                Registration(
+                    onEmailChange = { email = it },
+                    onPasswordChange = { password = it },
+                    onTelefonoChange = { phoneNumber = it },
+                    onAnnoChange = { birthDate = it },
+                    onCognomeChange = { surname = it },
+                    onNameChange = { name = it },
+                    telefono = phoneNumber,
+                    annoNascita = birthDate,
+                    cognome = surname,
                     email = email,
                     password = password,
-                    showError = showError
+                    showError = showError,
+                    name = name,
+                    onDateClick = { datePickerDialog.show() }
                 )
 
                 Spacer(modifier = Modifier.height(32.dp))
 
-                LoginRegisterButtonForLogin(
-                    onLoginClick = { onLoginClick(email, password) },
-                    onRegisterClick = onRegisterClick,
+                RegisterButton(
+                    onRegisterClick = {
+                        onRegisterClick(name, surname, birthDate, email, phoneNumber, password)
+                    },
+                    onLoginClick = onLoginClick,
                 )
             }
 
-            // Spacer flessibile inferiore per mantenere il contenuto esattamente al centro.
             Spacer(modifier = Modifier.weight(1f))
         }
     }
