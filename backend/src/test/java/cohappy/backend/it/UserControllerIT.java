@@ -190,7 +190,6 @@ public class UserControllerIT extends BaseIT{
         RegisterDTO registerDTO = new RegisterDTO();
         registerDTO.setName(newUser.getName());
         registerDTO.setSurname(newUser.getSurname());
-        registerDTO.setCf(newUser.getCf());
         registerDTO.setBirthDate(newUser.getBirthDate().toString());
         registerDTO.setImages(new ArrayList<>());
         registerDTO.setEmail(newUser.getEmail());
@@ -329,7 +328,6 @@ public class UserControllerIT extends BaseIT{
         UserAccount user = new UserAccount();
         user.setName("testName");
         user.setSurname("testSurname");
-        user.setCf("testCf");
         user.setBirthDate(LocalDate.of(1999,10,10));
         user.setEmail("test@cohappy.it");
         user.setPhoneNumber("123");

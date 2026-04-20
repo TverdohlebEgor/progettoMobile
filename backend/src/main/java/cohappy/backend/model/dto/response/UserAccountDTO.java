@@ -13,7 +13,6 @@ public class UserAccountDTO{
     private String name;
     private String surname;
     private LocalDate birthDate;
-    private String cv;
     private int age;
     @Id
     private String userCode;
