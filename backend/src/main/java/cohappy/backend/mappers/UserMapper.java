@@ -39,7 +39,6 @@ public class UserMapper {
                 userAccount.getName(),
                 userAccount.getSurname(),
                 userAccount.getBirthDate(),
-                userAccount.getCf(),
                 userAccount.getAge(),
                 userAccount.getUserCode(),
                 userAccount.getImages(),

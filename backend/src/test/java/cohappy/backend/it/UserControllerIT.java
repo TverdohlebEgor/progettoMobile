@@ -328,7 +328,6 @@ public class UserControllerIT extends BaseIT{
         UserAccount user = new UserAccount();
         user.setName("testName");
         user.setSurname("testSurname");
-        user.setCf("testCf");
         user.setBirthDate(LocalDate.of(1999,10,10));
         user.setEmail("test@cohappy.it");
         user.setPhoneNumber("123");
