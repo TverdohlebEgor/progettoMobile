@@ -67,7 +67,7 @@ fun PaginaRegistrazione(
                 .padding(horizontal = 24.dp)
         ) {
             Titoli(
-                titolo1 = "Registati",
+                titolo1 = "Registrati",
                 sottotitolo = "Benvenuto, crea il tuo profilo.",
                 color = ContentColor
             )

@@ -145,6 +145,14 @@ class MainActivity : ComponentActivity() {
                         composable("registration"){
                             var showError by remember { mutableStateOf(false) }
                             showError = showError
+                            Scaffold(
+                                containerColor = bgColor
+                            ) { paddingValues ->
+                                Box(
+                                    modifier = Modifier
+                                        .fillMaxSize()
+                                        .padding(top = paddingValues.calculateTopPadding())
+                                ) {
                             PaginaRegistrazione(
                                 onRegisterClick = { nome, cognome, dataNascita, email, telefono, password ->
                                     showError = false
@@ -167,6 +175,8 @@ class MainActivity : ComponentActivity() {
                                 onLoginClick = { navController.navigate("login") },
                                 showError = showError
                             )
+                                }
+                            }
                         }
                     }
 
