@@ -27,7 +27,9 @@ import cohappy.frontend.components.CustomBackButton
 import cohappy.frontend.feature.annunci.PaginaAnnunci
 import cohappy.frontend.feature.auth.PaginaLogin
 import cohappy.frontend.client.ClientSingleton
+import cohappy.frontend.feature.auth.PaginaRegistrazione
 import cohappy.frontend.model.dto.request.LoginDTO
+import cohappy.frontend.model.dto.request.RegisterDTO
 import kotlinx.coroutines.launch
 
 class MainActivity : ComponentActivity() {
@@ -49,7 +51,7 @@ class MainActivity : ComponentActivity() {
                         composable("iniziale"){
                             PaginaIniziale(
                                 onLoginClick = { navController.navigate("login") },
-                                onRegisterClick = { navController.navigate("register") },
+                                onRegisterClick = { navController.navigate("registration") },
                                 onGuestClick = { navController.navigate("annunci") }
                             )
                         }
@@ -99,7 +101,7 @@ class MainActivity : ComponentActivity() {
                                                 }
                                             }
                                         },
-                                        onRegisterClick = { /*da fare*/ },
+                                        onRegisterClick = { navController.navigate("registration")},
                                         showError = showError
                                     )
                                 }
@@ -114,37 +116,57 @@ class MainActivity : ComponentActivity() {
                                 onLoginClick = { email, password ->
                                 showError = false
 
-                                // Avviamo una coroutine (lavoro in background)
                                 lifecycleScope.launch {
                                     try {
-                                        // 1. Prepariamo il pacchetto
                                         val pacchettoLogin = LoginDTO(email = email, password = password)
 
-                                        // 2. Facciamo la chiamata e la trasformiamo in stringa per leggerla
                                         val risposta = ClientSingleton.userApi.login(pacchettoLogin).toString()
 
-                                        // Controlliamo se Egor ci ha mandato un errore 404 o 400
                                         if (risposta.contains("404") || risposta.contains("400") || risposta.contains("not found") || risposta.contains("Exception")) {
-                                            // Lanciamo l'eccezione a mano per finire dritti nel catch!
                                             throw Exception("Credenziali errate o utente non trovato dal server")
                                         }
 
-                                        // 3. SE ARRIVIAMO QUI, SIAMO DENTRO DAVVERO!
                                         println("Login effettuato con successo. Dati: $risposta")
 
-                                        // 4. Cambiamo rotta
                                         navController.navigate("annunci")
 
                                     } catch (e: Exception) {
-                                        // 💅 ACCENDIAMO IL MESSAGGIO DI ERRORE!
-                                        println("Ops! Login fallito: ${e.message}")
+                                        println("Login fallito: ${e.message}")
                                         showError = true
                                     }
                                 }
                             },
                                 showError=showError,
-                                onRegisterClick = { /*da fare*/ },
-                                onAnnuncioClick = { id -> navController.navigate("annuncio_singolo/$id")})
+                                onRegisterClick = { navController.navigate("registration") },
+                                onAnnuncioClick = { id -> navController.navigate("annuncio_singolo/$id")}
+                            )
+                        }
+
+                        composable("registration"){
+                            var showError by remember { mutableStateOf(false) }
+                            showError = showError
+                            PaginaRegistrazione(
+                                onRegisterClick = { nome, cognome, dataNascita, email, telefono, password ->
+                                    showError = false
+
+                                    lifecycleScope.launch {
+                                        try {
+                                            val pacchettoRegistrazione = RegisterDTO(name = nome, surname = cognome, birthDate = dataNascita, email = email, phoneNumber = telefono, password = password)
+                                            val risposta = ClientSingleton.userApi.register(pacchettoRegistrazione).toString()
+
+                                            if (risposta.contains("409") || risposta.contains("422") || risposta.contains("duplicate key error")) {
+                                                throw Exception("Utente già presente nel database")}
+                                            navController.navigate("login")
+                                        }
+                                        catch (e: Exception) {
+                                            println("Registrazione fallita: ${e.message}")
+                                            showError = true
+                                        }
+                                    }
+                                },
+                                onLoginClick = { navController.navigate("login") },
+                                showError = showError
+                            )
                         }
                     }
 

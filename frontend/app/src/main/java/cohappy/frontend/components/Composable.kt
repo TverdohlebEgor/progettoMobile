@@ -22,6 +22,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import java.sql.Date
 
 data class Annuncio(
     val id: Int,
@@ -127,6 +128,118 @@ fun LoginRegistration(
             customFontSize = customFontSize
         )
     }
+}
+
+@Composable
+fun Registration(
+    showError: Boolean,
+    onEmailChange: (String) -> Unit,
+    onNameChange: (String) -> Unit,
+    onPasswordChange: (String) -> Unit,
+    onTelefonoChange: (String) -> Unit,
+    onAnnoChange: (String) -> Unit,
+    onCognomeChange: (String) -> Unit,
+    modifier: Modifier = Modifier,
+    customFontSize: Int = 18,
+    email: String,
+    name:String,
+    password:String,
+    telefono:String,
+    annoNascita: String,
+    cognome:String,
+    onDateClick: () -> Unit = {}
+){
+    Column(modifier = modifier) {
+        if (showError) {
+            Text(
+                text = "email o telefono già registrata, vai al login",
+                modifier = Modifier.fillMaxWidth(),
+                color = MaterialTheme.colorScheme.error,
+                //fontWeight = TODO(),
+                textAlign = TextAlign.Center,
+            )}else{
+            Text(
+                text = "",
+                modifier = Modifier.fillMaxWidth(),
+                color = MaterialTheme.colorScheme.onSurface,
+            )
+        }
+
+        Spacer(modifier = Modifier.height(16.dp))
+
+        CustomTextField(
+            value = name,
+            onValueChange = onNameChange,
+            placeholder = "nome",
+            customFontSize = customFontSize
+        )
+
+        Spacer(modifier = Modifier.height(16.dp))
+
+        CustomTextField(
+            value = cognome,
+            onValueChange = onCognomeChange,
+            placeholder = "cognome",
+            customFontSize = customFontSize
+        )
+
+        Spacer(modifier = Modifier.height(16.dp))
+
+        CustomTextField(
+            value = annoNascita,
+            onValueChange = onAnnoChange,
+            placeholder = "data di nascita (AAAA-MM-GG)",
+            customFontSize = customFontSize,
+            modifier = Modifier.clickable { onDateClick() }
+        )
+
+        Spacer(modifier = Modifier.height(16.dp))
+
+        CustomTextField(
+            value = email,
+            onValueChange = onEmailChange,
+            placeholder = "email",
+            customFontSize = customFontSize
+        )
+
+        Spacer(modifier = Modifier.height(16.dp))
+
+        CustomTextField(
+            value = telefono,
+            onValueChange = onTelefonoChange,
+            placeholder = "telefono",
+            customFontSize = customFontSize
+        )
+
+        Spacer(modifier = Modifier.height(16.dp))
+
+        CustomTextField(
+            value = password,
+            onValueChange = onPasswordChange,
+            placeholder = "password",
+            customFontSize = customFontSize
+        )
+    }
+
+}
+
+@Composable
+fun RegisterButton(
+    onRegisterClick: () -> Unit,
+    modifier: Modifier = Modifier,
+    onLoginClick: () -> Unit
+){
+    CustomButton(
+        text = "Registrati",
+        onClick = onRegisterClick,
+        isPrimary = true,
+        shape = "large"
+    )
+
+    CustomTextButtom(
+        text = "Hai già un account? Accedi",
+        onClick = onLoginClick,
+    )
 }
 
 @Composable
