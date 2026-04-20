@@ -20,6 +20,7 @@ import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 
 data class Annuncio(
@@ -84,6 +85,7 @@ fun MenuOspite(currentTab: String, onTabSelected: (String) -> Unit) {
 
 @Composable
 fun LoginRegistration(
+    showError: Boolean,
     onEmailChange: (String) -> Unit,
     onPasswordChange: (String) -> Unit,
     modifier: Modifier = Modifier,
@@ -92,10 +94,27 @@ fun LoginRegistration(
     password:String
 ) {
     Column(modifier = modifier) {
+        if (showError) {
+        Text(
+            text = "email, telefono o password non corretti",
+            modifier = Modifier.fillMaxWidth(),
+            color = MaterialTheme.colorScheme.error,
+            //fontWeight = TODO(),
+            textAlign = TextAlign.Center,
+        )}else{
+            Text(
+                text = "",
+                modifier = Modifier.fillMaxWidth(),
+                color = MaterialTheme.colorScheme.onSurface,
+            )
+        }
+
+        Spacer(modifier = Modifier.height(16.dp))
+
         CustomTextField(
             value = email,
             onValueChange = onEmailChange,
-            placeholder = "email",
+            placeholder = "email o telefono",
             customFontSize = customFontSize
         )
 

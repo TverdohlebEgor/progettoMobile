@@ -1,4 +1,5 @@
 package cohappy.frontend.feature.auth
+
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -21,8 +22,10 @@ import cohappy.frontend.components.LoginRegisterButtonForLogin
 import cohappy.frontend.components.LoginRegistration
 import cohappy.frontend.components.Titoli
 
+import cohappy.frontend.client.ClientSingleton
+import cohappy.frontend.model.dto.request.LoginDTO
 @Composable
-fun PaginaLogin(onLoginClick: () -> Unit, onRegisterClick: () -> Unit) {
+fun PaginaLogin(onLoginClick: (String, String) -> Unit, onRegisterClick: () -> Unit,showError: Boolean,) {
     val isDark = isSystemInDarkTheme()
     val BgColor = if (isDark) Color.Black else Color.White
     val ContentColor = if (isDark) Color.White else Color.Black
@@ -62,12 +65,13 @@ fun PaginaLogin(onLoginClick: () -> Unit, onRegisterClick: () -> Unit) {
                     onPasswordChange = { nuovaPassword -> password = nuovaPassword },
                     email = email,
                     password = password,
+                    showError = showError
                 )
 
                 Spacer(modifier = Modifier.height(32.dp))
 
                 LoginRegisterButtonForLogin(
-                    onLoginClick = onLoginClick,
+                    onLoginClick = { onLoginClick(email, password) },
                     onRegisterClick = onRegisterClick,
                 )
             }
