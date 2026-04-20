@@ -190,7 +190,6 @@ public class UserControllerIT extends BaseIT{
         RegisterDTO registerDTO = new RegisterDTO();
         registerDTO.setName(newUser.getName());
         registerDTO.setSurname(newUser.getSurname());
-        registerDTO.setCf(newUser.getCf());
         registerDTO.setBirthDate(newUser.getBirthDate().toString());
         registerDTO.setImages(new ArrayList<>());
         registerDTO.setEmail(newUser.getEmail());
