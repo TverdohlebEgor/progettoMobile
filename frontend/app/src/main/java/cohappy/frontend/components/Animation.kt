@@ -1,2 +1,2 @@
-package com.example.progettomobile.components
+package cohappy.frontend.components
 

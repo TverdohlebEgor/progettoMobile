@@ -1,4 +1,4 @@
-package com.example.progettomobile.feature.annunci
+package cohappy.frontend.feature.annunci
 
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.isSystemInDarkTheme
@@ -20,12 +20,12 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
-import com.example.progettomobile.R
-import com.example.progettomobile.components.Annuncio
-import com.example.progettomobile.components.ElencoAnnunci
-import com.example.progettomobile.components.ImageWithTextCard
-import com.example.progettomobile.components.ResearchBar
-import com.example.progettomobile.components.Titoli
+import cohappy.frontend.R
+import cohappy.frontend.components.Annuncio
+import cohappy.frontend.components.ElencoAnnunci
+import cohappy.frontend.components.ImageWithTextCard
+import cohappy.frontend.components.ResearchBar
+import cohappy.frontend.components.Titoli
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable

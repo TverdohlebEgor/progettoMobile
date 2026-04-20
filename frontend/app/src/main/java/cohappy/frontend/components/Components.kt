@@ -1,4 +1,4 @@
-package com.example.progettomobile.components
+package cohappy.frontend.components
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background

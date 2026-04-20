@@ -1,5 +1,4 @@
-package com.example.progettomobile.components
-
+package cohappy.frontend.components
 import android.R
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement

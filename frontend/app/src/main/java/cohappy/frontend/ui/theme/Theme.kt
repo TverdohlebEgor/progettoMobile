@@ -1,4 +1,4 @@
-package com.example.progettomobile.ui.theme
+package cohappy.frontend.ui.theme
 
 import android.app.Activity
 import android.os.Build
@@ -10,6 +10,13 @@ import androidx.compose.material3.dynamicLightColorScheme
 import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.platform.LocalContext
+import cohappy.frontend.ui.theme.Pink40
+import cohappy.frontend.ui.theme.Pink80
+import cohappy.frontend.ui.theme.Purple40
+import cohappy.frontend.ui.theme.Purple80
+import cohappy.frontend.ui.theme.PurpleGrey40
+import cohappy.frontend.ui.theme.PurpleGrey80
+import cohappy.frontend.ui.theme.AppTypography
 
 private val DarkColorScheme = darkColorScheme(
     primary = Purple80,
@@ -52,7 +59,7 @@ fun ProgettoMobileTheme(
 
     MaterialTheme(
         colorScheme = colorScheme,
-        typography = Typography,
+        typography = AppTypography,
         content = content
     )
 }

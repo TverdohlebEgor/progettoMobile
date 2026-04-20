@@ -1,16 +1,15 @@
-package com.example.progettomobile.feature
-
+package cohappy.frontend.feature
 
 import android.content.Intent
-import com.example.progettomobile.R
+import cohappy.frontend.R
 import androidx.compose.foundation.layout.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
-import com.example.progettomobile.components.LoginActionButtons
-import com.example.progettomobile.components.WelcomeHeaderImage
+import cohappy.frontend.components.LoginActionButtons
+import cohappy.frontend.components.WelcomeHeaderImage
 
 // Schermata di login dell'applicazione
 @Composable

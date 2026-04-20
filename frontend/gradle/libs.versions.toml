@@ -1,15 +1,15 @@
 [versions]
-agp = "9.1.0"
-coreKtx = "1.18.0"
 junit = "4.13.2"
-junitVersion = "1.3.0"
-espressoCore = "3.7.0"
-lifecycleRuntimeKtx = "2.10.0"
-activityCompose = "1.13.0"
-kotlin = "2.2.10"
-composeBom = "2026.02.01"
+junitVersion = "1.2.1"
+espressoCore = "3.6.1"
 retrofit = "2.11.0"
 okhttp = "4.12.0"
+agp = "8.7.3"                # L'ultima versione stabile di Android Gradle Plugin
+kotlin = "2.0.21"            # La versione più stabile di Kotlin che supporta il nuovo compilatore Compose
+composeBom = "2024.10.01"    # L'ultima BOM stabile (2025/2026 non sono ancora state rilasciate come stabili)
+coreKtx = "1.15.0"           # Ultima stabile
+lifecycleRuntimeKtx = "2.8.7" # Ultima stabile
+activityCompose = "1.9.3"    # Ultima stabile
 
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
@@ -35,5 +35,5 @@ moshi-kotlin = { group = "com.squareup.moshi", name = "moshi-kotlin", version = 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }
 kotlin-compose = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlin" }
-kotlin-android = { id = "org.jetbrains.kotlin.android", version = "2.2.20" }
+kotlin-android = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }
 

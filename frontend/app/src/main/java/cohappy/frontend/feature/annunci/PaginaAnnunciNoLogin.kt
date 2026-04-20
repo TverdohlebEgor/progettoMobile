@@ -7,10 +7,10 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import com.example.progettomobile.components.FloatingBottomBar
-import com.example.progettomobile.components.MenuOspite
-import com.example.progettomobile.feature.annunci.ListaAnnunciView
-import com.example.progettomobile.feature.auth.PaginaLogin
+import cohappy.frontend.components.FloatingBottomBar
+import cohappy.frontend.components.MenuOspite
+import cohappy.frontend.feature.annunci.ListaAnnunciView
+import cohappy.frontend.feature.auth.PaginaLogin
 // Importazioni per la libreria Haze
 import dev.chrisbanes.haze.HazeState
 import dev.chrisbanes.haze.haze

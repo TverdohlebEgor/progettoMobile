@@ -1,5 +1,4 @@
-package com.example.progettomobile.feature.auth
-
+package cohappy.frontend.feature.auth
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -18,9 +17,9 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
-import com.example.progettomobile.components.LoginRegisterButtonForLogin
-import com.example.progettomobile.components.LoginRegistration
-import com.example.progettomobile.components.Titoli
+import cohappy.frontend.components.LoginRegisterButtonForLogin
+import cohappy.frontend.components.LoginRegistration
+import cohappy.frontend.components.Titoli
 
 @Composable
 fun PaginaLogin(onLoginClick: () -> Unit, onRegisterClick: () -> Unit) {

@@ -1,4 +1,4 @@
-package com.example.progettomobile.ui.theme
+package cohappy.frontend.ui.theme
 
 import androidx.compose.ui.graphics.Color
 
