@@ -11,11 +11,13 @@ import org.junit.Before
 import org.junit.Test
 import retrofit2.Retrofit
 import retrofit2.converter.moshi.MoshiConverterFactory
+import cohappy.frontend.client.UserApiClient
+import retrofit2.converter.scalars.ScalarsConverterFactory
 
 class LoginMockTest {
 
     private lateinit var mockWebServer: MockWebServer
-    private lateinit var testUserApi: UserApiService
+    private lateinit var testUserApi: UserApiClient
 
     @Before
     fun setup() {
@@ -25,10 +27,11 @@ class LoginMockTest {
         // We create a temporary Retrofit instance pointing to the Mock server
         val retrofit = Retrofit.Builder()
             .baseUrl(mockWebServer.url("/"))
+            .addConverterFactory(ScalarsConverterFactory.create())
             .addConverterFactory(MoshiConverterFactory.create())
             .build()
 
-        testUserApi = retrofit.create(UserApiService::class.java)
+        testUserApi = retrofit.create(UserApiClient::class.java)
     }
 
     @After
@@ -47,7 +50,7 @@ class LoginMockTest {
         )
 
         // 2. Execute the call
-        val request = LoginDTO("test@cohappy.com", "password")
+        val request = LoginDTO("test@cohappy.com", "3200147723","password")
         val response = testUserApi.login(request)
 
         // 3. Verify the results
