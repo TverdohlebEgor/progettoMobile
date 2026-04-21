@@ -8,8 +8,9 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import cohappy.frontend.components.FloatingBottomBar
+import cohappy.frontend.components.MenuAnnunciLoggato
 import cohappy.frontend.components.MenuOspite
-import cohappy.frontend.feature.annunci.ListaAnnunciView
+import cohappy.frontend.feature.ProfiloNoCasa
 import cohappy.frontend.feature.auth.PaginaLogin
 // Importazioni per la libreria Haze
 import dev.chrisbanes.haze.HazeState
@@ -20,25 +21,36 @@ fun PaginaAnnunci(
     onLoginClick: (String, String) -> Unit,
     onRegisterClick: () -> Unit,
     onAnnuncioClick: (Int) -> Unit,
-    showError: Boolean
+    onProfiloAnnunciClick: () -> Unit, // Fixed colon
+    onChatAnnunciClick: () -> Unit,    // Fixed colon
+    showError: Boolean,
+    isLoggedIn: Boolean,
+    onLogoutClick: () -> Unit = {},
+    onCreateHouseClick :() -> Unit,
+    onJoinConfirmClick: (String) -> Unit,
+    onEditClick: () -> Unit,
+    userToken: String? = null
 ) {
     var activeTab by remember { mutableStateOf("annunci") }
     val isDark = isSystemInDarkTheme()
     val BgColor = if (isDark) Color.Black else Color.White
 
-    // Stato condiviso per l'effetto Glassmorphism.
-    // Permette al modifier 'haze' (applicato allo sfondo) di comunicare
-    // con il modifier 'hazeChild' (applicato alla bottom bar).
     val hazeState = remember { HazeState() }
 
     Scaffold(
         bottomBar = {
             // Passaggio dello stato Haze al componente personalizzato
             FloatingBottomBar(hazeState = hazeState) {
+                if(isLoggedIn){
+                    MenuAnnunciLoggato(
+                        currentTab = activeTab,
+                        onTabSelected = { nuovaTab -> activeTab = nuovaTab }
+                    )
+                }else{
                 MenuOspite(
                     currentTab = activeTab,
                     onTabSelected = { nuovaTab -> activeTab = nuovaTab }
-                )
+                )}
             }
         },
         containerColor = BgColor
@@ -56,13 +68,23 @@ fun PaginaAnnunci(
         ){
             when (activeTab) {
                 "annunci" -> ListaAnnunciView(onAnnuncioClick = onAnnuncioClick)
+                "chat" -> ChatAnnunci()
 
-
-                "profilo" -> PaginaLogin(
+                "profilo" ->
+                if(isLoggedIn){
+                    ProfiloNoCasa(
+                        onLogoutClick = onLogoutClick,
+                        onCreateHouseClick = onCreateHouseClick,
+                        onJoinConfirmClick = onJoinConfirmClick,
+                        onEditClick = onEditClick,
+                        userToken = userToken?: ""
+                    )
+                }else{
+                PaginaLogin(
                     showError = showError,
                     onLoginClick = onLoginClick,
                     onRegisterClick = onRegisterClick
-                )
+                )}
             }
         }
     }

@@ -11,6 +11,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ChatBubble
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material3.MaterialTheme
@@ -81,6 +82,13 @@ fun LoginActionButtons(
 @Composable
 fun MenuOspite(currentTab: String, onTabSelected: (String) -> Unit) {
     NavItem("annunci", Icons.Default.Home, "Annunci", currentTab, onTabSelected)
+    NavItem("profilo", Icons.Default.Person, "Profilo", currentTab, onTabSelected)
+}
+
+@Composable
+fun MenuAnnunciLoggato(currentTab: String, onTabSelected: (String) -> Unit) {
+    NavItem("annunci", Icons.Default.Home, "Annunci", currentTab, onTabSelected)
+    NavItem("chat", Icons.Default.ChatBubble, "Chat", currentTab, onTabSelected)
     NavItem("profilo", Icons.Default.Person, "Profilo", currentTab, onTabSelected)
 }
 

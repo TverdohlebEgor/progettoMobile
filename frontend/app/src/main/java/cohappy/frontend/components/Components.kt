@@ -30,13 +30,21 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.CornerBasedShape
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ExitToApp
 import androidx.compose.material.icons.filled.ArrowBackIosNew
+import androidx.compose.material.icons.filled.Check
+import androidx.compose.material.icons.filled.ExitToApp
 import androidx.compose.material.icons.filled.Home
+import androidx.compose.material.icons.filled.Logout
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.Icon
 import androidx.compose.material3.LocalTextStyle
 import androidx.compose.material3.TextButton
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.style.TextAlign
 import dev.chrisbanes.haze.HazeState
@@ -312,12 +320,12 @@ fun NavItem(
                         modifier = Modifier.size(24.dp)) // Dimensione icona standard
                 }
                 else{
-                Icon(
-                    imageVector = icon,
-                    contentDescription = label,
-                    tint = MaterialTheme.colorScheme.onSecondary,
-                    modifier = Modifier.size(24.dp) // Dimensione icona standard
-                )}
+                    Icon(
+                        imageVector = icon,
+                        contentDescription = label,
+                        tint = MaterialTheme.colorScheme.onSecondary,
+                        modifier = Modifier.size(24.dp) // Dimensione icona standard
+                    )}
             }
         }
     }
@@ -406,21 +414,21 @@ fun CustomTextField(
     )
 }
 
- @Composable
- fun CustomTextButtom(text: String,
-                      onClick: () -> Unit,
-                      modifier: Modifier = Modifier,){
-     TextButton(
-         onClick = onClick,
-         modifier = Modifier.fillMaxWidth()
-     ) {
-         Text(
-             text = text,
-             color = MaterialTheme.colorScheme.onSurfaceVariant,
-             fontWeight = FontWeight.Bold
-         )
-     }
- }
+@Composable
+fun CustomTextButtom(text: String,
+                     onClick: () -> Unit,
+                     modifier: Modifier = Modifier,){
+    TextButton(
+        onClick = onClick,
+        modifier = Modifier.fillMaxWidth()
+    ) {
+        Text(
+            text = text,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+            fontWeight = FontWeight.Bold
+        )
+    }
+}
 
 /**
  * Componente per la barra di ricerca degli annunci.
@@ -494,6 +502,220 @@ fun CustomBackButton(color: Color, onClick: () -> Unit, modifier: Modifier = Mod
             contentDescription = "back button",
             tint = color,
             modifier = Modifier.clickable { onClick() }
+        )
+    }
+}
+
+
+// 💅 1. COMPONENTE FOTO PROFILO
+@Composable
+fun ProfileAvatar(
+    imageRes: Int? = null, // In futuro potrai passare un URL o ByteArray. Per ora gestiamo null!
+    modifier: Modifier = Modifier,
+    size: Int = 100
+) {
+    Box(
+        modifier = modifier
+            .size(size.dp)
+            .clip(CircleShape)
+            .background(MaterialTheme.colorScheme.surfaceVariant), // Sfondo grigetto se è vuoto
+        contentAlignment = Alignment.Center
+    ) {
+        if (imageRes != null) {
+            Image(
+                painter = painterResource(id = imageRes),
+                contentDescription = "Foto Profilo",
+                contentScale = ContentScale.Crop,
+                modifier = Modifier.fillMaxSize()
+            )
+        } else {
+            // Se è null, usiamo la DefaultProfilePicture (Icona standard)
+            Icon(
+                imageVector = Icons.Default.Person,
+                contentDescription = "Default Profile Picture",
+                modifier = Modifier.size((size * 0.6).dp),
+                tint = MaterialTheme.colorScheme.onSurfaceVariant
+            )
+        }
+    }
+}
+
+// 💅 2. COMPONENTE HEADER PROFILO (Il box lilla in alto)
+@Composable
+fun ProfileHeaderCard(
+    nome: String,
+    cognome: String,
+    imageRes: Int? = null,
+    onEditClick: () -> Unit,
+    modifier: Modifier = Modifier
+) {
+    val isDark = isSystemInDarkTheme()
+    val bgColor = if (isDark) Color(0xFF2D2342) else Color(0xFFEBE5F7) // Lilla chiaro come da foto
+
+    Box(
+        modifier = modifier
+            .fillMaxWidth()
+            .clip(RoundedCornerShape(32.dp))
+            .background(bgColor)
+            .padding(24.dp)
+    ) {
+        Column(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            ProfileAvatar(imageRes = imageRes, size = 100)
+            Spacer(modifier = Modifier.height(16.dp))
+
+            Text(
+                text = "Ciao! $nome $cognome",
+                fontWeight = FontWeight.Black,
+                fontSize = 24.sp,
+                color = MaterialTheme.colorScheme.onSurface
+            )
+
+            Spacer(modifier = Modifier.height(12.dp))
+
+            Button(
+                onClick = onEditClick,
+                shape = RoundedCornerShape(16.dp),
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = Color(0xFF6B53A4).copy(alpha = 0.8f),
+                    contentColor = Color.White
+                )
+            ) {
+                Text("Modifica foto profilo", fontWeight = FontWeight.Medium)
+            }
+        }
+    }
+}
+
+// 💅 3. COMPONENTE SETUP CASA (Sezione divisa in due box con "oppure")
+@Composable
+fun HouseSetupSection(
+    onCreateHouseClick: () -> Unit,
+    onJoinConfirmClick: (String) -> Unit,
+    modifier: Modifier = Modifier
+) {
+    var houseCode by remember { mutableStateOf("") }
+    val isDark = isSystemInDarkTheme()
+    val containerColor = if (isDark) Color(0xFF4A3973) else Color(0xFF6B53A4) // Viola scuro
+
+    Column(
+        modifier = modifier.fillMaxWidth(),
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        // 3.A BOX 1: CREA UNA CASA
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .clip(RoundedCornerShape(32.dp))
+                .background(containerColor)
+                .padding(24.dp)
+        ) {
+            Button(
+                onClick = onCreateHouseClick,
+                modifier = Modifier.fillMaxWidth().height(56.dp),
+                shape = RoundedCornerShape(16.dp),
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = Color.White,
+                    contentColor = containerColor
+                )
+            ) {
+                Text("Crea una casa", fontWeight = FontWeight.Bold, fontSize = 16.sp)
+            }
+        }
+
+        // 3.B SCRITTA "OPPURE"
+        Text(
+            text = "oppure",
+            color = Color.Gray,
+            fontWeight = FontWeight.Medium,
+            fontSize = 16.sp,
+            modifier = Modifier.padding(vertical = 5.dp)
+        )
+
+        // 3.C BOX 2: ACCEDI A UNA CASA
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .clip(RoundedCornerShape(32.dp))
+                .background(containerColor)
+                .padding(24.dp)
+        ) {
+            Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                Text(
+                    text = "Accedi a una casa",
+                    color = Color.White.copy(alpha = 0.9f),
+                    fontWeight = FontWeight.Medium,
+                    fontSize = 14.sp
+                )
+
+                Spacer(modifier = Modifier.height(12.dp))
+
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    BasicTextField(
+                        value = houseCode,
+                        onValueChange = { houseCode = it.uppercase() },
+                        textStyle = LocalTextStyle.current.copy(
+                            color = Color.Black,
+                            fontWeight = FontWeight.Bold,
+                            textAlign = TextAlign.Center,
+                            fontSize = 16.sp
+                        ),
+                        singleLine = true,
+                        modifier = Modifier
+                            .weight(1f)
+                            .height(56.dp)
+                            .background(Color.White, RoundedCornerShape(16.dp))
+                            .padding(horizontal = 16.dp),
+                        decorationBox = { innerTextField ->
+                            Box(contentAlignment = Alignment.CenterStart) {
+                                if (houseCode.isEmpty()) {
+                                    Text("Codice (es. COH-8X2P)", color = Color.Gray.copy(alpha = 0.7f), fontSize = 14.sp)
+                                }
+                                innerTextField()
+                            }
+                        }
+                    )
+
+                    Spacer(modifier = Modifier.width(8.dp))
+
+                    Button(
+                        onClick = { onJoinConfirmClick(houseCode) },
+                        modifier = Modifier.size(56.dp),
+                        shape = RoundedCornerShape(16.dp),
+                        contentPadding = PaddingValues(0.dp),
+                        colors = ButtonDefaults.buttonColors(
+                            containerColor = Color.White.copy(alpha = 0.2f),
+                            contentColor = Color.White
+                        )
+                    ) {
+                        Icon(imageVector = Icons.Default.Check, contentDescription = "Conferma")
+                    }
+                }
+            }
+        }
+    }
+}
+
+// 💅 4. COMPONENTE TASTO LOGOUT SEMPLICE (Senza sfondo)
+@Composable
+fun LogoutTextButton(
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier
+) {
+    TextButton(
+        onClick = onClick,
+        modifier = modifier
+    ) {
+        Text(
+            text = "Disconnetti",
+            color = Color.Red,
+            fontWeight = FontWeight.Bold,
+            fontSize = 18.sp
         )
     }
 }
