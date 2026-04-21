@@ -18,6 +18,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import cohappy.frontend.components.LoginRegisterButtonForLogin
 import cohappy.frontend.components.LoginRegistration
 import cohappy.frontend.components.Titoli
@@ -52,7 +53,7 @@ fun PaginaLogin(onLoginClick: (String, String) -> Unit, onRegisterClick: () -> U
             )
 
             // Spacer flessibile per centrare verticalmente il form di login.
-            Spacer(modifier = Modifier.weight(1f))
+            Spacer(modifier = Modifier.height(80.dp))
 
             // Contenitore per i campi di input e i pulsanti.
             Column(

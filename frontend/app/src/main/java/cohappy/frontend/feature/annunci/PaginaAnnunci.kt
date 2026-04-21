@@ -12,6 +12,7 @@ import cohappy.frontend.components.MenuAnnunciLoggato
 import cohappy.frontend.components.MenuOspite
 import cohappy.frontend.feature.ProfiloNoCasa
 import cohappy.frontend.feature.auth.PaginaLogin
+import cohappy.frontend.feature.chat.ElencoChat
 // Importazioni per la libreria Haze
 import dev.chrisbanes.haze.HazeState
 import dev.chrisbanes.haze.haze
@@ -68,7 +69,10 @@ fun PaginaAnnunci(
         ){
             when (activeTab) {
                 "annunci" -> ListaAnnunciView(onAnnuncioClick = onAnnuncioClick)
-                "chat" -> ChatAnnunci()
+                "chat" -> ElencoChat(
+                    userToken = userToken,
+                    onChatClick = { TODO() }
+                )
 
                 "profilo" ->
                 if(isLoggedIn){

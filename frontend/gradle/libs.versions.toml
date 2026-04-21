@@ -9,7 +9,9 @@ kotlin = "2.0.21"            # La versione più stabile di Kotlin che supporta i
 composeBom = "2024.10.01"    # L'ultima BOM stabile (2025/2026 non sono ancora state rilasciate come stabili)
 coreKtx = "1.15.0"           # Ultima stabile
 lifecycleRuntimeKtx = "2.8.7" # Ultima stabile
-activityCompose = "1.9.3"    # Ultima stabile
+activityCompose = "1.9.3"
+uiGraphics = "1.10.6"
+foundation = "1.10.6"    # Ultima stabile
 
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
@@ -31,6 +33,8 @@ retrofit-core = { group = "com.squareup.retrofit2", name = "retrofit", version.r
 retrofit-converter-moshi = { group = "com.squareup.retrofit2", name = "converter-moshi", version.ref = "retrofit" }
 okhttp-logging = { group = "com.squareup.okhttp3", name = "logging-interceptor", version.ref = "okhttp" }
 moshi-kotlin = { group = "com.squareup.moshi", name = "moshi-kotlin", version = "1.15.0" }
+androidx-ui-graphics = { group = "androidx.compose.ui", name = "ui-graphics", version.ref = "uiGraphics" }
+androidx-compose-foundation = { group = "androidx.compose.foundation", name = "foundation", version.ref = "foundation" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }

@@ -72,7 +72,7 @@ fun PaginaRegistrazione(
                 color = ContentColor
             )
 
-            Spacer(modifier = Modifier.weight(1f))
+            Spacer(modifier = Modifier.height(0.dp))
 
             Column(
                 modifier = Modifier.fillMaxWidth(),

@@ -64,6 +64,8 @@ dependencies {
     implementation(libs.okhttp.logging)
     implementation("com.squareup.retrofit2:converter-scalars:2.9.0")
     implementation("com.squareup.moshi:moshi-kotlin:1.15.0")
+    implementation(libs.androidx.ui.graphics)
+    implementation(libs.androidx.compose.foundation)
     ksp("com.squareup.moshi:moshi-kotlin-codegen:1.15.0")
     testImplementation("com.squareup.okhttp3:mockwebserver:4.12.0")
     testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:1.7.3")

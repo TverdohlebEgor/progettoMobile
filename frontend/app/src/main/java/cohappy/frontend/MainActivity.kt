@@ -23,7 +23,6 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 
-import cohappy.frontend.components.CustomBackButton
 import cohappy.frontend.feature.annunci.PaginaAnnunci
 import cohappy.frontend.feature.auth.PaginaLogin
 import cohappy.frontend.client.ClientSingleton
@@ -31,10 +30,6 @@ import cohappy.frontend.feature.auth.PaginaRegistrazione
 import cohappy.frontend.model.dto.request.LoginDTO
 import cohappy.frontend.model.dto.request.RegisterDTO
 import kotlinx.coroutines.launch
-
-import android.content.Context
-import cohappy.frontend.feature.ProfiloNoCasa
-import cohappy.frontend.feature.annunci.ChatAnnunci
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -89,12 +84,10 @@ class MainActivity : ComponentActivity() {
                                                     val pacchettoLogin = LoginDTO(email = email, password = password)
                                                     val apiResponse = ClientSingleton.userApi.login(pacchettoLogin)
 
-                                                    // 💅 Controlliamo l'errore in modo pulito tramite l'oggetto Response
                                                     if (!apiResponse.isSuccessful) {
                                                         throw Exception("Credenziali errate o utente non trovato dal server")
                                                     }
 
-                                                    // 💅 Prendiamo IL VERO CORPO della risposta, ovvero il token!
                                                     val risposta = apiResponse.body() ?: ""
 
                                                     println("Login effettuato con successo. Dati: $risposta")
@@ -143,7 +136,6 @@ class MainActivity : ComponentActivity() {
                                                 throw Exception("Credenziali errate o utente non trovato dal server")
                                             }
 
-                                            // 💅 Prendiamo il VERO token anche qui!
                                             val risposta = apiResponse.body() ?: ""
 
                                             println("Login effettuato con successo. Dati: $risposta")

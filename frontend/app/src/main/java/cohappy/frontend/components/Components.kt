@@ -1,9 +1,12 @@
 package cohappy.frontend.components
 
+import android.R.attr.textColor
+import cohappy.frontend.R
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -30,7 +33,9 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.CornerBasedShape
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.automirrored.filled.ExitToApp
+import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.ArrowBackIosNew
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.ExitToApp
@@ -45,8 +50,10 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
 import dev.chrisbanes.haze.HazeState
 import dev.chrisbanes.haze.HazeStyle
 import dev.chrisbanes.haze.hazeChild
@@ -552,6 +559,8 @@ fun ProfileHeaderCard(
     val isDark = isSystemInDarkTheme()
     val bgColor = if (isDark) Color(0xFF2D2342) else Color(0xFFEBE5F7) // Lilla chiaro come da foto
 
+    val nomeUp = nome.replaceFirstChar { it.uppercase() }
+    val cognomeUp = cognome.replaceFirstChar { it.uppercase() }
     Box(
         modifier = modifier
             .fillMaxWidth()
@@ -567,7 +576,7 @@ fun ProfileHeaderCard(
             Spacer(modifier = Modifier.height(16.dp))
 
             Text(
-                text = "Ciao! $nome $cognome",
+                text = "Ciao! $nomeUp $cognomeUp",
                 fontWeight = FontWeight.Black,
                 fontSize = 24.sp,
                 color = MaterialTheme.colorScheme.onSurface
@@ -589,7 +598,6 @@ fun ProfileHeaderCard(
     }
 }
 
-// 💅 3. COMPONENTE SETUP CASA (Sezione divisa in due box con "oppure")
 @Composable
 fun HouseSetupSection(
     onCreateHouseClick: () -> Unit,
@@ -701,7 +709,6 @@ fun HouseSetupSection(
     }
 }
 
-// 💅 4. COMPONENTE TASTO LOGOUT SEMPLICE (Senza sfondo)
 @Composable
 fun LogoutTextButton(
     onClick: () -> Unit,
@@ -717,5 +724,129 @@ fun LogoutTextButton(
             fontWeight = FontWeight.Bold,
             fontSize = 18.sp
         )
+    }
+}
+
+@Composable
+fun MessageBubble(textMessage:String, isMe: Boolean){
+    val isDark = isSystemInDarkTheme()
+    val bubbleColor = if (isMe) {
+        MaterialTheme.colorScheme.primary // Colore principale per i tuoi messaggi
+    } else {
+        /*Color.DarkGray*/ MaterialTheme.colorScheme.secondary
+    }
+
+    val textColor = if (isMe) {
+        MaterialTheme.colorScheme.onPrimary // Bianco sul primary
+    } else {
+        MaterialTheme.colorScheme.onSecondary
+    }
+
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = 16.dp, vertical = 4.dp),
+        horizontalArrangement = if (isMe) Arrangement.End else Arrangement.Start
+    ){Box(
+            modifier = Modifier
+                // La bolla non deve superare l'80% dello schermo sennò è antiestetica
+                .widthIn(max = 280.dp)
+                .background(
+                    color = bubbleColor,
+                    shape = RoundedCornerShape(
+                        topStart = 18.dp,
+                        topEnd = 18.dp,
+                        bottomStart = if (isMe) 18.dp else 4.dp,
+                        bottomEnd = if (isMe) 4.dp else 18.dp
+                    )
+                )
+                .padding(horizontal = 16.dp, vertical = 10.dp)
+            ) {
+        Text(
+            text = textMessage,
+            color = textColor,
+            fontSize = 16.sp
+        )
+    } }
+}
+
+@Composable
+fun ChatHeader(
+    nomeUtente: String,
+    titoloAnnuncio: String,
+    profileBitmap: ImageBitmap? = null,
+    onBackClick: () -> Unit
+) {
+    val isDark = isSystemInDarkTheme()
+    val bgColor = if (isDark) Color.Black else Color.White
+    val contentColor = if (isDark) Color.White else Color.Black
+
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .background(bgColor)
+            .padding(horizontal = 16.dp, vertical = 12.dp),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        // Tasto Freccia Indietro
+        Icon(
+            imageVector = Icons.Default.ArrowBackIosNew,
+            contentDescription = "Torna indietro",
+            tint = contentColor,
+            modifier = Modifier
+                .size(28.dp)
+                .clip(CircleShape)
+                .clickable { onBackClick() }
+                .padding(4.dp)
+        )
+
+        Spacer(modifier = Modifier.width(8.dp))
+
+        // Foto Profilo (Vera o Default)
+        Box(
+            modifier = Modifier
+                .size(46.dp)
+                .clip(CircleShape)
+                .background(MaterialTheme.colorScheme.surfaceVariant)
+        ) {
+            if (profileBitmap != null) {
+                Image(
+                    bitmap = profileBitmap,
+                    contentDescription = "Foto di $nomeUtente",
+                    contentScale = ContentScale.Crop,
+                    modifier = Modifier.fillMaxSize()
+                )
+            } else {
+                Image(
+                    painter = painterResource(id = R.drawable.default_photo_profile),
+                    contentDescription = "Foto di default",
+                    contentScale = ContentScale.Crop,
+                    modifier = Modifier.fillMaxSize()
+                )
+            }
+        }
+
+        Spacer(modifier = Modifier.width(12.dp))
+
+        // Testi (Nome + Annuncio)
+        Column(
+            modifier = Modifier.weight(1f)
+        ) {
+            Text(
+                text = nomeUtente,
+                color = contentColor,
+                fontWeight = FontWeight.Bold,
+                fontSize = 18.sp,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis // Mette i puntini se il nome è troppo lungo
+            )
+            Text(
+                text = titoloAnnuncio,
+                color = Color.Gray,
+                fontSize = 13.sp,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis // Mette i puntini se l'annuncio è troppo lungo
+            )
+        }
     }
 }
