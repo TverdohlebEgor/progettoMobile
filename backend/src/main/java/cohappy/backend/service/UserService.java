@@ -1,10 +1,13 @@
 package cohappy.backend.service;
 
 import cohappy.backend.exceptions.IllegalInputException;
+import cohappy.backend.exceptions.NoPatchException;
 import cohappy.backend.exceptions.NotFoundException;
+import cohappy.backend.exceptions.NotImplementedException;
 import cohappy.backend.mappers.UserMapper;
 import cohappy.backend.model.UserAccount;
 import cohappy.backend.model.dto.request.LoginDTO;
+import cohappy.backend.model.dto.request.PatchUserDTO;
 import cohappy.backend.model.dto.request.RegisterDTO;
 import cohappy.backend.model.dto.response.UserAccountDTO;
 import cohappy.backend.repositories.UserRepository;
@@ -13,6 +16,9 @@ import org.springframework.stereotype.Service;
 
 import java.util.Optional;
 
+import static cohappy.backend.model.OperationResultMessages.NO_PATCH;
+import static cohappy.backend.model.OperationResultMessages.USER_NOT_FOUND;
+import static cohappy.backend.util.PatchUtil.patchField;
 import static cohappy.backend.util.StringCheckUtil.isEmptyString;
 
 @AllArgsConstructor
@@ -31,6 +37,30 @@ public class UserService {
 
     public boolean deleteProfile(String userCode) {
         return userRepository.deleteByUserCode(userCode) > 0;
+    }
+
+    public void patchProfile(PatchUserDTO patchUserDTO) {
+        String userCode = patchUserDTO.getUserCode();
+        validateInput(userCode,"user code");
+        UserAccount account = userRepository.findByUserCode(userCode)
+                .orElseThrow(() -> new NotFoundException(USER_NOT_FOUND));
+
+        boolean changed = false;
+
+        changed |= patchField(patchUserDTO.getName(), account.getName(), account::setName);
+        changed |= patchField(patchUserDTO.getSurname(), account.getSurname(), account::setSurname);
+        changed |= patchField(patchUserDTO.getBirthDate(), account.getBirthDate(), account::setBirthDate);
+        changed |= patchField(patchUserDTO.getAge(), account.getAge(), account::setAge);
+        changed |= patchField(patchUserDTO.getImages(), account.getImages(), account::setImages);
+        changed |= patchField(patchUserDTO.getEmail(), account.getEmail(), account::setEmail);
+        changed |= patchField(patchUserDTO.getPhoneNumber(), account.getPhoneNumber(), account::setPhoneNumber);
+        changed |= patchField(patchUserDTO.getPassword(), account.getPassword(), account::setPassword);
+
+        if(!changed){
+            throw new NoPatchException(NO_PATCH.formatted("UserAccount"));
+        }
+
+        userRepository.save(account);
     }
 
     public String login(LoginDTO loginDTO) {

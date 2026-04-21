@@ -4,7 +4,7 @@ services:
     ports:
       - "8080:8080"
     volumes:
-      - ./backend-0.0.1.jar:/app/app.jar
+      - ./backend-0.0.2-SNAPSHOT.jar:/app/app.jar
     working_dir: /app
     entrypoint: [
       "java", 

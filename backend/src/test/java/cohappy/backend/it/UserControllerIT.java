@@ -1,8 +1,10 @@
 package cohappy.backend.it;
 
+import cohappy.backend.exceptions.NotFoundException;
 import cohappy.backend.model.Portfolio;
 import cohappy.backend.model.UserAccount;
 import cohappy.backend.model.dto.request.LoginDTO;
+import cohappy.backend.model.dto.request.PatchUserDTO;
 import cohappy.backend.model.dto.request.RegisterDTO;
 import cohappy.backend.repositories.UserRepository;
 import org.junit.jupiter.api.BeforeEach;
@@ -17,10 +19,12 @@ import java.util.ArrayList;
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicReference;
 
+import static cohappy.backend.model.OperationResultMessages.USER_NOT_FOUND;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.assertj.core.api.AssertionsForClassTypes.setRemoveAssertJRelatedElementsFromStackTrace;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
@@ -323,6 +327,71 @@ public class UserControllerIT extends BaseIT{
                 .andExpect(status().isBadRequest());
     }
 
+
+    @Test
+    void shouldPatchUserProfile() throws Exception {
+        saveDefaultUser();
+
+        PatchUserDTO request = new PatchUserDTO();
+        request.setUserCode("USR-999");
+        request.setName("Luigi");
+        request.setAge(35);
+        request.setPhoneNumber(null);
+
+        mockMvc.perform(patch("/api/user/patch")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(request)))
+                .andExpect(status().isOk());
+
+        UserAccount account = userRepository.findByUserCode("USR-999")
+                .orElseThrow(() -> new NotFoundException(USER_NOT_FOUND.formatted("USR-999")));
+
+        assertThat(account.getName()).isEqualTo("Luigi");
+        assertThat(account.getAge()).isEqualTo(35);
+        assertThat(account.getPhoneNumber()).isEqualTo("123");
+    }
+
+    @Test
+    void shouldNotFoundPatchUserProfile() throws Exception {
+        saveDefaultUser();
+
+        PatchUserDTO request = new PatchUserDTO();
+        request.setUserCode("NOTEXISTING");
+        request.setName("Luigi");
+
+        mockMvc.perform(patch("/api/user/patch")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(request)))
+                .andExpect(status().isNotFound());
+    }
+
+    @Test
+    void shouldBadRequestNoUserCodePatchUserProfile() throws Exception {
+        saveDefaultUser();
+
+        PatchUserDTO request = new PatchUserDTO();
+        request.setUserCode(null);
+        request.setName("Luigi");
+
+        mockMvc.perform(patch("/api/user/patch")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(request)))
+                .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    void shouldNoPatchUserProfile() throws Exception {
+        UserAccount defaultUser = createDefaultUser();
+        saveDefaultUser();
+
+        PatchUserDTO request = new PatchUserDTO();
+        request.setUserCode(defaultUser.getUserCode());
+        request.setName(defaultUser.getName());
+        mockMvc.perform(patch("/api/user/patch")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(request)))
+                .andExpect(status().isNoContent());
+    }
 
     private UserAccount createDefaultUser(){
         UserAccount user = new UserAccount();

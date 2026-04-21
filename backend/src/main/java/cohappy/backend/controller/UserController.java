@@ -1,8 +1,10 @@
 package cohappy.backend.controller;
 
 import cohappy.backend.exceptions.IllegalInputException;
+import cohappy.backend.exceptions.NoPatchException;
 import cohappy.backend.exceptions.NotFoundException;
 import cohappy.backend.model.dto.request.LoginDTO;
+import cohappy.backend.model.dto.request.PatchUserDTO;
 import cohappy.backend.model.dto.request.RegisterDTO;
 import cohappy.backend.model.dto.response.UserAccountDTO;
 import cohappy.backend.service.UserService;
@@ -44,6 +46,22 @@ public class UserController {
             }
         }
         catch (Exception e) {
+            return ResponseEntity.internalServerError().body(e.getMessage());
+        }
+    }
+
+    @PatchMapping("/patch")
+    public ResponseEntity<String> patchProfile(@RequestBody PatchUserDTO patchUserDTO) {
+        try {
+            userService.patchProfile(patchUserDTO);
+            return ResponseEntity.ok(OPERATION_COMPLETED);
+        } catch (IllegalInputException e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        } catch (NotFoundException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
+        } catch (NoPatchException e) {
+            return ResponseEntity.status(HttpStatus.NO_CONTENT).body(e.getMessage());
+        } catch (Exception e) {
             return ResponseEntity.internalServerError().body(e.getMessage());
         }
     }
