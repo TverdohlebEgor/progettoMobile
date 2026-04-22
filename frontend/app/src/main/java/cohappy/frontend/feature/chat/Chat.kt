@@ -1,10 +1,15 @@
 package cohappy.frontend.feature.chat
 
+import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Send
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -14,55 +19,179 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import cohappy.frontend.components.ChatHeader
 import cohappy.frontend.components.MessageBubble
+import cohappy.frontend.client.ClientSingleton
+import cohappy.frontend.model.dto.response.ChatMessageDTO
+import cohappy.frontend.model.dto.request.AddMessageDTO
+import cohappy.frontend.model.dto.request.CreateChatDTO
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 @Composable
-fun ChatAnnunci(chatCode: String,
-                userToken: String?,
-                onBackClick: () -> Unit) {
+fun ChatAnnunci(
+    chatCode: String,
+    userToken: String?,
+    onBackClick: () -> Unit
+) {
     val isDark = isSystemInDarkTheme()
     val bgColor = if (isDark) Color.Black else Color.White
     val inputBgColor = if (isDark) Color.DarkGray else Color(0xFFF0F0F0)
 
-    // 💅 Stato per quello che scriviamo nella barra
-    var textInput by remember { mutableStateOf("") }
+    val coroutineScope = rememberCoroutineScope()
+    val mioUserCode = userToken?.replace("\"", "")?.trim() ?: ""
 
+    var textInput by remember { mutableStateOf("") }
+    var messaggi by remember { mutableStateOf<List<ChatMessageDTO>>(emptyList()) }
+    var isLoading by remember { mutableStateOf(true) }
+
+    var nomeChat by remember { mutableStateOf("Caricamento...") }
+    var sottotitoloChat by remember { mutableStateOf("") }
+    var resolvedChatCode by remember { mutableStateOf("") }
+
+    LaunchedEffect(chatCode) {
+        Log.d("TAG_CHAT", "🚀 Inizio flusso. Parametro passato: $chatCode")
+        isLoading = true
+
+        var nomeMalcapitato = "Sconosciuto"
+        var idChatDaUsare = ""
+        var chatGiaEsistente = false
+
+        // 💅 BLOCCO 1: RECUPERO IL NOME DEL MALCAPITATO
+        try {
+            Log.d("TAG_CHAT", "🔍 1. Recupero nome del malcapitato (ID: $chatCode)")
+            val profileResp = withContext(Dispatchers.IO) { ClientSingleton.userApi.getUserProfile(chatCode) }
+
+            if (profileResp.isSuccessful && profileResp.body() != null) {
+                val user = profileResp.body()!!
+                val fullName = "${user.name ?: ""} ${user.surname ?: ""}".trim()
+                if (fullName.isNotBlank()) {
+                    nomeMalcapitato = fullName
+                }
+                Log.d("TAG_CHAT", "✅ 1. Nome recuperato: $nomeMalcapitato")
+            } else {
+                Log.d("TAG_CHAT", "⚠️ 1. Profilo non trovato o parametro è un ID Chat. Uso nome Sconosciuto.")
+            }
+        } catch (e: Exception) {
+            Log.e("TAG_CHAT", "🚨 1. Errore API profilo: ${e.message}")
+        }
+
+        // 💅 BLOCCO 2: ALLA RICERCA DELLA CHAT
+        try {
+            Log.d("TAG_CHAT", "🔍 2. Cerco le chat dell'utente loggato")
+            val chatsResp = withContext(Dispatchers.IO) { ClientSingleton.chatApi.getUserChats(mioUserCode) }
+            val mieChats = chatsResp.body() ?: emptyList()
+
+            // Cerchiamo se abbiamo la chat! (Sia usando chatCode come ID Chat, sia come utente)
+            val chatTrovata = mieChats.find {
+                it.chatCode == chatCode ||
+                        (it.participating != null && it.participating!!.contains(mioUserCode) && it.participating!!.contains(chatCode) && it.participating!!.size == 2)
+            }
+
+            if (chatTrovata != null) {
+                // 💅 TROVATA: LA CARICA E BONA
+                Log.d("TAG_CHAT", "✅ 2. Chat trovata! ID: ${chatTrovata.chatCode}")
+                idChatDaUsare = chatTrovata.chatCode ?: ""
+                chatGiaEsistente = true
+
+                // Se non avevamo trovato il nome (es. arriviamo dall'ElencoChat), rubiamolo da qui
+                if (nomeMalcapitato == "Sconosciuto" && !chatTrovata.name.isNullOrBlank()) {
+                    nomeMalcapitato = chatTrovata.name!!
+                }
+            } else {
+                // 💅 NON TROVATA: LA CREA E NON CARICA I MESSAGGI
+                Log.d("TAG_CHAT", "🔨 2. Chat non trovata. Procedo con la CREAZIONE.")
+
+                val nomeDaSalvare = if (nomeMalcapitato == "Sconosciuto") "Nuova Chat" else nomeMalcapitato
+                val createDto = CreateChatDTO(
+                    participating = listOf(mioUserCode, chatCode),
+                    name = nomeDaSalvare,
+                    immage = null
+                )
+
+                val createResp = withContext(Dispatchers.IO) { ClientSingleton.chatApi.createChat(createDto) }
+
+                if (createResp.isSuccessful && createResp.body() != null) {
+                    idChatDaUsare = createResp.body()!!.replace("\"", "").trim()
+                    chatGiaEsistente = false
+                    Log.d("TAG_CHAT", "✅ 2. Chat creata con successo! Nuovo ID: $idChatDaUsare")
+                } else {
+                    Log.e("TAG_CHAT", "❌ 2. Fallita creazione chat sul DB. Codice Egor: ${createResp.code()}")
+                }
+            }
+        } catch (e: Exception) {
+            Log.e("TAG_CHAT", "🚨 2. Errore API ricerca/creazione: ${e.message}")
+        }
+
+        // 💅 BLOCCO 3: APPLICHIAMO ALLA GRAFICA
+        if (idChatDaUsare.isNotBlank()) {
+            resolvedChatCode = idChatDaUsare
+            nomeChat = nomeMalcapitato
+
+            if (chatGiaEsistente) {
+                // SCARICA I MESSAGGI (LA CARICA E BONA)
+                try {
+                    Log.d("TAG_CHAT", "📥 3. Chat esistente. Scarico i messaggi...")
+                    val msgResp = withContext(Dispatchers.IO) { ClientSingleton.chatApi.getMessages(idChatDaUsare) }
+
+                    if (msgResp.isSuccessful && msgResp.body() != null) {
+                        messaggi = msgResp.body()!!
+                        Log.d("TAG_CHAT", "✅ 3. Trovati ${messaggi.size} messaggi.")
+                        if (messaggi.isEmpty()) sottotitoloChat = "Inizia la conversazione"
+                    } else {
+                        Log.e("TAG_CHAT", "❌ 3. Errore scaricamento messaggi: ${msgResp.code()}")
+                    }
+                } catch (e: Exception) {
+                    Log.e("TAG_CHAT", "🚨 3. Errore Moshi/Rete nei messaggi: ${e.message}")
+                    sottotitoloChat = "Messaggi vecchi non disponibili"
+                }
+            } else {
+                // CHAT APPENA CREATA (NON CARICA I MESSAGGI E ABBIAMO FATTO)
+                Log.d("TAG_CHAT", "🛑 3. Chat nuova. NON carico i messaggi.")
+                messaggi = emptyList()
+                sottotitoloChat = "Inizia la conversazione"
+            }
+        } else {
+            nomeChat = "Errore"
+            sottotitoloChat = "Impossibile aprire la chat"
+        }
+
+        isLoading = false
+    }
 
     Column(
         modifier = Modifier
             .fillMaxSize()
             .background(bgColor)
+            .padding(top=48.dp, bottom=24.dp)
     ) {
-        // 1. HEADER (Il componente che abbiamo fatto prima!)
         ChatHeader(
-            nomeUtente = "Anna (Host)",
-            titoloAnnuncio = "Stanza singola luminosa",
+            nomeUtente = nomeChat,
+            titoloAnnuncio = sottotitoloChat,
             profileBitmap = null,
             onBackClick = onBackClick
         )
 
-        // 2. LISTA DEI MESSAGGI (Si prende tutto lo spazio in mezzo)
-        LazyColumn(
-            modifier = Modifier
-                .weight(1f)
-                .padding(vertical = 8.dp),
-            contentPadding = PaddingValues(bottom = 16.dp)
-        ) {
-            item {
-                MessageBubble(
-                    textMessage = "Ciao beddy! È libera la stanza?",
-                    isMe = true
-                )
+        if (isLoading) {
+            Box(modifier = Modifier.weight(1f).fillMaxWidth(), contentAlignment = Alignment.Center) {
+                CircularProgressIndicator(color = Color(0xFF6B53A4))
             }
-
-            item {
-                MessageBubble(
-                    textMessage = "Slayyyy! Certo che sì, vieni a vederla?",
-                    isMe = false
-                )
+        } else {
+            LazyColumn(
+                modifier = Modifier
+                    .weight(1f)
+                    .padding(vertical = 8.dp),
+                contentPadding = PaddingValues(bottom = 16.dp)
+            ) {
+                items(messaggi) { msg ->
+                    val sonoIo = (msg.userCode == mioUserCode)
+                    MessageBubble(
+                        textMessage = msg.message ?: "",
+                        isMe = sonoIo
+                    )
+                }
             }
         }
 
-        // 3. BARRA DI INPUT (Fissata in basso)
         Row(
             modifier = Modifier
                 .fillMaxWidth()
@@ -83,15 +212,55 @@ fun ChatAnnunci(chatCode: String,
                     unfocusedIndicatorColor = Color.Transparent
                 ),
                 placeholder = { Text("Scrivi un messaggio...") },
-                maxLines = 3 // Così se scrivi tanto non ti copre tutto lo schermo!
+                maxLines = 3
             )
 
             Spacer(modifier = Modifier.width(12.dp))
 
-            // Bottone Invia
+            IconButton(
+                onClick = {
+                    if (textInput.isNotBlank() && resolvedChatCode.isNotBlank()) {
+                        val testoDaInviare = textInput
+                        textInput = ""
 
+                        val nuovoMsgFinto = ChatMessageDTO(
+                            message = testoDaInviare,
+                            userCode = mioUserCode
+                        )
+                        messaggi = messaggi + nuovoMsgFinto
 
+                        coroutineScope.launch {
+                            try {
+                                Log.d("TAG_CHAT", "📤 Invio messaggio alla chat: $resolvedChatCode")
+                                val pacchetto = AddMessageDTO(
+                                    message = testoDaInviare,
+                                    userCode = mioUserCode,
+                                    chatCode = resolvedChatCode
+                                )
+                                val response = withContext(Dispatchers.IO) {
+                                    ClientSingleton.chatApi.addMessage(pacchetto)
+                                }
+                                if (response.isSuccessful) {
+                                    Log.d("TAG_CHAT", "✅ Messaggio inviato!")
+                                } else {
+                                    Log.e("TAG_CHAT", "❌ Errore invio: ${response.code()}")
+                                }
+                            } catch (e: Exception) {
+                                Log.e("TAG_CHAT", "🚨 Errore Moshi/Rete nell'invio: ${e.message}")
+                            }
+                        }
+                    }
+                },
+                modifier = Modifier
+                    .background(MaterialTheme.colorScheme.primary, CircleShape)
+                    .size(48.dp)
+            ) {
+                Icon(
+                    imageVector = Icons.Default.Send,
+                    contentDescription = "Invia",
+                    tint = MaterialTheme.colorScheme.onPrimary
+                )
+            }
         }
     }
 }
-

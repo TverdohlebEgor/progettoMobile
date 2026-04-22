@@ -1,109 +1,156 @@
 package cohappy.frontend.feature.annunci
 
-import androidx.compose.foundation.ExperimentalFoundationApi
+import android.graphics.BitmapFactory
+import android.util.Base64
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.isSystemInDarkTheme
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Surface
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
+import androidx.compose.material3.Text
+import androidx.compose.runtime.*
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.ImageBitmap
+import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.unit.dp
 import cohappy.frontend.R
-import cohappy.frontend.components.Annuncio
-import cohappy.frontend.components.ElencoAnnunci
+import cohappy.frontend.client.ClientSingleton
 import cohappy.frontend.components.ImageWithTextCard
 import cohappy.frontend.components.ResearchBar
 import cohappy.frontend.components.Titoli
+import cohappy.frontend.model.dto.response.GetHouseAdvertesimentDTO
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 
-@OptIn(ExperimentalFoundationApi::class)
 @Composable
-fun ListaAnnunciView(onAnnuncioClick: (Int) -> Unit){
+fun ListaAnnunciView(innerPadding: PaddingValues, onAnnuncioClick: (String) -> Unit) {
     val isDark = isSystemInDarkTheme()
     val BgColor = if (isDark) Color.Black else Color.White
     val ContentColor = if (isDark) Color.White else Color.Black
 
     var searchQuery by remember { mutableStateOf("") }
 
-    // Dati fittizi per la visualizzazione dell'interfaccia
-    val annunciFinti = listOf(
-        Annuncio(1, "Stanza singola luminosa", "Milano Centro", "500€/mese", R.drawable.casa1),
-        Annuncio(2, "Posto letto in doppia", "Roma, Termini", "350€/mese", R.drawable.casa1),
-        Annuncio(3, "Bilocale ristrutturato", "Firenze", "800€/mese", R.drawable.casa1),
-        Annuncio(4, "Attico con terrazza", "Napoli, Vomero", "900€/mese", R.drawable.casa1)
-    )
+    // 💅 SOLO IL DTO ORIGINALE DEL BACKEND, NIENTE INVENZIONI!
+    var annunciList by remember { mutableStateOf<List<GetHouseAdvertesimentDTO>>(emptyList()) }
+    var isLoading by remember { mutableStateOf(true) }
 
-    // Logica di filtraggio locale degli annunci
-    val annunciFiltrati = annunciFinti.filter { annuncio ->
-        annuncio.titolo.contains(searchQuery, ignoreCase = true) ||
-                annuncio.posizione.contains(searchQuery, ignoreCase = true)
+    LaunchedEffect(Unit) {
+        withContext(Dispatchers.IO) {
+            try {
+                val response = ClientSingleton.houseApi.getAllHouseAdvertisements()
+
+                if (response.isSuccessful && response.body() != null) {
+                    annunciList = response.body()!!
+                } else {
+                    println("Errore dal server: ${response.code()}")
+                }
+            } catch (e: Exception) {
+                println("Errore di rete: ${e.message}")
+            } finally {
+                isLoading = false
+            }
+        }
     }
 
-    Surface(
-        modifier = Modifier.fillMaxSize(),
-        color = BgColor,
-        contentColor = ContentColor
-    ) {
-        // Sostituzione della struttura precedente con una singola LazyColumn.
-        // Questo permette una gestione nativa e fluida dello scorrimento dell'intera schermata.
-        LazyColumn(
-            modifier = Modifier.fillMaxSize(),
-            contentPadding = PaddingValues(bottom = 120.dp) // Spazio inferiore per la BottomBar
-        ) {
+    val annunciFiltrati = annunciList.filter { annuncio ->
+        (annuncio.street?.contains(searchQuery, ignoreCase = true) == true) ||
+                (annuncio.region?.contains(searchQuery, ignoreCase = true) == true)
+    }
 
-            // 1. Componente Titolo (Scorrevole)
-            // Essendo un 'item' normale, scorrerà verso l'alto scomparendo dallo schermo.
-            item {
-                Column(modifier = Modifier.padding(horizontal = 24.dp)) {
-                    Titoli("Esplora", "Annunci", "Trova la tua nuova casa", ContentColor)
-                    Spacer(modifier = Modifier.height(16.dp))
-                }
+    Surface(modifier = Modifier.fillMaxSize(), color = BgColor, contentColor = ContentColor) {
+        if (isLoading) {
+            Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                CircularProgressIndicator(color = Color(0xFF6B53A4))
             }
+        } else {
+            LazyColumn(
+                modifier = Modifier.fillMaxSize(),
+                contentPadding = innerPadding,
+                verticalArrangement = Arrangement.spacedBy(16.dp)
 
-            // 2. Componente Barra di Ricerca (Sticky)
-            // stickyHeader fissa l'elemento in cima allo schermo quando viene raggiunto dallo scroll.
-            stickyHeader {
-                // Viene utilizzato un Surface per garantire che gli annunci non scorrano in trasparenza sotto la barra
-                Surface(
-                    color = BgColor,
-                    modifier = Modifier.fillMaxWidth()
-                ) {
-                    Column(modifier = Modifier.padding(horizontal = 24.dp)) {
-                        ResearchBar(
-                            query = searchQuery,
-                            onQueryChange = { nuovaRicerca -> searchQuery = nuovaRicerca }
+            ) {
+                item {
+                    Column(modifier = Modifier.fillMaxWidth().padding(horizontal = 24.dp)) {
+                        Titoli(
+                            titolo1 = "Esplora",
+                            titolo2 = "Annunci",
+                            sottotitolo = "Trova la tua nuova casa",
+                            color = ContentColor
                         )
-                        Spacer(modifier = Modifier.height(24.dp))
                     }
                 }
-            }
 
-            // 3. Lista degli Annunci
-            items(annunciFiltrati) { annuncio ->
-                Column(
-                    modifier = Modifier
-                        .padding(horizontal = 24.dp)
-                        .padding(bottom = 16.dp)
-                ) {
-                    ImageWithTextCard(
-                        title = annuncio.titolo,
-                        subtitle = annuncio.posizione,
-                        priceTag = annuncio.prezzo,
-                        imageRes = annuncio.immagineRes,
-                        onImageClick = { onAnnuncioClick(annuncio.id) }
-                    )
+                stickyHeader {
+                    Surface(
+                        color = BgColor, // Sfondo opaco così le card sotto non si vedono in trasparenza
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        Column(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(horizontal = 24.dp)
+                                .padding(bottom = 8.dp) // Piccolo stacco prima delle card
+                        ) {
+                            ResearchBar(
+                                query = searchQuery,
+                                onQueryChange = { searchQuery = it },
+                                modifier = Modifier.fillMaxWidth()
+                            )
+                        }
+                    }
                 }
+
+
+                if (annunciFiltrati.isEmpty()) {
+                    item {
+                        Box(modifier = Modifier.fillMaxWidth().padding(32.dp), contentAlignment = Alignment.Center) {
+                            Text("Nessun annuncio disponibile", color = Color.Gray)
+                        }
+                    }
+                } else {
+                    items(annunciFiltrati) { annuncio ->
+
+                        var imageBmp: ImageBitmap? = null
+                        val primaImmagine = annuncio.images?.firstOrNull()
+
+                        if (primaImmagine != null) {
+                            try {
+                                val bytes = when (primaImmagine) {
+                                    is String -> Base64.decode(primaImmagine as String, Base64.DEFAULT)
+                                    is ByteArray -> primaImmagine as ByteArray
+                                    else -> null
+                                }
+                                if (bytes != null) {
+                                    imageBmp = BitmapFactory.decodeByteArray(bytes, 0, bytes.size).asImageBitmap()
+                                }
+                            } catch (e: Exception) {
+                                println("Errore decodifica immagine: ${e.message}")
+                            }
+                        }
+
+                        val idAnnuncio = annuncio.houseCode ?: ""
+
+                        Box(
+                            modifier = Modifier
+                                .padding(horizontal = 24.dp)
+                                .clickable { onAnnuncioClick(idAnnuncio) }
+                        ) {
+                            ImageWithTextCard(
+                                title = if (!annuncio.street.isNullOrBlank()) "Stanza in ${annuncio.street}" else "Stanza singola",
+                                subtitle = annuncio.country ?: "Città non specificata",
+                                priceTag = "${annuncio.costPerMonth?.toInt() ?: 0}€/mese",
+                                imageRes = R.drawable.casa1,
+                                imageBitmap = imageBmp,
+                                onImageClick = { onAnnuncioClick(idAnnuncio) }
+                            )
+                        }
+                    }
+                }
+                item { Spacer(modifier = Modifier.height(100.dp)) }
             }
         }
     }

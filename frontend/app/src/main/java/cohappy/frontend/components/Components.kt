@@ -1,22 +1,34 @@
 package cohappy.frontend.components
 
-import android.R.attr.textColor
-import cohappy.frontend.R
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.CornerBasedShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.BasicTextField
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ArrowBackIosNew
+import androidx.compose.material.icons.filled.Check
+import androidx.compose.material.icons.filled.Person
+import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.DividerDefaults
+import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.Icon
+import androidx.compose.material3.LocalTextStyle
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.blur
@@ -24,39 +36,22 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.ImageBitmap
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
-import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.shape.CornerBasedShape
-import androidx.compose.foundation.text.BasicTextField
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material.icons.automirrored.filled.ExitToApp
-import androidx.compose.material.icons.filled.ArrowBack
-import androidx.compose.material.icons.filled.ArrowBackIosNew
-import androidx.compose.material.icons.filled.Check
-import androidx.compose.material.icons.filled.ExitToApp
-import androidx.compose.material.icons.filled.Home
-import androidx.compose.material.icons.filled.Logout
-import androidx.compose.material.icons.filled.Person
-import androidx.compose.material.icons.filled.Search
-import androidx.compose.material3.Icon
-import androidx.compose.material3.LocalTextStyle
-import androidx.compose.material3.TextButton
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
-import androidx.compose.ui.graphics.ImageBitmap
-import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
+import cohappy.frontend.R
 import dev.chrisbanes.haze.HazeState
 import dev.chrisbanes.haze.HazeStyle
 import dev.chrisbanes.haze.hazeChild
+
+
 
 
 @Composable
@@ -164,7 +159,8 @@ fun ImageWithTextCard(
     title: String,
     subtitle: String,
     priceTag: String? = null,
-    imageRes: Int,
+    imageRes: Int? = null,
+    imageBitmap: ImageBitmap? = null, // 💅 AGGIUNTO: Riceve la foto vera dal database!
     onImageClick: () -> Unit
 ) {
     Box(
@@ -176,12 +172,22 @@ fun ImageWithTextCard(
                 onClick = { onImageClick() }
             ),
     ) {
-        Image(
-            painter = painterResource(id = imageRes),
-            contentDescription = "Immagine Annuncio",
-            contentScale = ContentScale.Crop,
-            modifier = Modifier.fillMaxSize()
-        )
+        // 💅 MAGIC: Mostra la foto vera se c'è, altrimenti mette il fallback "casa1"
+        if (imageBitmap != null) {
+            Image(
+                bitmap = imageBitmap,
+                contentDescription = "Immagine Annuncio",
+                contentScale = ContentScale.Crop,
+                modifier = Modifier.fillMaxSize()
+            )
+        } else {
+            Image(
+                painter = painterResource(id = imageRes ?: R.drawable.casa1),
+                contentDescription = "Immagine Annuncio Default",
+                contentScale = ContentScale.Crop,
+                modifier = Modifier.fillMaxSize()
+            )
+        }
 
         Box(
             modifier = Modifier
@@ -217,6 +223,7 @@ fun ImageWithTextCard(
         }
     }
 }
+
 
 
 /**
@@ -727,27 +734,50 @@ fun LogoutTextButton(
     }
 }
 
+
+
+
 @Composable
-fun MessageBubble(textMessage:String, isMe: Boolean){
+fun HorizontalDivider(
+    modifier: Modifier = Modifier,
+    thickness: Dp = DividerDefaults.Thickness,
+    color: Color = DividerDefaults.color
+) {
+    androidx.compose.material3.HorizontalDivider(
+        modifier = modifier,
+        thickness = thickness,
+        color = color
+    )
+}
+
+@Composable
+fun MessageBubble(
+    textMessage: String,
+    isMe: Boolean
+) {
     val isDark = isSystemInDarkTheme()
+
+    // Scegliamo i colori da vere boss in base a chi scrive e al tema
     val bubbleColor = if (isMe) {
         MaterialTheme.colorScheme.primary // Colore principale per i tuoi messaggi
     } else {
-        /*Color.DarkGray*/ MaterialTheme.colorScheme.secondary
+        if (isDark) Color.DarkGray else Color(0xFFE5E5EA) // Grigino per gli altri
     }
 
     val textColor = if (isMe) {
         MaterialTheme.colorScheme.onPrimary // Bianco sul primary
     } else {
-        MaterialTheme.colorScheme.onSecondary
+        if (isDark) Color.White else Color.Black
     }
 
     Row(
         modifier = Modifier
             .fillMaxWidth()
             .padding(horizontal = 16.dp, vertical = 4.dp),
+
         horizontalArrangement = if (isMe) Arrangement.End else Arrangement.Start
-    ){Box(
+    ) {
+        Box(
             modifier = Modifier
                 // La bolla non deve superare l'80% dello schermo sennò è antiestetica
                 .widthIn(max = 280.dp)
@@ -756,24 +786,26 @@ fun MessageBubble(textMessage:String, isMe: Boolean){
                     shape = RoundedCornerShape(
                         topStart = 18.dp,
                         topEnd = 18.dp,
+                        // 💅 Smussiamo in modo furbo l'angolino in basso!
                         bottomStart = if (isMe) 18.dp else 4.dp,
                         bottomEnd = if (isMe) 4.dp else 18.dp
                     )
                 )
                 .padding(horizontal = 16.dp, vertical = 10.dp)
-            ) {
-        Text(
-            text = textMessage,
-            color = textColor,
-            fontSize = 16.sp
-        )
-    } }
+        ) {
+            Text(
+                text = textMessage,
+                color = textColor,
+                fontSize = 16.sp
+            )
+        }
+    }
 }
 
 @Composable
 fun ChatHeader(
     nomeUtente: String,
-    titoloAnnuncio: String,
+    titoloAnnuncio: String? = null,
     profileBitmap: ImageBitmap? = null,
     onBackClick: () -> Unit
 ) {
@@ -830,7 +862,8 @@ fun ChatHeader(
 
         // Testi (Nome + Annuncio)
         Column(
-            modifier = Modifier.weight(1f)
+            modifier = Modifier.weight(1f),
+            verticalArrangement = Arrangement.Center // 💅 Per centrare il nome verticalmente se manca l'annuncio
         ) {
             Text(
                 text = nomeUtente,
@@ -840,13 +873,52 @@ fun ChatHeader(
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis // Mette i puntini se il nome è troppo lungo
             )
-            Text(
-                text = titoloAnnuncio,
-                color = Color.Gray,
-                fontSize = 13.sp,
-                maxLines = 1,
-                overflow = TextOverflow.Ellipsis // Mette i puntini se l'annuncio è troppo lungo
-            )
+
+            // 💅 MAGIC 2: Lo stampa SOLO se il titolo non è nullo e non è vuoto
+            if (!titoloAnnuncio.isNullOrBlank()) {
+                Text(
+                    text = titoloAnnuncio,
+                    color = Color.Gray,
+                    fontSize = 13.sp,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis
+                )
+            }
         }
+    }
+}
+
+@Composable
+fun CustomChip(text: String, bgColor: Color, textColor: Color, icon: ImageVector? = null) {
+    Row(
+        modifier = Modifier
+            .background(color = bgColor, shape = RoundedCornerShape(12.dp))
+            .padding(horizontal = 12.dp, vertical = 6.dp),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        if (icon != null) {
+            Icon(imageVector = icon, contentDescription = null, tint = textColor, modifier = Modifier.size(16.dp))
+            Spacer(modifier = Modifier.width(6.dp))
+        }
+        Text(text = text, color = textColor, fontWeight = FontWeight.Bold, fontSize = 14.sp)
+    }
+}
+
+@Composable
+fun CustomAvatar(initial: String, size: androidx.compose.ui.unit.Dp = 56.dp) {
+    Box(
+        modifier = Modifier
+            .size(size)
+            .clip(CircleShape)
+            // Gradiente molto baddie per l'avatar finto
+            .background(Brush.linearGradient(listOf(Color(0xFFB388FF), Color(0xFF8C9EFF)))),
+        contentAlignment = Alignment.Center
+    ) {
+        Text(
+            text = initial.uppercase(),
+            color = Color.White,
+            fontWeight = FontWeight.Black,
+            fontSize = (size.value * 0.4).sp
+        )
     }
 }
