@@ -10,7 +10,7 @@ import retrofit2.http.*
 interface ChatApiClient {
 
     @GET("api/chat/user/{userCode}")
-    suspend fun getUserChats(@Path("userCode") userCode: String): Response<List<UserChatDTO>>
+    suspend fun getUserChats(@Path("userCode") userCode: String?): Response<List<UserChatDTO>>
 
     @GET("api/chat/{chatCode}")
     suspend fun getChat(@Path("chatCode") chatCode: String): Response<GetChatDTO>
@@ -18,7 +18,7 @@ interface ChatApiClient {
     @GET("api/chat/messages/{chatCode}")
     suspend fun getMessages(
         @Path("chatCode") chatCode: String,
-        @QueryMap options: Map<String, String> // Supports the fields in GetMessagesDTO
+        //@QueryMap options: Map<String, String> // Supports the fields in GetMessagesDTO
     ): Response<List<ChatMessageDTO>>
 
     @POST("api/chat/create")

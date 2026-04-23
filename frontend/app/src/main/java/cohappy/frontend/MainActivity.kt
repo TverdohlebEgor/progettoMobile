@@ -16,25 +16,24 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.lifecycle.lifecycleScope
+import androidx.navigation.NavType
 import cohappy.frontend.ui.theme.ProgettoMobileTheme
 import cohappy.frontend.feature.PaginaIniziale
 
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import androidx.navigation.navArgument
 
-import cohappy.frontend.components.CustomBackButton
 import cohappy.frontend.feature.annunci.PaginaAnnunci
 import cohappy.frontend.feature.auth.PaginaLogin
 import cohappy.frontend.client.ClientSingleton
+import cohappy.frontend.feature.annunci.PaginaAnnuncioSingolo
 import cohappy.frontend.feature.auth.PaginaRegistrazione
+import cohappy.frontend.feature.chat.ChatAnnunci
 import cohappy.frontend.model.dto.request.LoginDTO
 import cohappy.frontend.model.dto.request.RegisterDTO
 import kotlinx.coroutines.launch
-
-import android.content.Context
-import cohappy.frontend.feature.ProfiloNoCasa
-import cohappy.frontend.feature.annunci.ChatAnnunci
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -89,12 +88,10 @@ class MainActivity : ComponentActivity() {
                                                     val pacchettoLogin = LoginDTO(email = email, password = password)
                                                     val apiResponse = ClientSingleton.userApi.login(pacchettoLogin)
 
-                                                    // 💅 Controlliamo l'errore in modo pulito tramite l'oggetto Response
                                                     if (!apiResponse.isSuccessful) {
                                                         throw Exception("Credenziali errate o utente non trovato dal server")
                                                     }
 
-                                                    // 💅 Prendiamo IL VERO CORPO della risposta, ovvero il token!
                                                     val risposta = apiResponse.body() ?: ""
 
                                                     println("Login effettuato con successo. Dati: $risposta")
@@ -143,7 +140,6 @@ class MainActivity : ComponentActivity() {
                                                 throw Exception("Credenziali errate o utente non trovato dal server")
                                             }
 
-                                            // 💅 Prendiamo il VERO token anche qui!
                                             val risposta = apiResponse.body() ?: ""
 
                                             println("Login effettuato con successo. Dati: $risposta")
@@ -165,16 +161,18 @@ class MainActivity : ComponentActivity() {
                                 onAnnuncioClick = { id -> navController.navigate("annuncio_singolo/$id") },
                                 isLoggedIn = isLoggedIn,
                                 onProfiloAnnunciClick = { navController.navigate("profilo_no_casa") },
-                                onChatAnnunciClick = { navController.navigate("chat") },
+                                onChatAnnunciClick = { chatId -> navController.navigate("chat_singola/$chatId") },
                                 onLogoutClick = {
                                     with(sharedPref.edit()) {
-                                        remove("USER_TOKEN")
+                                        clear() // Rimuove tutto, non solo la chiave, così siamo sicuri al 100%
                                         apply()
                                     }
                                     isLoggedIn = false
                                     userToken = null
+
+                                    // Rispediamo alla pagina iniziale killando tutta la storia di navigazione
                                     navController.navigate("iniziale") {
-                                        popUpTo(0) // Pulisce la cronologia
+                                        popUpTo(0) { inclusive = true }
                                     }
                                 },
                                 onCreateHouseClick = { /* TODO */ },
@@ -220,6 +218,40 @@ class MainActivity : ComponentActivity() {
                                     )
                                 }
                             }
+                        }
+
+                        composable("chat_singola/{chatCode}") { backStackEntry ->
+                            // Peschiamo il codice della chat o utente dall'URL in modo pulito
+                            val chatCode = backStackEntry.arguments?.getString("chatCode")?.trim() ?: ""
+
+                            android.util.Log.d("TAG_CHECK_CHAT", "🚀 NavHost riceve chatCode/hostCode: '$chatCode'")
+
+                            if (chatCode.isNotBlank()) {
+                                ChatAnnunci(
+                                    chatCode = chatCode,
+                                    userToken = userToken,
+                                    onBackClick = { navController.popBackStack() }
+                                )
+                            } else {
+                                android.util.Log.e("TAG_CHECK_CHAT", "❌ NavHost ERRORE CRITICO: chatCode è vuoto!")
+                            }
+                        }
+
+                        composable(
+                            route = "annuncio_singolo/{id}",
+                            arguments = listOf(navArgument("id") { type = NavType.StringType })
+                        ) { backStackEntry ->
+                            // Estraiamo la stringa
+                            val annuncioId = backStackEntry.arguments?.getString("id") ?: ""
+
+                            PaginaAnnuncioSingolo(
+                                annuncioId = annuncioId, // Passiamo la stringa
+                                onBackClick = { navController.popBackStack() },
+                                onChatClick = { targetChat ->
+                                    navController.navigate("chat_singola/$targetChat")
+                                },
+                                userToken = userToken
+                            )
                         }
                     }
                 }

@@ -163,7 +163,6 @@ fun ProfiloNoCasa(
             } catch (e: Exception) {
                 e.printStackTrace() // Stampiamo nel Logcat per sicurezza
 
-                // 💅 TRUCCO DA BOSS: Facciamo "snitchare" l'app!
                 // Stampiamo l'errore tecnico direttamente al posto del nome sulla UI!
                 nomeUtente = "CRASH:"
 

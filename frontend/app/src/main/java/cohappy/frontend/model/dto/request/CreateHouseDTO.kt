@@ -5,9 +5,9 @@ import com.squareup.moshi.JsonClass
 data class CreateHouseDTO(
     val userCode: String,
     var images: List<ByteArray>? = null,
-    val costPerMonth: Integer,
+    val costPerMonth: Int, //INTEGER
     val country: String,
     val region: String,
     val street: String,
-    val civicNumber: Integer
+    val civicNumber: Int //INTEGER
 )
