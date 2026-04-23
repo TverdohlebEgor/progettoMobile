@@ -101,6 +101,7 @@ public class ChatService {
                 new ArrayList<>()
         );
 
+        chatRepository.save(newChat);
         return newChat.getChatCode();
     }
 
