@@ -250,6 +250,9 @@ class MainActivity : ComponentActivity() {
                                 onChatClick = { targetChat ->
                                     navController.navigate("chat_singola/$targetChat")
                                 },
+                                onRequireLoginClick = { //Reindirizza al login in modo super pulito
+                                    navController.navigate("login")
+                                },
                                 userToken = userToken
                             )
                         }

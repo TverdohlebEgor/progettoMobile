@@ -219,6 +219,10 @@ fun ChatAnnunci(
 
             IconButton(
                 onClick = {
+                    // 💅 SUPER MICROSCOPIO LOG ATTIVATO
+                    Log.d("TAG_CHAT", "👆 TAP SUL TASTO INVIA!")
+                    Log.d("TAG_CHAT", "🧐 STATUS VARIABILI -> textInput: '$textInput', resolvedChatCode: '$resolvedChatCode'")
+
                     if (textInput.isNotBlank() && resolvedChatCode.isNotBlank()) {
                         val testoDaInviare = textInput
                         textInput = ""
@@ -231,24 +235,36 @@ fun ChatAnnunci(
 
                         coroutineScope.launch {
                             try {
-                                Log.d("TAG_CHAT", "📤 Invio messaggio alla chat: $resolvedChatCode")
+                                Log.d("TAG_CHAT", "📦 Creazione pacchetto AddMessageDTO in corso...")
                                 val pacchetto = AddMessageDTO(
                                     message = testoDaInviare,
                                     userCode = mioUserCode,
                                     chatCode = resolvedChatCode
                                 )
+                                Log.d("TAG_CHAT", "📦 DTO Pronto: $pacchetto")
+
+                                Log.d("TAG_CHAT", "🚀 Lancio la chiamata di rete a Egor (api/chat/message/add)...")
                                 val response = withContext(Dispatchers.IO) {
                                     ClientSingleton.chatApi.addMessage(pacchetto)
                                 }
+
+                                Log.d("TAG_CHAT", "📩 Risposta ricevuta dal server! Codice HTTP: ${response.code()}")
+
                                 if (response.isSuccessful) {
-                                    Log.d("TAG_CHAT", "✅ Messaggio inviato!")
+                                    Log.d("TAG_CHAT", "✅ Messaggio inviato con successo! Body: ${response.body()}")
                                 } else {
-                                    Log.e("TAG_CHAT", "❌ Errore invio: ${response.code()}")
+                                    // 💅 Se Egor si lamenta, leggiamo il suo messaggio di errore crudo!
+                                    val errorBody = response.errorBody()?.string() ?: "Nessun dettaglio errore"
+                                    Log.e("TAG_CHAT", "❌ ERRORE INVIO (Backend ha rifiutato). Codice: ${response.code()}")
+                                    Log.e("TAG_CHAT", "❌ Dettaglio errore da Egor: $errorBody")
                                 }
                             } catch (e: Exception) {
-                                Log.e("TAG_CHAT", "🚨 Errore Moshi/Rete nell'invio: ${e.message}")
+                                Log.e("TAG_CHAT", "🚨 CRASH DI RETE O MOSHI NELL'INVIO: ${e.message}")
+                                e.printStackTrace()
                             }
                         }
+                    } else {
+                        Log.w("TAG_CHAT", "⚠️ Invio bloccato! Motivo: Testo vuoto o ID Chat mancante.")
                     }
                 },
                 modifier = Modifier

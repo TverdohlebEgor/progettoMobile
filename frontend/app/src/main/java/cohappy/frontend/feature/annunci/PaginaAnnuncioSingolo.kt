@@ -55,7 +55,9 @@ fun PaginaAnnuncioSingolo(
     annuncioId: String,
     userToken: String?, // 💅 Aggiungiamo il token qui
     onBackClick: () -> Unit,
-    onChatClick: (String) -> Unit = {}
+    onChatClick: (String) -> Unit = {},
+    onRequireLoginClick: () -> Unit = {}
+
 ) {
 
     val isDark = isSystemInDarkTheme()
@@ -63,7 +65,7 @@ fun PaginaAnnuncioSingolo(
     val ContentColor = if (isDark) Color.White else Color.Black
     val BottomButtonColor = if (isDark) Color(0xFF3B3054) else Color(0xFF121212)
 
-    val coroutineScope = rememberCoroutineScope() // 💅 Serve per lanciare la coroutine al click del bottone!
+    val coroutineScope = rememberCoroutineScope()
 
     var annuncio by remember { mutableStateOf<GetHouseAdvertesimentDTO?>(null) }
     var isLoading by remember { mutableStateOf(true) }
@@ -192,7 +194,10 @@ fun PaginaAnnuncioSingolo(
 
                             Log.d("TAG_CHECK_CHAT", "🕵️ Controllo pre-chat. Inserzionista: '$hostUserCode', Io: '$myUserCode'")
 
-                            if (hostUserCode.isBlank()) {
+                            if (myUserCode.isBlank()) {
+                                Log.w("TAG_CHECK_CHAT", "🛑 Utente OSPITE! Lo spedisco al login.")
+                                onRequireLoginClick()}
+                            else if (hostUserCode.isBlank()) {
                                 Log.e("TAG_CHECK_CHAT", "❌ ERRORE: publishedByCode dell'annuncio è VUOTO o NULL! L'API non ce l'ha dato.")
                             } else if (hostUserCode == myUserCode) {
                                 Log.e("TAG_CHECK_CHAT", "❌ ERRORE: Non puoi chattare con te stesso! Questo è un tuo annuncio.")
