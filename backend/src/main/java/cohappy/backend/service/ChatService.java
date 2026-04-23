@@ -172,11 +172,15 @@ public class ChatService {
                 () -> new NotFoundException(USER_NOT_FOUND.formatted(addMessageDTO.getUserCode()))
         );
 
+        byte[] immage = null;
+        if(userAccount.getImages() != null && !userAccount.getImages().isEmpty()){
+            immage = userAccount.getImages().getFirst();
+        }
         ChatMessage newMessage = new ChatMessage(
            addMessageDTO.getMessage(),
            addMessageDTO.getMessageImmage(),
            userAccount.getUserCode(),
-           userAccount.getImages().getFirst(),
+           immage,
            LocalDateTime.now()
         );
 

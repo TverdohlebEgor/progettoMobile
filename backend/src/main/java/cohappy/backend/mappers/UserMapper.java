@@ -21,6 +21,9 @@ public class UserMapper {
         result.setBirthDate(LocalDate.parse(registerDTO.getBirthDate()));
         result.setUserCode(UUID.randomUUID().toString());
         result.setImages(registerDTO.getImages());
+        if(result.getImages() == null){
+            result.setImages(new ArrayList<>());
+        }
         result.setEmail(registerDTO.getEmail());
         result.setPhoneNumber(registerDTO.getPhoneNumber());
         result.setPassword(registerDTO.getPassword());
