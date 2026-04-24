@@ -403,11 +403,13 @@ fun AnnuncioDetailTitlePrice(titolo: String, posizione: String, prezzo: String) 
             Text(text = titolo, fontSize = 32.sp, fontWeight = FontWeight.Black, lineHeight = 36.sp, color = MaterialTheme.colorScheme.onBackground)
             Spacer(modifier = Modifier.height(8.dp))
 
-            Row(verticalAlignment = Alignment.CenterVertically) {
-                Icon(imageVector = Icons.Outlined.LocationOn, contentDescription = null, tint = Color.Gray, modifier = Modifier.size(18.dp))
-                Spacer(modifier = Modifier.width(4.dp))
-                Text(text = posizione, color = Color.Gray, fontSize = 16.sp)
-            }
+
+            HousePosition(posizione)
+//            Row(verticalAlignment = Alignment.CenterVertically) {
+//                Icon(imageVector = Icons.Outlined.LocationOn, contentDescription = null, tint = Color.Gray, modifier = Modifier.size(18.dp))
+//                Spacer(modifier = Modifier.width(4.dp))
+//                Text(text = posizione, color = Color.Gray, fontSize = 16.sp)
+//            }
         }
         Column(horizontalAlignment = Alignment.End) {
             Text(text = "Prezzo", color = Color.Gray, fontSize = 14.sp, modifier = Modifier.padding(bottom = 6.dp))

@@ -31,7 +31,8 @@ import kotlinx.coroutines.withContext
 fun ChatAnnunci(
     chatCode: String,
     userToken: String?,
-    onBackClick: () -> Unit
+    onBackClick: () -> Unit,
+    onNavigateToAnnuncio: (String) -> Unit // 💅 NUOVO CAVO
 ) {
     val isDark = isSystemInDarkTheme()
     val bgColor = if (isDark) Color.Black else Color.White
@@ -45,8 +46,10 @@ fun ChatAnnunci(
     var isLoading by remember { mutableStateOf(true) }
 
     var nomeChat by remember { mutableStateOf("Caricamento...") }
-    var sottotitoloChat by remember { mutableStateOf("") }
     var resolvedChatCode by remember { mutableStateOf("") }
+    var resolvedAnnuncioId by remember { mutableStateOf("") } // 💅 L'ID dell'annuncio se lo troviamo!
+
+    var sottotitoloChat by remember { mutableStateOf("") }
 
     LaunchedEffect(chatCode) {
         Log.d("TAG_CHAT", "🚀 Inizio flusso. Parametro passato: $chatCode")
@@ -55,6 +58,7 @@ fun ChatAnnunci(
         var nomeMalcapitato = "Sconosciuto"
         var idChatDaUsare = ""
         var chatGiaEsistente = false
+        var otherUserCodeForSearch = chatCode // 💅 Lo useremo per cercare il suo annuncio
 
         // 💅 BLOCCO 1: RECUPERO IL NOME DEL MALCAPITATO
         try {
@@ -81,21 +85,25 @@ fun ChatAnnunci(
             val chatsResp = withContext(Dispatchers.IO) { ClientSingleton.chatApi.getUserChats(mioUserCode) }
             val mieChats = chatsResp.body() ?: emptyList()
 
-            // Cerchiamo se abbiamo la chat! (Sia usando chatCode come ID Chat, sia come utente)
+            // Cerchiamo se abbiamo la chat!
             val chatTrovata = mieChats.find {
                 it.chatCode == chatCode ||
                         (it.participating != null && it.participating!!.contains(mioUserCode) && it.participating!!.contains(chatCode) && it.participating!!.size == 2)
             }
 
             if (chatTrovata != null) {
-                // 💅 TROVATA: LA CARICA E BONA
                 Log.d("TAG_CHAT", "✅ 2. Chat trovata! ID: ${chatTrovata.chatCode}")
                 idChatDaUsare = chatTrovata.chatCode ?: ""
                 chatGiaEsistente = true
 
-                // Se non avevamo trovato il nome (es. arriviamo dall'ElencoChat), rubiamolo da qui
                 if (nomeMalcapitato == "Sconosciuto" && !chatTrovata.name.isNullOrBlank()) {
                     nomeMalcapitato = chatTrovata.name!!
+                }
+
+                // 💅 Rubiamo l'ID dell'altra persona per la ricerca annuncio!
+                val trovatoAltro = chatTrovata.participating?.find { it != mioUserCode }
+                if (trovatoAltro != null) {
+                    otherUserCodeForSearch = trovatoAltro
                 }
             } else {
                 // 💅 NON TROVATA: LA CREA E NON CARICA I MESSAGGI
@@ -120,6 +128,24 @@ fun ChatAnnunci(
             }
         } catch (e: Exception) {
             Log.e("TAG_CHAT", "🚨 2. Errore API ricerca/creazione: ${e.message}")
+        }
+
+        // 💅 BLOCCO 2.5: CERCHIAMO L'ANNUNCIO DELL'HOST!
+        try {
+            Log.d("TAG_CHAT", "🔍 2.5 Cerco se l'utente $otherUserCodeForSearch ha un annuncio attivo")
+            val adsResp = withContext(Dispatchers.IO) { ClientSingleton.houseApi.getAllHouseAdvertisements() }
+            if (adsResp.isSuccessful && adsResp.body() != null) {
+                // Cerchiamo il primo annuncio pubblicato da questa persona
+                val foundAd = adsResp.body()!!.find { it.publishedByCode == otherUserCodeForSearch }
+                if (foundAd != null) {
+                    resolvedAnnuncioId = foundAd.houseCode ?: ""
+                    Log.d("TAG_CHAT", "✅ 2.5 Annuncio trovato! ID: $resolvedAnnuncioId")
+                } else {
+                    Log.d("TAG_CHAT", "⚠️ 2.5 Nessun annuncio trovato per questo utente.")
+                }
+            }
+        } catch (e: Exception) {
+            Log.e("TAG_CHAT", "🚨 2.5 Errore ricerca annuncio: ${e.message}")
         }
 
         // 💅 BLOCCO 3: APPLICHIAMO ALLA GRAFICA
@@ -166,9 +192,14 @@ fun ChatAnnunci(
     ) {
         ChatHeader(
             nomeUtente = nomeChat,
-            titoloAnnuncio = sottotitoloChat,
             profileBitmap = null,
-            onBackClick = onBackClick
+            onBackClick = onBackClick,
+            onHeaderClick = {
+                // 💅 Se abbiamo trovato l'annuncio di questa persona, spariamo il router!
+                if (resolvedAnnuncioId.isNotBlank()) {
+                    onNavigateToAnnuncio(resolvedAnnuncioId)
+                }
+            }
         )
 
         if (isLoading) {
@@ -219,10 +250,6 @@ fun ChatAnnunci(
 
             IconButton(
                 onClick = {
-                    // 💅 SUPER MICROSCOPIO LOG ATTIVATO
-                    Log.d("TAG_CHAT", "👆 TAP SUL TASTO INVIA!")
-                    Log.d("TAG_CHAT", "🧐 STATUS VARIABILI -> textInput: '$textInput', resolvedChatCode: '$resolvedChatCode'")
-
                     if (textInput.isNotBlank() && resolvedChatCode.isNotBlank()) {
                         val testoDaInviare = textInput
                         textInput = ""
@@ -235,36 +262,24 @@ fun ChatAnnunci(
 
                         coroutineScope.launch {
                             try {
-                                Log.d("TAG_CHAT", "📦 Creazione pacchetto AddMessageDTO in corso...")
+                                Log.d("TAG_CHAT", "📤 Invio messaggio alla chat: $resolvedChatCode")
                                 val pacchetto = AddMessageDTO(
                                     message = testoDaInviare,
                                     userCode = mioUserCode,
                                     chatCode = resolvedChatCode
                                 )
-                                Log.d("TAG_CHAT", "📦 DTO Pronto: $pacchetto")
-
-                                Log.d("TAG_CHAT", "🚀 Lancio la chiamata di rete a Egor (api/chat/message/add)...")
                                 val response = withContext(Dispatchers.IO) {
                                     ClientSingleton.chatApi.addMessage(pacchetto)
                                 }
-
-                                Log.d("TAG_CHAT", "📩 Risposta ricevuta dal server! Codice HTTP: ${response.code()}")
-
                                 if (response.isSuccessful) {
-                                    Log.d("TAG_CHAT", "✅ Messaggio inviato con successo! Body: ${response.body()}")
+                                    Log.d("TAG_CHAT", "✅ Messaggio inviato!")
                                 } else {
-                                    // 💅 Se Egor si lamenta, leggiamo il suo messaggio di errore crudo!
-                                    val errorBody = response.errorBody()?.string() ?: "Nessun dettaglio errore"
-                                    Log.e("TAG_CHAT", "❌ ERRORE INVIO (Backend ha rifiutato). Codice: ${response.code()}")
-                                    Log.e("TAG_CHAT", "❌ Dettaglio errore da Egor: $errorBody")
+                                    Log.e("TAG_CHAT", "❌ Errore invio: ${response.code()}")
                                 }
                             } catch (e: Exception) {
-                                Log.e("TAG_CHAT", "🚨 CRASH DI RETE O MOSHI NELL'INVIO: ${e.message}")
-                                e.printStackTrace()
+                                Log.e("TAG_CHAT", "🚨 Errore Moshi/Rete nell'invio: ${e.message}")
                             }
                         }
-                    } else {
-                        Log.w("TAG_CHAT", "⚠️ Invio bloccato! Motivo: Testo vuoto o ID Chat mancante.")
                     }
                 },
                 modifier = Modifier

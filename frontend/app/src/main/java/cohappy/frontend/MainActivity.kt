@@ -177,7 +177,6 @@ class MainActivity : ComponentActivity() {
                                 },
                                 onCreateHouseClick = { /* TODO */ },
                                 onJoinConfirmClick = { /* TODO */ },
-                                onEditClick = { /* TODO */ },
                                 userToken = userToken
                             )
                         }
@@ -230,7 +229,11 @@ class MainActivity : ComponentActivity() {
                                 ChatAnnunci(
                                     chatCode = chatCode,
                                     userToken = userToken,
-                                    onBackClick = { navController.popBackStack() }
+                                    onBackClick = { navController.popBackStack() },
+                                    // 💅 MAGIC: Aggiungiamo il cavo che naviga all'annuncio!
+                                    onNavigateToAnnuncio = { annuncioId ->
+                                        navController.navigate("annuncio_singolo/$annuncioId")
+                                    }
                                 )
                             } else {
                                 android.util.Log.e("TAG_CHECK_CHAT", "❌ NavHost ERRORE CRITICO: chatCode è vuoto!")

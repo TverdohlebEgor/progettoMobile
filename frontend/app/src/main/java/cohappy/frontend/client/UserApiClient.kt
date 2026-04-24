@@ -2,6 +2,7 @@ package cohappy.frontend.client
 
 import cohappy.frontend.model.dto.response.UserAccountDTO
 import cohappy.frontend.model.dto.request.LoginDTO
+import cohappy.frontend.model.dto.request.PatchUserDTO
 import cohappy.frontend.model.dto.request.RegisterDTO
 import retrofit2.Response
 import retrofit2.http.*
@@ -19,4 +20,7 @@ interface UserApiClient {
 
     @POST("api/user/register")
     suspend fun register(@Body registerDTO: RegisterDTO): Response<String>
+
+    @PATCH("api/user/patch")
+    suspend fun patchUser(@Body patchUserDTO: PatchUserDTO): Response<String>
 }

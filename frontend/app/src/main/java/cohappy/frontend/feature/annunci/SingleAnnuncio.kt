@@ -13,9 +13,7 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.ArrowBackIosNew
-import androidx.compose.material.icons.filled.Iso
 import androidx.compose.material.icons.outlined.ChatBubbleOutline
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
@@ -39,15 +37,12 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import cohappy.frontend.R
 import cohappy.frontend.client.ClientSingleton
-import cohappy.frontend.components.AnnuncioDetailComforts
 import cohappy.frontend.components.AnnuncioDetailDescription
 import cohappy.frontend.components.AnnuncioDetailHost
 import cohappy.frontend.components.AnnuncioDetailTitlePrice
 import cohappy.frontend.components.CustomBackButton
 import cohappy.frontend.model.dto.response.GetHouseAdvertesimentDTO
-import cohappy.frontend.model.dto.request.CreateChatDTO // 💅 Importiamo il DTO per creare la chat!
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
 @Composable

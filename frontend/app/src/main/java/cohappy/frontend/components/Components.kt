@@ -15,6 +15,7 @@ import androidx.compose.material.icons.filled.ArrowBackIosNew
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.Search
+import androidx.compose.material.icons.outlined.LocationOn
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.DividerDefaults
@@ -524,7 +525,8 @@ fun CustomBackButton(color: Color, onClick: () -> Unit, modifier: Modifier = Mod
 // 💅 1. COMPONENTE FOTO PROFILO
 @Composable
 fun ProfileAvatar(
-    imageRes: Int? = null, // In futuro potrai passare un URL o ByteArray. Per ora gestiamo null!
+    imageRes: Int? = null,
+    imageBitmap: ImageBitmap? = null, // 💅 AGGIUNTO: Supporto per foto vere!
     modifier: Modifier = Modifier,
     size: Int = 100
 ) {
@@ -535,7 +537,15 @@ fun ProfileAvatar(
             .background(MaterialTheme.colorScheme.surfaceVariant), // Sfondo grigetto se è vuoto
         contentAlignment = Alignment.Center
     ) {
-        if (imageRes != null) {
+        if (imageBitmap != null) {
+            // 💅 Se abbiamo la foto vera, usiamo quella!
+            Image(
+                bitmap = imageBitmap,
+                contentDescription = "Foto Profilo",
+                contentScale = ContentScale.Crop,
+                modifier = Modifier.fillMaxSize()
+            )
+        } else if (imageRes != null) {
             Image(
                 painter = painterResource(id = imageRes),
                 contentDescription = "Foto Profilo",
@@ -543,7 +553,7 @@ fun ProfileAvatar(
                 modifier = Modifier.fillMaxSize()
             )
         } else {
-            // Se è null, usiamo la DefaultProfilePicture (Icona standard)
+            // Se è tutto null, usiamo l'Icona standard
             Icon(
                 imageVector = Icons.Default.Person,
                 contentDescription = "Default Profile Picture",
@@ -554,12 +564,14 @@ fun ProfileAvatar(
     }
 }
 
+
 // 💅 2. COMPONENTE HEADER PROFILO (Il box lilla in alto)
 @Composable
 fun ProfileHeaderCard(
     nome: String,
     cognome: String,
     imageRes: Int? = null,
+    profileBitmap: ImageBitmap? = null, // 💅 AGGIUNTO QUI!
     onEditClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
@@ -579,7 +591,8 @@ fun ProfileHeaderCard(
             modifier = Modifier.fillMaxWidth(),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            ProfileAvatar(imageRes = imageRes, size = 100)
+            // 💅 PASSATA ALL'AVATAR
+            ProfileAvatar(imageRes = imageRes, imageBitmap = profileBitmap, size = 100)
             Spacer(modifier = Modifier.height(16.dp))
 
             Text(
@@ -743,7 +756,7 @@ fun HorizontalDivider(
     thickness: Dp = DividerDefaults.Thickness,
     color: Color = DividerDefaults.color
 ) {
-    androidx.compose.material3.HorizontalDivider(
+    HorizontalDivider(
         modifier = modifier,
         thickness = thickness,
         color = color
@@ -805,9 +818,9 @@ fun MessageBubble(
 @Composable
 fun ChatHeader(
     nomeUtente: String,
-    titoloAnnuncio: String? = null,
     profileBitmap: ImageBitmap? = null,
-    onBackClick: () -> Unit
+    onBackClick: () -> Unit,
+    onHeaderClick: () -> Unit = {} // 💅 Nuovo cavo per aprire l'annuncio
 ) {
     val isDark = isSystemInDarkTheme()
     val bgColor = if (isDark) Color.Black else Color.White
@@ -820,66 +833,67 @@ fun ChatHeader(
             .padding(horizontal = 16.dp, vertical = 12.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
-        // Tasto Freccia Indietro
-        Icon(
-            imageVector = Icons.Default.ArrowBackIosNew,
-            contentDescription = "Torna indietro",
-            tint = contentColor,
+        // 💅 Tasto Freccia Indietro (ISOLATO)
+        Box(
             modifier = Modifier
-                .size(28.dp)
                 .clip(CircleShape)
-                .clickable { onBackClick() }
-                .padding(4.dp)
-        )
+                .clickable { onBackClick() } // Click SOLO qui torna indietro
+                .padding(8.dp)
+        ) {
+            Icon(
+                imageVector = Icons.Default.ArrowBackIosNew,
+                contentDescription = "Torna indietro",
+                tint = contentColor,
+                modifier = Modifier.size(24.dp)
+            )
+        }
 
         Spacer(modifier = Modifier.width(8.dp))
 
-        // Foto Profilo (Vera o Default)
-        Box(
+        // 💅 TUTTO IL RESTO È CLICCABILE E APRE L'ANNUNCIO
+        Row(
             modifier = Modifier
-                .size(46.dp)
-                .clip(CircleShape)
-                .background(MaterialTheme.colorScheme.surfaceVariant)
+                .weight(1f)
+                .clip(RoundedCornerShape(12.dp))
+                .clickable { onHeaderClick() } // Click sul nome/foto apre l'annuncio
+                .padding(4.dp),
+            verticalAlignment = Alignment.CenterVertically
         ) {
-            if (profileBitmap != null) {
-                Image(
-                    bitmap = profileBitmap,
-                    contentDescription = "Foto di $nomeUtente",
-                    contentScale = ContentScale.Crop,
-                    modifier = Modifier.fillMaxSize()
-                )
-            } else {
-                Image(
-                    painter = painterResource(id = R.drawable.default_photo_profile),
-                    contentDescription = "Foto di default",
-                    contentScale = ContentScale.Crop,
-                    modifier = Modifier.fillMaxSize()
-                )
+            // Foto Profilo
+            Box(
+                modifier = Modifier
+                    .size(46.dp)
+                    .clip(CircleShape)
+                    .background(MaterialTheme.colorScheme.surfaceVariant)
+            ) {
+                if (profileBitmap != null) {
+                    Image(
+                        bitmap = profileBitmap,
+                        contentDescription = "Foto di $nomeUtente",
+                        contentScale = ContentScale.Crop,
+                        modifier = Modifier.fillMaxSize()
+                    )
+                } else {
+                    Image(
+                        painter = painterResource(id = R.drawable.default_photo_profile),
+                        contentDescription = "Foto di default",
+                        contentScale = ContentScale.Crop,
+                        modifier = Modifier.fillMaxSize()
+                    )
+                }
             }
-        }
 
-        Spacer(modifier = Modifier.width(12.dp))
+            Spacer(modifier = Modifier.width(12.dp))
 
-        // Testi (Nome + Annuncio)
-        Column(
-            modifier = Modifier.weight(1f),
-            verticalArrangement = Arrangement.Center // 💅 Per centrare il nome verticalmente se manca l'annuncio
-        ) {
-            Text(
-                text = nomeUtente,
-                color = contentColor,
-                fontWeight = FontWeight.Bold,
-                fontSize = 18.sp,
-                maxLines = 1,
-                overflow = TextOverflow.Ellipsis // Mette i puntini se il nome è troppo lungo
-            )
-
-            // 💅 MAGIC 2: Lo stampa SOLO se il titolo non è nullo e non è vuoto
-            if (!titoloAnnuncio.isNullOrBlank()) {
+            // Nome Utente (Senza sottotitolo)
+            Column(
+                verticalArrangement = Arrangement.Center
+            ) {
                 Text(
-                    text = titoloAnnuncio,
-                    color = Color.Gray,
-                    fontSize = 13.sp,
+                    text = nomeUtente,
+                    color = contentColor,
+                    fontWeight = FontWeight.Bold,
+                    fontSize = 18.sp,
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis
                 )
@@ -905,7 +919,7 @@ fun CustomChip(text: String, bgColor: Color, textColor: Color, icon: ImageVector
 }
 
 @Composable
-fun CustomAvatar(initial: String, size: androidx.compose.ui.unit.Dp = 56.dp) {
+fun CustomAvatar(initial: String, size: Dp = 56.dp) {
     Box(
         modifier = Modifier
             .size(size)
@@ -920,5 +934,14 @@ fun CustomAvatar(initial: String, size: androidx.compose.ui.unit.Dp = 56.dp) {
             fontWeight = FontWeight.Black,
             fontSize = (size.value * 0.4).sp
         )
+    }
+}
+
+@Composable
+fun HousePosition(posizione: String){
+    Row(verticalAlignment = Alignment.CenterVertically) {
+        Icon(imageVector = Icons.Outlined.LocationOn, contentDescription = null, tint = Color.Gray, modifier = Modifier.size(18.dp))
+        Spacer(modifier = Modifier.width(4.dp))
+        Text(text = posizione, color = Color.Gray, fontSize = 16.sp)
     }
 }

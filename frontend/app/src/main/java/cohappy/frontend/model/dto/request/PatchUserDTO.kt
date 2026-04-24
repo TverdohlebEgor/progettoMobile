@@ -1,7 +1,9 @@
 package cohappy.frontend.model.dto.request
 
+import com.squareup.moshi.JsonClass
 import java.time.LocalDate
 
+@JsonClass(generateAdapter = true)
 data class PatchUserDTO(
     val userCode: String,
     var name: String? = null,
