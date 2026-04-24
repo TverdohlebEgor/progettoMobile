@@ -34,7 +34,6 @@ fun ListaAnnunciView(innerPadding: PaddingValues, onAnnuncioClick: (String) -> U
 
     var searchQuery by remember { mutableStateOf("") }
 
-    // 💅 SOLO IL DTO ORIGINALE DEL BACKEND, NIENTE INVENZIONI!
     var annunciList by remember { mutableStateOf<List<GetHouseAdvertesimentDTO>>(emptyList()) }
     var isLoading by remember { mutableStateOf(true) }
 
@@ -69,7 +68,6 @@ fun ListaAnnunciView(innerPadding: PaddingValues, onAnnuncioClick: (String) -> U
         } else {
             LazyColumn(
                 modifier = Modifier.fillMaxSize(),
-                contentPadding = innerPadding,
                 verticalArrangement = Arrangement.spacedBy(16.dp)
 
             ) {

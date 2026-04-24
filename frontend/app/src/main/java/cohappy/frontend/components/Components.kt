@@ -243,7 +243,7 @@ fun FloatingBottomBar(
 
     var baseModifier = Modifier
         .fillMaxWidth()
-        .padding(32.dp)
+        .padding(28.dp)
         .shadow(elevation = 16.dp, shape = RoundedCornerShape(40.dp))
         .clip(RoundedCornerShape(32.dp))
 
@@ -311,7 +311,7 @@ fun NavItem(
                     .background(MaterialTheme.colorScheme.onPrimary),
                 contentAlignment = Alignment.Center
             ) {
-                Icon(imageVector = icon, contentDescription = label, tint = MaterialTheme.colorScheme.primary)
+                Icon(imageVector = icon, contentDescription = label, tint = MaterialTheme.colorScheme.primary, modifier = Modifier.size(24.dp))
             }
             /*Spacer(modifier = Modifier.height(4.dp))
             // Nome della pagina sotto
@@ -526,7 +526,7 @@ fun CustomBackButton(color: Color, onClick: () -> Unit, modifier: Modifier = Mod
 @Composable
 fun ProfileAvatar(
     imageRes: Int? = null,
-    imageBitmap: ImageBitmap? = null, // 💅 AGGIUNTO: Supporto per foto vere!
+    imageBitmap: ImageBitmap? = null,
     modifier: Modifier = Modifier,
     size: Int = 100
 ) {
@@ -538,7 +538,7 @@ fun ProfileAvatar(
         contentAlignment = Alignment.Center
     ) {
         if (imageBitmap != null) {
-            // 💅 Se abbiamo la foto vera, usiamo quella!
+
             Image(
                 bitmap = imageBitmap,
                 contentDescription = "Foto Profilo",
@@ -565,13 +565,13 @@ fun ProfileAvatar(
 }
 
 
-// 💅 2. COMPONENTE HEADER PROFILO (Il box lilla in alto)
+
 @Composable
 fun ProfileHeaderCard(
     nome: String,
     cognome: String,
     imageRes: Int? = null,
-    profileBitmap: ImageBitmap? = null, // 💅 AGGIUNTO QUI!
+    profileBitmap: ImageBitmap? = null,
     onEditClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
@@ -591,7 +591,6 @@ fun ProfileHeaderCard(
             modifier = Modifier.fillMaxWidth(),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            // 💅 PASSATA ALL'AVATAR
             ProfileAvatar(imageRes = imageRes, imageBitmap = profileBitmap, size = 100)
             Spacer(modifier = Modifier.height(16.dp))
 
@@ -770,11 +769,11 @@ fun MessageBubble(
 ) {
     val isDark = isSystemInDarkTheme()
 
-    // Scegliamo i colori da vere boss in base a chi scrive e al tema
+
     val bubbleColor = if (isMe) {
-        MaterialTheme.colorScheme.primary // Colore principale per i tuoi messaggi
+        MaterialTheme.colorScheme.primary
     } else {
-        if (isDark) Color.DarkGray else Color(0xFFE5E5EA) // Grigino per gli altri
+        if (isDark) Color.DarkGray else Color(0xFFE5E5EA)
     }
 
     val textColor = if (isMe) {
@@ -792,14 +791,14 @@ fun MessageBubble(
     ) {
         Box(
             modifier = Modifier
-                // La bolla non deve superare l'80% dello schermo sennò è antiestetica
+
                 .widthIn(max = 280.dp)
                 .background(
                     color = bubbleColor,
                     shape = RoundedCornerShape(
                         topStart = 18.dp,
                         topEnd = 18.dp,
-                        // 💅 Smussiamo in modo furbo l'angolino in basso!
+
                         bottomStart = if (isMe) 18.dp else 4.dp,
                         bottomEnd = if (isMe) 4.dp else 18.dp
                     )
@@ -820,7 +819,7 @@ fun ChatHeader(
     nomeUtente: String,
     profileBitmap: ImageBitmap? = null,
     onBackClick: () -> Unit,
-    onHeaderClick: () -> Unit = {} // 💅 Nuovo cavo per aprire l'annuncio
+    onHeaderClick: () -> Unit = {}
 ) {
     val isDark = isSystemInDarkTheme()
     val bgColor = if (isDark) Color.Black else Color.White
@@ -833,11 +832,10 @@ fun ChatHeader(
             .padding(horizontal = 16.dp, vertical = 12.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
-        // 💅 Tasto Freccia Indietro (ISOLATO)
         Box(
             modifier = Modifier
                 .clip(CircleShape)
-                .clickable { onBackClick() } // Click SOLO qui torna indietro
+                .clickable { onBackClick() }
                 .padding(8.dp)
         ) {
             Icon(
@@ -850,16 +848,15 @@ fun ChatHeader(
 
         Spacer(modifier = Modifier.width(8.dp))
 
-        // 💅 TUTTO IL RESTO È CLICCABILE E APRE L'ANNUNCIO
+
         Row(
             modifier = Modifier
                 .weight(1f)
                 .clip(RoundedCornerShape(12.dp))
-                .clickable { onHeaderClick() } // Click sul nome/foto apre l'annuncio
+                .clickable { onHeaderClick() }
                 .padding(4.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            // Foto Profilo
             Box(
                 modifier = Modifier
                     .size(46.dp)
@@ -885,7 +882,7 @@ fun ChatHeader(
 
             Spacer(modifier = Modifier.width(12.dp))
 
-            // Nome Utente (Senza sottotitolo)
+
             Column(
                 verticalArrangement = Arrangement.Center
             ) {
@@ -924,7 +921,6 @@ fun CustomAvatar(initial: String, size: Dp = 56.dp) {
         modifier = Modifier
             .size(size)
             .clip(CircleShape)
-            // Gradiente molto baddie per l'avatar finto
             .background(Brush.linearGradient(listOf(Color(0xFFB388FF), Color(0xFF8C9EFF)))),
         contentAlignment = Alignment.Center
     ) {

@@ -31,6 +31,7 @@ import cohappy.frontend.client.ClientSingleton
 import cohappy.frontend.feature.annunci.PaginaAnnuncioSingolo
 import cohappy.frontend.feature.auth.PaginaRegistrazione
 import cohappy.frontend.feature.chat.ChatAnnunci
+import cohappy.frontend.feature.gestionale.HomeGestionale
 import cohappy.frontend.model.dto.request.LoginDTO
 import cohappy.frontend.model.dto.request.RegisterDTO
 import kotlinx.coroutines.launch
@@ -175,7 +176,7 @@ class MainActivity : ComponentActivity() {
                                         popUpTo(0) { inclusive = true }
                                     }
                                 },
-                                onCreateHouseClick = { /* TODO */ },
+                                onCreateHouseClick = { navController.navigate("home_gestionale") },
                                 onJoinConfirmClick = { /* TODO */ },
                                 userToken = userToken
                             )
@@ -238,6 +239,12 @@ class MainActivity : ComponentActivity() {
                             } else {
                                 android.util.Log.e("TAG_CHECK_CHAT", "❌ NavHost ERRORE CRITICO: chatCode è vuoto!")
                             }
+                        }
+
+                        composable(
+                            route = "home_gestionale",
+                        ) {
+                            HomeGestionale()
                         }
 
                         composable(

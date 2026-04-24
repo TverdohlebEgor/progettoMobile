@@ -20,11 +20,14 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.AccountBalanceWallet
 import androidx.compose.material.icons.filled.ChatBubble
 import androidx.compose.material.icons.filled.CheckCircle
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.Person
+import androidx.compose.material.icons.filled.Wallet
+import androidx.compose.material.icons.filled.WaterDrop
 import androidx.compose.material.icons.outlined.LocationOn
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -106,7 +109,16 @@ fun MenuOspite(currentTab: String, onTabSelected: (String) -> Unit) {
 @Composable
 fun MenuAnnunciLoggato(currentTab: String, onTabSelected: (String) -> Unit) {
     NavItem("annunci", Icons.Default.Home, "Annunci", currentTab, onTabSelected)
+    NavItem("chat", Icons.Default.ChatBubble ,"Chat", currentTab, onTabSelected)
+    NavItem("profilo", Icons.Default.Person, "Profilo", currentTab, onTabSelected)
+}
+
+@Composable
+fun MenuGestionaleUtente(currentTab: String, onTabSelected: (String) -> Unit){
+    NavItem("home", Icons.Default.Home, "Home", currentTab, onTabSelected)
     NavItem("chat", Icons.Default.ChatBubble, "Chat", currentTab, onTabSelected)
+    NavItem("wallet", Icons.Default.Wallet, "Wallet", currentTab, onTabSelected)
+    NavItem("chore", Icons.Default.WaterDrop, "Annunci", currentTab, onTabSelected)
     NavItem("profilo", Icons.Default.Person, "Profilo", currentTab, onTabSelected)
 }
 
