@@ -34,7 +34,7 @@ import java.util.Calendar
 fun PaginaRegistrazione(
     onRegisterClick: (String, String, String, String, String, String) -> Unit,
     onLoginClick: () -> Unit,
-    showError: Boolean = false // 💅 Aggiunto un valore di default
+    showError: Boolean = false
 ) {
     val isDark = isSystemInDarkTheme()
     val BgColor = if (isDark) Color.Black else Color.White
@@ -47,7 +47,7 @@ fun PaginaRegistrazione(
     var phoneNumber by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
 
-    // 💅 Nuovo secchiello: Se un utente dimentica un campo, accendiamo l'errore locale!
+
     var localError by remember { mutableStateOf(false) }
 
     // Pulizia dei campi ogni volta che la schermata viene ricaricata
@@ -64,7 +64,6 @@ fun PaginaRegistrazione(
     val context = LocalContext.current
     val calendar = Calendar.getInstance()
 
-    // 💅 Blindato in un remember per non ricaricarlo a ogni tasto premuto!
     val datePickerDialog = remember {
         DatePickerDialog(
             context,
@@ -103,7 +102,7 @@ fun PaginaRegistrazione(
                 horizontalAlignment = Alignment.CenterHorizontally,
                 verticalArrangement = Arrangement.Center
             ) {
-                // 💅 Messaggio di errore se i campi sono vuoti
+
                 if (localError) {
                     Text(
                         text = "Compila tutti i campi per registrarti!",
@@ -134,7 +133,7 @@ fun PaginaRegistrazione(
 
                 RegisterButton(
                     onRegisterClick = {
-                        // 💅 MAGIC: Togliamo TUTTI gli spazi prima e dopo il testo per non far sbroccare il Login!
+
                         val cleanName = name.trim()
                         val cleanSurname = surname.trim()
                         val cleanEmail = email.trim()

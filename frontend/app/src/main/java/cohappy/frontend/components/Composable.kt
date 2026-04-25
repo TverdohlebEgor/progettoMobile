@@ -504,7 +504,7 @@ fun SummRow(modifier: Modifier = Modifier){
             backgroundColor = Color.White,
             title = "Da dare",
             amount = "15,00 €",
-            modifier = Modifier.weight(1f) // 💅 MAGIC: Obbliga la card a prendere il 50%
+            modifier = Modifier.weight(1f)
         )
         SummBox(
             iconColor = BgColor,
@@ -514,7 +514,7 @@ fun SummRow(modifier: Modifier = Modifier){
             backgroundColor = MaterialTheme.colorScheme.onPrimary,
             title = "Tocca a te",
             amount = "Bagno",
-            modifier = Modifier.weight(1f) // 💅 MAGIC: Obbliga l'altra card a prendere il 50%
+            modifier = Modifier.weight(1f)
         )
     }
 }

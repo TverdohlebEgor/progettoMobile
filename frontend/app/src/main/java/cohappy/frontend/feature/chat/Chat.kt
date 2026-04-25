@@ -32,7 +32,7 @@ fun ChatAnnunci(
     chatCode: String,
     userToken: String?,
     onBackClick: () -> Unit,
-    onNavigateToAnnuncio: (String) -> Unit // 💅 NUOVO CAVO
+    onNavigateToAnnuncio: (String) -> Unit
 ) {
     val isDark = isSystemInDarkTheme()
     val bgColor = if (isDark) Color.Black else Color.White
@@ -47,7 +47,7 @@ fun ChatAnnunci(
 
     var nomeChat by remember { mutableStateOf("Caricamento...") }
     var resolvedChatCode by remember { mutableStateOf("") }
-    var resolvedAnnuncioId by remember { mutableStateOf("") } // 💅 L'ID dell'annuncio se lo troviamo!
+    var resolvedAnnuncioId by remember { mutableStateOf("") }
 
     var sottotitoloChat by remember { mutableStateOf("") }
 
@@ -58,9 +58,9 @@ fun ChatAnnunci(
         var nomeMalcapitato = "Sconosciuto"
         var idChatDaUsare = ""
         var chatGiaEsistente = false
-        var otherUserCodeForSearch = chatCode // 💅 Lo useremo per cercare il suo annuncio
+        var otherUserCodeForSearch = chatCode +
 
-        // 💅 BLOCCO 1: RECUPERO IL NOME DEL MALCAPITATO
+
         try {
             Log.d("TAG_CHAT", "🔍 1. Recupero nome del malcapitato (ID: $chatCode)")
             val profileResp = withContext(Dispatchers.IO) { ClientSingleton.userApi.getUserProfile(chatCode) }
@@ -79,7 +79,7 @@ fun ChatAnnunci(
             Log.e("TAG_CHAT", "🚨 1. Errore API profilo: ${e.message}")
         }
 
-        // 💅 BLOCCO 2: ALLA RICERCA DELLA CHAT
+
         try {
             Log.d("TAG_CHAT", "🔍 2. Cerco le chat dell'utente loggato")
             val chatsResp = withContext(Dispatchers.IO) { ClientSingleton.chatApi.getUserChats(mioUserCode) }
@@ -100,13 +100,13 @@ fun ChatAnnunci(
                     nomeMalcapitato = chatTrovata.name!!
                 }
 
-                // 💅 Rubiamo l'ID dell'altra persona per la ricerca annuncio!
+
                 val trovatoAltro = chatTrovata.participating?.find { it != mioUserCode }
                 if (trovatoAltro != null) {
                     otherUserCodeForSearch = trovatoAltro
                 }
             } else {
-                // 💅 NON TROVATA: LA CREA E NON CARICA I MESSAGGI
+
                 Log.d("TAG_CHAT", "🔨 2. Chat non trovata. Procedo con la CREAZIONE.")
 
                 val nomeDaSalvare = if (nomeMalcapitato == "Sconosciuto") "Nuova Chat" else nomeMalcapitato
@@ -195,7 +195,7 @@ fun ChatAnnunci(
             profileBitmap = null,
             onBackClick = onBackClick,
             onHeaderClick = {
-                // 💅 Se abbiamo trovato l'annuncio di questa persona, spariamo il router!
+
                 if (resolvedAnnuncioId.isNotBlank()) {
                     onNavigateToAnnuncio(resolvedAnnuncioId)
                 }

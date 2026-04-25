@@ -165,7 +165,7 @@ fun ImageWithTextCard(
     subtitle: String,
     priceTag: String? = null,
     imageRes: Int? = null,
-    imageBitmap: ImageBitmap? = null, // 💅 AGGIUNTO: Riceve la foto vera dal database!
+    imageBitmap: ImageBitmap? = null,
     onImageClick: () -> Unit
 ) {
     Box(
@@ -177,7 +177,7 @@ fun ImageWithTextCard(
                 onClick = { onImageClick() }
             ),
     ) {
-        // 💅 MAGIC: Mostra la foto vera se c'è, altrimenti mette il fallback "casa1"
+
         if (imageBitmap != null) {
             Image(
                 bitmap = imageBitmap,
@@ -486,7 +486,7 @@ fun ResearchBar(
             Row(
                 verticalAlignment = Alignment.CenterVertically,
                 modifier = Modifier
-                    .clip(RoundedCornerShape(bottomStart = 60.dp, bottomEnd = 60.dp)) // Arrotonda solo in basso! CAPIRE SE VA QUO
+                    .clip(RoundedCornerShape(bottomStart = 60.dp, bottomEnd = 60.dp))
                     .fillMaxWidth()
             ) {
                 // Icona della lente di ingrandimento posizionata a sinistra
@@ -529,7 +529,6 @@ fun CustomBackButton(color: Color, onClick: () -> Unit, modifier: Modifier = Mod
 }
 
 
-// 💅 1. COMPONENTE FOTO PROFILO
 @Composable
 fun ProfileAvatar(
     imageRes: Int? = null,
@@ -960,20 +959,21 @@ fun SummBox(
     iconLabel: String,
     icon: ImageVector,
     backgroundColor: Color,
-    modifier: Modifier = Modifier // 💅 Questo raccoglierà il weight(1f)!
+    modifier: Modifier = Modifier
 ) {
     val isDark = isSystemInDarkTheme()
     val textColor = if (isDark && backgroundColor == Color.White) Color.Black else if (!isDark && backgroundColor == Color.White) Color.Black else Color.White
 
-    // 💅 MAGIC: Surface gestisce ombra, colore e bordi arrotondati in automatico!
+
             Surface(
                 modifier = modifier,
                 shape = RoundedCornerShape(24.dp), // Forma tonda
                 color = backgroundColor, // Sfondo
-                shadowElevation = 10.dp // Ombra nativa pulitissima!
+                shadowElevation = 10.dp // Ombra
+
             ) {
                 Column(
-                    modifier = Modifier.padding(16.dp), // Il padding interno va applicato alla Column!
+                    modifier = Modifier.padding(16.dp), // Padding interno
                     horizontalAlignment = Alignment.Start,
                     verticalArrangement = Arrangement.Center
                 ) {

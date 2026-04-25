@@ -76,7 +76,6 @@ fun ProfiloNoCasa(
                             try {
                                 val tokenPulito = userToken.replace("\"", "").trim()
 
-                                // 💅 Moshi trasformerà questo ByteArray in Base64 in automatico!
                                 val patchRequest = PatchUserDTO(
                                     userCode = tokenPulito,
                                     images = listOf(bytes)
@@ -115,9 +114,6 @@ fun ProfiloNoCasa(
                     nomeUtente = datiUtente.name ?: "Utente"
                     cognomeUtente = datiUtente.surname ?: ""
 
-                    // 💅 IL FIX DA VERA BADDIE:
-                    // Ora datiUtente.images è una List<ByteArray>.
-                    // Moshi ha GIA' decodificato il Base64 di Egor per noi!
                     val imageBytes = datiUtente.images?.firstOrNull()
 
                     if (imageBytes != null && imageBytes.isNotEmpty()) {

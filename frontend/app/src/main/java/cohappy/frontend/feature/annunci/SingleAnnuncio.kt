@@ -198,7 +198,7 @@ fun PaginaAnnuncioSingolo(
                                 Log.e("TAG_CHECK_CHAT", "❌ ERRORE: Non puoi chattare con te stesso! Questo è un tuo annuncio.")
                             } else {
                                 Log.d("TAG_CHECK_CHAT", "✅ Check superato! Navigo verso la chat passando l'host: $hostUserCode")
-                                onChatClick(hostUserCode) // 💅 Deleghiamo tutta la magia a Chat.kt!
+                                onChatClick(hostUserCode)
                             }
                         },
                         modifier = Modifier.fillMaxWidth().height(64.dp),

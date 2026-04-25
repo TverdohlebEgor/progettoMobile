@@ -232,7 +232,7 @@ class MainActivity : ComponentActivity() {
                                     chatCode = chatCode,
                                     userToken = userToken,
                                     onBackClick = { navController.popBackStack() },
-                                    // 💅 MAGIC: Aggiungiamo il cavo che naviga all'annuncio!
+
                                     onNavigateToAnnuncio = { annuncioId ->
                                         navController.navigate("annuncio_singolo/$annuncioId")
                                     }

@@ -32,7 +32,7 @@ import kotlinx.coroutines.withContext
 // Struttura dati PERFETTA a prova di bomba (solo String)
 data class ChatItem(val id: String, val nome: String, val ultimoMessaggio: String, val orario: String)
 
-// 💅 COMPONENTE GRAFICO INLINE (Così non va in conflitto con i tuoi vecchi file che usano Int!)
+
 @Composable
 fun InternalChatListItem(chat: ChatItem, onClick: () -> Unit) {
     Row(
@@ -155,7 +155,7 @@ fun ElencoChat(
                 }
             } else {
                 items(annunciFiltrati) { chat ->
-                    // 💅 Usiamo il nostro componente super sicuro!
+
                     InternalChatListItem(
                         chat = chat,
                         onClick = { onChatClick(chat.id) }
