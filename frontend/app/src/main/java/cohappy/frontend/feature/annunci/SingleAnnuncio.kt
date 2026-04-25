@@ -48,7 +48,7 @@ import kotlinx.coroutines.withContext
 @Composable
 fun PaginaAnnuncioSingolo(
     annuncioId: String,
-    userToken: String?, // 💅 Aggiungiamo il token qui
+    userToken: String?,
     onBackClick: () -> Unit,
     onChatClick: (String) -> Unit = {},
     onRequireLoginClick: () -> Unit = {}

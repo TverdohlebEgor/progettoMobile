@@ -44,18 +44,14 @@ fun PaginaLogin(onLoginClick: (String, String) -> Unit, onRegisterClick: () -> U
                 .fillMaxSize()
                 .padding(horizontal = 24.dp)
         ) {
-            // Intestazione della schermata.
-            // L'utilizzo di titolo e sottotitolo migliora la gerarchia visiva.
             Titoli(
                 titolo1 = "Login",
                 sottotitolo = "Bentornato, inserisci le tue credenziali.",
                 color = ContentColor
             )
 
-            // Spacer flessibile per centrare verticalmente il form di login.
             Spacer(modifier = Modifier.height(80.dp))
 
-            // Contenitore per i campi di input e i pulsanti.
             Column(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalAlignment = Alignment.CenterHorizontally,
@@ -77,7 +73,6 @@ fun PaginaLogin(onLoginClick: (String, String) -> Unit, onRegisterClick: () -> U
                 )
             }
 
-            // Spacer flessibile inferiore per mantenere il contenuto esattamente al centro.
             Spacer(modifier = Modifier.weight(1f))
         }
     }

@@ -50,7 +50,7 @@ fun PaginaRegistrazione(
 
     var localError by remember { mutableStateOf(false) }
 
-    // Pulizia dei campi ogni volta che la schermata viene ricaricata
+
     LaunchedEffect(Unit) {
         name = ""
         surname = ""
@@ -68,7 +68,6 @@ fun PaginaRegistrazione(
         DatePickerDialog(
             context,
             { _: DatePicker, year: Int, month: Int, dayOfMonth: Int ->
-                // Assicuriamoci che il formato sia corretto (MM-DD con gli zeri)
                 val formatMonth = String.format("%02d", month + 1)
                 val formatDay = String.format("%02d", dayOfMonth)
                 birthDate = "$year-$formatMonth-$formatDay"
@@ -124,7 +123,7 @@ fun PaginaRegistrazione(
                     cognome = surname,
                     email = email,
                     password = password,
-                    showError = showError && !localError, // Mostra l'errore di Egor solo se non ce ne sono di nostri
+                    showError = showError && !localError,
                     name = name,
                     onDateClick = { datePickerDialog.show() }
                 )
@@ -141,7 +140,7 @@ fun PaginaRegistrazione(
                         val cleanPassword = password.trim()
                         val cleanDate = birthDate.trim()
 
-                        // Controlliamo che NESSUN campo sia vuoto prima di chiamare il server
+
                         if (cleanName.isNotBlank() &&
                             cleanSurname.isNotBlank() &&
                             cleanEmail.isNotBlank() &&
@@ -149,10 +148,10 @@ fun PaginaRegistrazione(
                             cleanDate.isNotBlank() &&
                             cleanPhone.isNotBlank()) {
 
-                            localError = false // Tutto ok
+                            localError = false
                             onRegisterClick(cleanName, cleanSurname, cleanDate, cleanEmail, cleanPhone, cleanPassword)
                         } else {
-                            localError = true // Fail! Accendiamo la scritta rossa locale
+                            localError = true
                         }
                     },
                     onLoginClick = onLoginClick,

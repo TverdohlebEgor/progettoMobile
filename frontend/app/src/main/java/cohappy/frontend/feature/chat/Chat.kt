@@ -123,7 +123,7 @@ fun ChatAnnunci(
                     chatGiaEsistente = false
                     Log.d("TAG_CHAT", "✅ 2. Chat creata con successo! Nuovo ID: $idChatDaUsare")
                 } else {
-                    Log.e("TAG_CHAT", "❌ 2. Fallita creazione chat sul DB. Codice Egor: ${createResp.code()}")
+                    Log.e("TAG_CHAT", "❌ 2. Fallita creazione chat sul DB. Codice: ${createResp.code()}")
                 }
             }
         } catch (e: Exception) {
