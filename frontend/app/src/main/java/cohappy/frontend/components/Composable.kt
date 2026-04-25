@@ -20,16 +20,12 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.AccountBalanceWallet
 import androidx.compose.material.icons.filled.ChatBubble
 import androidx.compose.material.icons.filled.CheckCircle
 import androidx.compose.material.icons.filled.Home
-import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.Wallet
 import androidx.compose.material.icons.filled.WaterDrop
-import androidx.compose.material.icons.outlined.LocationOn
-import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextFieldDefaults.contentPadding
 import androidx.compose.material3.Text
@@ -44,7 +40,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import cohappy.frontend.feature.chat.ChatItem
+import cohappy.frontend.view.chat.ChatItem
 
 data class Annuncio(
     val id: Int,
@@ -121,184 +117,6 @@ fun MenuGestionaleUtente(currentTab: String, onTabSelected: (String) -> Unit){
     NavItem("chore", Icons.Default.WaterDrop, "Annunci", currentTab, onTabSelected)
     NavItem("profilo", Icons.Default.Person, "Profilo", currentTab, onTabSelected)
 }
-
-@Composable
-fun LoginRegistration(
-    showError: Boolean,
-    onEmailChange: (String) -> Unit,
-    onPasswordChange: (String) -> Unit,
-    modifier: Modifier = Modifier,
-    customFontSize: Int = 18,
-    email: String,
-    password:String
-) {
-    Column(modifier = modifier) {
-        if (showError) {
-        Text(
-            text = "email, telefono o password non corretti",
-            modifier = Modifier.fillMaxWidth(),
-            color = MaterialTheme.colorScheme.error,
-            //fontWeight = TODO(),
-            textAlign = TextAlign.Center,
-        )}else{
-            Text(
-                text = "",
-                modifier = Modifier.fillMaxWidth(),
-                color = MaterialTheme.colorScheme.onSurface,
-            )
-        }
-
-        Spacer(modifier = Modifier.height(16.dp))
-
-        CustomTextField(
-            value = email,
-            onValueChange = onEmailChange,
-            placeholder = "email o telefono",
-            customFontSize = customFontSize
-        )
-
-        Spacer(modifier = Modifier.height(16.dp))
-
-        CustomTextField(
-            value = password,
-            onValueChange = onPasswordChange,
-            placeholder = "password",
-            customFontSize = customFontSize
-        )
-    }
-}
-
-@Composable
-fun Registration(
-    showError: Boolean,
-    onEmailChange: (String) -> Unit,
-    onNameChange: (String) -> Unit,
-    onPasswordChange: (String) -> Unit,
-    onTelefonoChange: (String) -> Unit,
-    onAnnoChange: (String) -> Unit,
-    onCognomeChange: (String) -> Unit,
-    modifier: Modifier = Modifier,
-    customFontSize: Int = 18,
-    email: String,
-    name:String,
-    password:String,
-    telefono:String,
-    annoNascita: String,
-    cognome:String,
-    onDateClick: () -> Unit = {}
-){
-    Column(modifier = modifier) {
-        if (showError) {
-            Text(
-                text = "email o telefono già registrata, vai al login",
-                modifier = Modifier.fillMaxWidth(),
-                color = MaterialTheme.colorScheme.error,
-                //fontWeight = TODO(),
-                textAlign = TextAlign.Center,
-            )}else{
-            Text(
-                text = "",
-                modifier = Modifier.fillMaxWidth(),
-                color = MaterialTheme.colorScheme.onSurface,
-            )
-        }
-
-        Spacer(modifier = Modifier.height(16.dp))
-
-        CustomTextField(
-            value = name,
-            onValueChange = onNameChange,
-            placeholder = "nome",
-            customFontSize = customFontSize
-        )
-
-        Spacer(modifier = Modifier.height(16.dp))
-
-        CustomTextField(
-            value = cognome,
-            onValueChange = onCognomeChange,
-            placeholder = "cognome",
-            customFontSize = customFontSize
-        )
-
-        Spacer(modifier = Modifier.height(16.dp))
-
-        CustomTextField(
-            value = annoNascita,
-            onValueChange = onAnnoChange,
-            placeholder = "data di nascita (AAAA-MM-GG)",
-            customFontSize = customFontSize,
-            modifier = Modifier.clickable { onDateClick() }
-        )
-
-        Spacer(modifier = Modifier.height(16.dp))
-
-        CustomTextField(
-            value = email,
-            onValueChange = onEmailChange,
-            placeholder = "email",
-            customFontSize = customFontSize
-        )
-
-        Spacer(modifier = Modifier.height(16.dp))
-
-        CustomTextField(
-            value = telefono,
-            onValueChange = onTelefonoChange,
-            placeholder = "telefono",
-            customFontSize = customFontSize
-        )
-
-        Spacer(modifier = Modifier.height(16.dp))
-
-        CustomTextField(
-            value = password,
-            onValueChange = onPasswordChange,
-            placeholder = "password",
-            customFontSize = customFontSize
-        )
-    }
-
-}
-
-@Composable
-fun RegisterButton(
-    onRegisterClick: () -> Unit,
-    modifier: Modifier = Modifier,
-    onLoginClick: () -> Unit
-){
-    CustomButton(
-        text = "Registrati",
-        onClick = onRegisterClick,
-        isPrimary = true,
-        shape = "large"
-    )
-
-    CustomTextButtom(
-        text = "Hai già un account? Accedi",
-        onClick = onLoginClick,
-    )
-}
-
-@Composable
-fun LoginRegisterButtonForLogin(
-    onLoginClick: () -> Unit,
-    onRegisterClick: () -> Unit,
-    modifier: Modifier = Modifier
-){
-    CustomButton(
-        text = "Accedi",
-        onClick = onLoginClick,
-        isPrimary = true,
-        shape = "large"
-    )
-
-    CustomTextButtom(
-        text = "Non hai ancora un account? Registrati",
-        onClick = onRegisterClick,
-    )
-}
-
 
 @Composable
 fun ElencoAnnunci(

@@ -1,10 +1,22 @@
 package cohappy.frontend.client
 
-import cohappy.frontend.model.dto.response.GetHouseAdvertesimentDTO
-import cohappy.frontend.model.dto.response.GetHouseDTO
-import cohappy.frontend.model.dto.request.*
+import cohappy.frontend.client.dto.request.AddAdminDTO
+import cohappy.frontend.client.dto.request.AddUserDTO
+import cohappy.frontend.client.dto.request.CreateHouseAdvertisementDTO
+import cohappy.frontend.client.dto.request.CreateHouseDTO
+import cohappy.frontend.client.dto.request.ModifyHouseAdvertisementDTO
+import cohappy.frontend.client.dto.request.ModifyHouseDTO
+import cohappy.frontend.client.dto.request.RemoveAdminDTO
+import cohappy.frontend.client.dto.request.RemoveUserDTO
+import cohappy.frontend.client.dto.response.GetHouseAdvertesimentDTO
+import cohappy.frontend.client.dto.response.GetHouseDTO
 import retrofit2.Response
-import retrofit2.http.*
+import retrofit2.http.Body
+import retrofit2.http.DELETE
+import retrofit2.http.GET
+import retrofit2.http.PATCH
+import retrofit2.http.POST
+import retrofit2.http.Path
 
 interface HouseApiClient {
 

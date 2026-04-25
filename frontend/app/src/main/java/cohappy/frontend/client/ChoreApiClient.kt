@@ -1,10 +1,14 @@
 package cohappy.frontend.client
 
-import cohappy.frontend.model.dto.response.GetChoreDTO
-import cohappy.frontend.model.dto.request.PatchChoreDTO
-import cohappy.frontend.model.dto.request.CreateChoreDTO
+import cohappy.frontend.client.dto.request.CreateChoreDTO
+import cohappy.frontend.client.dto.request.PatchChoreDTO
+import cohappy.frontend.client.dto.response.GetChoreDTO
 import retrofit2.Response
-import retrofit2.http.*
+import retrofit2.http.Body
+import retrofit2.http.GET
+import retrofit2.http.PATCH
+import retrofit2.http.POST
+import retrofit2.http.Path
 import java.time.LocalDate
 
 interface ChoreApiClient {

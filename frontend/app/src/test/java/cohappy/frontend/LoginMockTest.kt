@@ -1,6 +1,5 @@
 package cohappy.frontend.client
 
-import cohappy.frontend.model.dto.request.LoginDTO
 import kotlinx.coroutines.test.runTest
 import okhttp3.mockwebserver.MockResponse
 import okhttp3.mockwebserver.MockWebServer
@@ -12,6 +11,7 @@ import org.junit.Test
 import retrofit2.Retrofit
 import retrofit2.converter.moshi.MoshiConverterFactory
 import cohappy.frontend.client.UserApiClient
+import cohappy.frontend.client.dto.request.LoginDTO
 import retrofit2.converter.scalars.ScalarsConverterFactory
 
 class LoginMockTest {
@@ -50,7 +50,7 @@ class LoginMockTest {
         )
 
         // 2. Execute the call
-        val request = LoginDTO("test@cohappy.com", "3200147723","password")
+        val request = LoginDTO("test@cohappy.com", "3200147723", "password")
         val response = testUserApi.login(request)
 
         // 3. Verify the results

@@ -17,24 +17,22 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.NavType
-import cohappy.frontend.ui.theme.ProgettoMobileTheme
-import cohappy.frontend.feature.PaginaIniziale
-
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
-
-import cohappy.frontend.feature.annunci.PaginaAnnunci
-import cohappy.frontend.feature.auth.PaginaLogin
 import cohappy.frontend.client.ClientSingleton
-import cohappy.frontend.feature.annunci.PaginaAnnuncioSingolo
-import cohappy.frontend.feature.auth.PaginaRegistrazione
-import cohappy.frontend.feature.chat.ChatAnnunci
-import cohappy.frontend.feature.gestionale.ControllerGestionale
-import cohappy.frontend.feature.gestionale.HomeGestionale
-import cohappy.frontend.model.dto.request.LoginDTO
-import cohappy.frontend.model.dto.request.RegisterDTO
+import cohappy.frontend.client.dto.request.LoginDTO
+import cohappy.frontend.model.LoginViewModel
+import cohappy.frontend.model.LoginViewModelFactory
+import cohappy.frontend.screen.LoginScreen
+import cohappy.frontend.screen.RegistrationScreen
+import cohappy.frontend.view.PaginaIniziale
+import cohappy.frontend.view.annunci.PaginaAnnunci
+import cohappy.frontend.view.annunci.PaginaAnnuncioSingolo
+import cohappy.frontend.view.chat.ChatAnnunci
+import cohappy.frontend.view.gestionale.ControllerGestionale
+import cohappy.frontend.ui.theme.ProgettoMobileTheme
 import kotlinx.coroutines.launch
 
 class MainActivity : ComponentActivity() {
@@ -58,8 +56,8 @@ class MainActivity : ComponentActivity() {
                     modifier = Modifier.fillMaxSize(),
                     color = bgColor
                 ) {
-                    NavHost(navController = navController, startDestination = partenza){
-                        composable("iniziale"){
+                    NavHost(navController = navController, startDestination = partenza) {
+                        composable("iniziale") {
                             PaginaIniziale(
                                 onLoginClick = { navController.navigate("login") },
                                 onRegisterClick = { navController.navigate("registration") },
@@ -72,59 +70,32 @@ class MainActivity : ComponentActivity() {
                         }
 
                         composable("login") {
-                            var showError by remember { mutableStateOf(false) }
-
-                            Scaffold(
-                                containerColor = bgColor
-                            ) { paddingValues ->
-                                Box(
-                                    modifier = Modifier
-                                        .fillMaxSize()
-                                        .padding(top = paddingValues.calculateTopPadding())
-                                ) {
-                                    PaginaLogin(
-                                        onLoginClick = { email, password ->
-                                            showError = false
-                                            lifecycleScope.launch {
-                                                try {
-                                                    val pacchettoLogin = LoginDTO(email = email, password = password)
-                                                    val apiResponse = ClientSingleton.userApi.login(pacchettoLogin)
-
-                                                    if (!apiResponse.isSuccessful) {
-                                                        throw Exception("Credenziali errate o utente non trovato dal server")
-                                                    }
-
-                                                    val risposta = apiResponse.body() ?: ""
-
-                                                    println("Login effettuato con successo. Dati: $risposta")
-                                                    with (sharedPref.edit()) {
-                                                        putString("USER_TOKEN", risposta)
-                                                        apply()
-                                                    }
-
-                                                    isLoggedIn = true
-                                                    userToken = risposta
-
-                                                    navController.navigate("annunci") {
-                                                        popUpTo("iniziale") { inclusive = true }
-                                                    }
-                                                } catch (e: Exception) {
-                                                    println("Ops! Login fallito: ${e.message}")
-                                                    showError = true
-                                                }
-                                            }
-                                        },
-                                        onRegisterClick = {
-                                            navController.navigate("registration") {
-                                                popUpTo("login") { inclusive = true }
-                                            }
-                                        },
-                                        showError = showError
-                                    )
+                            LoginScreen(
+                                sharedPref = sharedPref,
+                                onNavigateToAnnunci = { newToken ->
+                                    isLoggedIn = true
+                                    userToken = newToken
+                                    navController.navigate("annunci") {
+                                        popUpTo("iniziale") { inclusive = true }
+                                    }
+                                },
+                                onNavigateToRegistration = {
+                                    navController.navigate("registration") {
+                                        popUpTo("login") { inclusive = true }
+                                    }
                                 }
-                            }
+                            )
                         }
 
+                        composable("registration") {
+                            RegistrationScreen(
+                                onNavigateToLogin = {
+                                    navController.navigate("login") {
+                                        popUpTo("registration") { inclusive = true }
+                                    }
+                                }
+                            )
+                        }
 
                         composable("annunci") {
                             var showError by remember { mutableStateOf(false) }
@@ -135,8 +106,10 @@ class MainActivity : ComponentActivity() {
 
                                     lifecycleScope.launch {
                                         try {
-                                            val pacchettoLogin = LoginDTO(email = email, password = password)
-                                            val apiResponse = ClientSingleton.userApi.login(pacchettoLogin)
+                                            val pacchettoLogin =
+                                                LoginDTO(email = email, password = password)
+                                            val apiResponse =
+                                                ClientSingleton.userApi.login(pacchettoLogin)
 
                                             if (!apiResponse.isSuccessful) {
                                                 throw Exception("Credenziali errate o utente non trovato dal server")
@@ -183,49 +156,15 @@ class MainActivity : ComponentActivity() {
                             )
                         }
 
-                        composable("registration"){
-                            var showError by remember { mutableStateOf(false) }
-                            Scaffold(
-                                containerColor = bgColor
-                            ) { paddingValues ->
-                                Box(
-                                    modifier = Modifier
-                                        .fillMaxSize()
-                                        .padding(top = paddingValues.calculateTopPadding())
-                                ) {
-                                    PaginaRegistrazione(
-                                        onRegisterClick = { nome, cognome, dataNascita, email, telefono, password ->
-                                            showError = false
-
-                                            lifecycleScope.launch {
-                                                try {
-                                                    val pacchettoRegistrazione = RegisterDTO(name = nome, surname = cognome, birthDate = dataNascita, email = email, phoneNumber = telefono, password = password)
-                                                    val risposta = ClientSingleton.userApi.register(pacchettoRegistrazione).toString()
-
-                                                    if (risposta.contains("409") || risposta.contains("422") || risposta.contains("duplicate key error")) {
-                                                        throw Exception("Utente già presente nel database")}
-                                                    navController.navigate("login")
-                                                }
-                                                catch (e: Exception) {
-                                                    println("Registrazione fallita: ${e.message}")
-                                                    showError = true
-                                                }
-                                            }
-                                        },
-                                        onLoginClick = {navController.navigate("login") {
-                                            popUpTo("registration") { inclusive = true }
-                                        } },
-                                        showError = showError
-                                    )
-                                }
-                            }
-                        }
-
                         composable("chat_singola/{chatCode}") { backStackEntry ->
                             // Peschiamo il codice della chat o utente dall'URL in modo pulito
-                            val chatCode = backStackEntry.arguments?.getString("chatCode")?.trim() ?: ""
+                            val chatCode =
+                                backStackEntry.arguments?.getString("chatCode")?.trim() ?: ""
 
-                            android.util.Log.d("TAG_CHECK_CHAT", "🚀 NavHost riceve chatCode/hostCode: '$chatCode'")
+                            android.util.Log.d(
+                                "TAG_CHECK_CHAT",
+                                "🚀 NavHost riceve chatCode/hostCode: '$chatCode'"
+                            )
 
                             if (chatCode.isNotBlank()) {
                                 ChatAnnunci(
@@ -238,14 +177,17 @@ class MainActivity : ComponentActivity() {
                                     }
                                 )
                             } else {
-                                android.util.Log.e("TAG_CHECK_CHAT", "❌ NavHost ERRORE CRITICO: chatCode è vuoto!")
+                                android.util.Log.e(
+                                    "TAG_CHECK_CHAT",
+                                    "❌ NavHost ERRORE CRITICO: chatCode è vuoto!"
+                                )
                             }
                         }
 
                         composable(
                             route = "home_gestionale",
                         ) {
-                            ControllerGestionale(userToken= userToken)
+                            ControllerGestionale(userToken = userToken)
                         }
 
                         composable(

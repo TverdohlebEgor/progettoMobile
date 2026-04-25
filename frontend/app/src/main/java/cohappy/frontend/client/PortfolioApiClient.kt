@@ -1,11 +1,16 @@
 package cohappy.frontend.client
 
-import cohappy.frontend.model.dto.response.PortfolioDTO
-import cohappy.frontend.model.dto.request.CreateDebtDTO
-import cohappy.frontend.model.dto.request.MoveMoneyDTO
-import cohappy.frontend.model.dto.request.SendMoneyDTO
+import cohappy.frontend.client.dto.request.CreateDebtDTO
+import cohappy.frontend.client.dto.request.MoveMoneyDTO
+import cohappy.frontend.client.dto.request.SendMoneyDTO
+import cohappy.frontend.client.dto.response.PortfolioDTO
 import retrofit2.Response
-import retrofit2.http.*
+import retrofit2.http.Body
+import retrofit2.http.DELETE
+import retrofit2.http.GET
+import retrofit2.http.PATCH
+import retrofit2.http.POST
+import retrofit2.http.Path
 
 interface PortfolioApiClient {
 

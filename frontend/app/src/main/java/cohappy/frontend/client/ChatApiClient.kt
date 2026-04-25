@@ -1,11 +1,18 @@
 package cohappy.frontend.client
 
-import cohappy.frontend.model.dto.response.ChatMessageDTO
-import cohappy.frontend.model.dto.response.GetChatDTO
-import cohappy.frontend.model.dto.response.UserChatDTO
-import cohappy.frontend.model.dto.request.*
+import cohappy.frontend.client.dto.request.AddMessageDTO
+import cohappy.frontend.client.dto.request.CreateChatDTO
+import cohappy.frontend.client.dto.request.PatchChatDTO
+import cohappy.frontend.client.dto.request.PatchChatUsersDTO
+import cohappy.frontend.client.dto.response.ChatMessageDTO
+import cohappy.frontend.client.dto.response.GetChatDTO
+import cohappy.frontend.client.dto.response.UserChatDTO
 import retrofit2.Response
-import retrofit2.http.*
+import retrofit2.http.Body
+import retrofit2.http.GET
+import retrofit2.http.PATCH
+import retrofit2.http.POST
+import retrofit2.http.Path
 
 interface ChatApiClient {
 

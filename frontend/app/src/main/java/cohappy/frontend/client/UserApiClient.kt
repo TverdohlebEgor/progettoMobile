@@ -1,11 +1,16 @@
 package cohappy.frontend.client
 
-import cohappy.frontend.model.dto.response.UserAccountDTO
-import cohappy.frontend.model.dto.request.LoginDTO
-import cohappy.frontend.model.dto.request.PatchUserDTO
-import cohappy.frontend.model.dto.request.RegisterDTO
+import cohappy.frontend.client.dto.request.LoginDTO
+import cohappy.frontend.client.dto.request.PatchUserDTO
+import cohappy.frontend.client.dto.request.RegisterDTO
+import cohappy.frontend.client.dto.response.UserAccountDTO
 import retrofit2.Response
-import retrofit2.http.*
+import retrofit2.http.Body
+import retrofit2.http.DELETE
+import retrofit2.http.GET
+import retrofit2.http.PATCH
+import retrofit2.http.POST
+import retrofit2.http.Path
 
 interface UserApiClient {
 
