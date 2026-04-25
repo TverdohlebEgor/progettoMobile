@@ -53,11 +53,10 @@ fun ProfiloNoCasa(
     var nomeUtente by remember { mutableStateOf("Caricamento...") }
     var cognomeUtente by remember { mutableStateOf("") }
 
-    // 💅 IL SECCHIELLO CHE TIENE L'IMMAGINE IN MEMORIA
     var profileBitmap by remember { mutableStateOf<ImageBitmap?>(null) }
 
     // ------------------------------------------------------------------
-    // 💅 1. IL LANCIA-GALLERIA (PHOTO PICKER)
+    //  1. IL LANCIA-GALLERIA (PHOTO PICKER)
     // ------------------------------------------------------------------
     val photoPickerLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.PickVisualMedia()

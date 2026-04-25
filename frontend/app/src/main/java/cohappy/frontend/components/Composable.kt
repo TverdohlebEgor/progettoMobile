@@ -438,7 +438,7 @@ fun AnnuncioDetailTitlePrice(titolo: String, posizione: String, prezzo: String) 
 
 @Composable
 fun AnnuncioDetailHost(nomeHost: String) {
-    val isDark = androidx.compose.foundation.isSystemInDarkTheme()
+    val isDark = isSystemInDarkTheme()
     val PublisherBannerColor = if (isDark) Color(0xFF2D2342) else Color(0xFFF3EDFF)
 
     Row(
@@ -486,5 +486,35 @@ fun AnnuncioDetailDescription(descrizione: String) {
     Column(modifier = Modifier.fillMaxWidth()) {
         Text("Descrizione", fontSize = 20.sp, fontWeight = FontWeight.Bold, modifier = Modifier.padding(bottom = 12.dp), color = MaterialTheme.colorScheme.onBackground)
         Text(text = descrizione, color = Color.Gray, lineHeight = 24.sp, fontSize = 16.sp)
+    }
+}
+
+@Composable
+fun SummRow(modifier: Modifier = Modifier){
+    val BgColor = if (isSystemInDarkTheme()) Color.Black else Color.White
+    Row(
+        modifier = modifier.fillMaxWidth(),
+        horizontalArrangement = Arrangement.spacedBy(16.dp)
+    ){
+        SummBox(
+            iconColor = MaterialTheme.colorScheme.error,
+            iconBackColor = MaterialTheme.colorScheme.errorContainer,
+            iconLabel = "wallet",
+            icon = Icons.Default.Wallet,
+            backgroundColor = Color.White,
+            title = "Da dare",
+            amount = "15,00 €",
+            modifier = Modifier.weight(1f) // 💅 MAGIC: Obbliga la card a prendere il 50%
+        )
+        SummBox(
+            iconColor = BgColor,
+            iconBackColor = MaterialTheme.colorScheme.primary,
+            iconLabel = "chore",
+            icon = Icons.Default.WaterDrop,
+            backgroundColor = MaterialTheme.colorScheme.onPrimary,
+            title = "Tocca a te",
+            amount = "Bagno",
+            modifier = Modifier.weight(1f) // 💅 MAGIC: Obbliga l'altra card a prendere il 50%
+        )
     }
 }

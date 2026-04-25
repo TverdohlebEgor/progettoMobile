@@ -1,5 +1,6 @@
 package cohappy.frontend.components
 
+import android.R.attr.label
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -15,6 +16,8 @@ import androidx.compose.material.icons.filled.ArrowBackIosNew
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.Search
+import androidx.compose.material.icons.filled.Wallet
+import androidx.compose.material.icons.filled.WaterDrop
 import androidx.compose.material.icons.outlined.LocationOn
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
@@ -23,6 +26,7 @@ import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.LocalTextStyle
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
@@ -261,7 +265,8 @@ fun FloatingBottomBar(
             shape = RoundedCornerShape(32.dp)
         )*/
     } else {
-        baseModifier.background(MaterialTheme.colorScheme.primary.copy(alpha = 0.85f))
+        baseModifier
+            .background(MaterialTheme.colorScheme.primary.copy(alpha = 0.85f))
             .border(
                 width = 1.dp,
                 color = MaterialTheme.colorScheme.onPrimary.copy(alpha = 0.4f),
@@ -351,12 +356,14 @@ fun Titoli(
     titolo1: String,
     titolo2: String? = null,
     sottotitolo: String? = null,
-    color: Color
+    color: Color,
+    paddingTop : Dp = 48.dp,
+    paddingBott : Dp = 16.dp
 ) {
     Column(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(top = 48.dp, start = 0.dp, end = 0.dp, bottom = 16.dp),
+            .padding(top = paddingTop, start = 0.dp, end = 0.dp, bottom = paddingBott),
         horizontalAlignment = Alignment.Start
     ) {
         // Se c'è titolo2, uniamo le stringhe con l'a capo, altrimenti stampiamo solo titolo1
@@ -641,7 +648,9 @@ fun HouseSetupSection(
         ) {
             Button(
                 onClick = onCreateHouseClick,
-                modifier = Modifier.fillMaxWidth().height(56.dp),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(56.dp),
                 shape = RoundedCornerShape(16.dp),
                 colors = ButtonDefaults.buttonColors(
                     containerColor = Color.White,
@@ -935,9 +944,65 @@ fun CustomAvatar(initial: String, size: Dp = 56.dp) {
 
 @Composable
 fun HousePosition(posizione: String){
-    Row(verticalAlignment = Alignment.CenterVertically) {
+    Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.padding(top=24.dp)) {
         Icon(imageVector = Icons.Outlined.LocationOn, contentDescription = null, tint = Color.Gray, modifier = Modifier.size(18.dp))
         Spacer(modifier = Modifier.width(4.dp))
         Text(text = posizione, color = Color.Gray, fontSize = 16.sp)
     }
+}
+
+@Composable
+fun SummBox(
+    title: String,
+    amount: String,
+    iconColor: Color,
+    iconBackColor: Color,
+    iconLabel: String,
+    icon: ImageVector,
+    backgroundColor: Color,
+    modifier: Modifier = Modifier // 💅 Questo raccoglierà il weight(1f)!
+) {
+    val isDark = isSystemInDarkTheme()
+    val textColor = if (isDark && backgroundColor == Color.White) Color.Black else if (!isDark && backgroundColor == Color.White) Color.Black else Color.White
+
+    // 💅 MAGIC: Surface gestisce ombra, colore e bordi arrotondati in automatico!
+            Surface(
+                modifier = modifier,
+                shape = RoundedCornerShape(24.dp), // Forma tonda
+                color = backgroundColor, // Sfondo
+                shadowElevation = 10.dp // Ombra nativa pulitissima!
+            ) {
+                Column(
+                    modifier = Modifier.padding(16.dp), // Il padding interno va applicato alla Column!
+                    horizontalAlignment = Alignment.Start,
+                    verticalArrangement = Arrangement.Center
+                ) {
+                    // Icona tonda
+                    Box(
+                        modifier = Modifier
+                            .size(48.dp)
+                            .clip(CircleShape)
+                            .background(iconBackColor),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Icon(imageVector = icon, contentDescription = iconLabel, tint = iconColor, modifier = Modifier.size(24.dp))
+                    }
+
+                    Spacer(modifier = Modifier.height(16.dp))
+
+                    // Testi del Box
+                    Text(
+                        text = title,
+                        color = if (isDark) Color.LightGray else Color.Gray,
+                        fontSize = 14.sp,
+                        fontWeight = FontWeight.Medium
+                    )
+                    Text(
+                        text = amount,
+                        color = textColor,
+                        fontSize = 22.sp,
+                        fontWeight = FontWeight.Black
+                    )
+                }
+            }
 }

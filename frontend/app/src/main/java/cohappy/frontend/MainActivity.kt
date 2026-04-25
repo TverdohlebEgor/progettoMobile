@@ -31,6 +31,7 @@ import cohappy.frontend.client.ClientSingleton
 import cohappy.frontend.feature.annunci.PaginaAnnuncioSingolo
 import cohappy.frontend.feature.auth.PaginaRegistrazione
 import cohappy.frontend.feature.chat.ChatAnnunci
+import cohappy.frontend.feature.gestionale.ControllerGestionale
 import cohappy.frontend.feature.gestionale.HomeGestionale
 import cohappy.frontend.model.dto.request.LoginDTO
 import cohappy.frontend.model.dto.request.RegisterDTO
@@ -244,7 +245,7 @@ class MainActivity : ComponentActivity() {
                         composable(
                             route = "home_gestionale",
                         ) {
-                            HomeGestionale()
+                            ControllerGestionale(userToken= userToken)
                         }
 
                         composable(
