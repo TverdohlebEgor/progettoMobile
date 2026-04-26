@@ -29,7 +29,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 
 @Composable
-fun HomeGestionale(/*innerPadding: PaddingValues,*/ userToken: String?, onProfileClick: () -> Unit) {
+fun HomeMain(userToken: String?/*, onProfileClick: () -> Unit*/) {
 
     val isDark = isSystemInDarkTheme()
     val BgColor = if (isDark) Color.Black else Color.White
@@ -44,10 +44,9 @@ fun HomeGestionale(/*innerPadding: PaddingValues,*/ userToken: String?, onProfil
 
     LaunchedEffect(userToken) {
         if (userToken == null) return@LaunchedEffect
-        userToken?.let { token ->
-            withContext(Dispatchers.IO) {
-                try {
-                    val tokenPulito = token.replace("\"", "").trim()
+        withContext(Dispatchers.IO) {
+            try {
+                val tokenPulito = userToken.replace("\"", "").trim()
                 val response = ClientSingleton.userApi.getUserProfile(tokenPulito)
 
                 if (response.isSuccessful && response.body() != null) {
@@ -77,30 +76,9 @@ fun HomeGestionale(/*innerPadding: PaddingValues,*/ userToken: String?, onProfil
                 cognomeUtente = "Rete o Server"
             }
         }
-    }}
+    }
 
-//    LaunchedEffect(Unit) {
-//        withContext(Dispatchers.IO) {
-//            try {
-//                val response = ClientSingleton.houseApi.getAllHouseAdvertisements()
-//
-//                if (response.isSuccessful && response.body() != null) {
-//                    annunciList = response.body()!!
-//                } else {
-//                    println("Errore dal server: ${response.code()}")
-//                }
-//            } catch (e: Exception) {
-//                println("Errore di rete: ${e.message}")
-//            } finally {
-//                isLoading = false
-//            }
-//        }
-//    }
-
-
-
-
-    Surface(modifier = Modifier.fillMaxSize().padding(top = 40.dp), color = BgColor, contentColor = ContentColor) {
+    Surface(modifier = Modifier.fillMaxSize().padding(top=40.dp), color = BgColor, contentColor = ContentColor) {
         //if (isLoading) {
         Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
             CircularProgressIndicator(color = Color(0xFF6B53A4))
@@ -134,7 +112,7 @@ fun HomeGestionale(/*innerPadding: PaddingValues,*/ userToken: String?, onProfil
                     Box(
                         modifier = Modifier
                             .clip(CircleShape)
-                            .clickable { onProfileClick() },
+                            .clickable { /*onProfileClick()*/ },
                         contentAlignment = Alignment.Center,
                     ) {
                         ProfileAvatar(

@@ -1,4 +1,4 @@
-package cohappy.frontend.view.Ad
+package cohappy.frontend.view.ad
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.isSystemInDarkTheme

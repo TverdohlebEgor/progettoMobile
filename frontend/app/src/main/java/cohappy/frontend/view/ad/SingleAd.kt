@@ -1,4 +1,4 @@
-package cohappy.frontend.view.Ad
+package cohappy.frontend.view.ad
 
 import android.graphics.BitmapFactory
 import androidx.compose.foundation.Image

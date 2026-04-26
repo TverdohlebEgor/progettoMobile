@@ -932,3 +932,37 @@ fun SummBox(
                 }
             }
 }
+
+@Composable
+fun CustomIconButton(icon: ImageVector,
+                     onClick: () -> Unit,
+                     modifier: Modifier = Modifier,
+                     shape:String = "extralarge"){
+    val isDark = isSystemInDarkTheme()
+    val ContentColor = if (isDark) Color.White else Color.Black
+
+    val shape: CornerBasedShape = when (shape.lowercase()) {
+        "extrasmall" -> MaterialTheme.shapes.extraSmall
+        "small" -> MaterialTheme.shapes.small
+        "medium" -> MaterialTheme.shapes.medium
+        "large" -> MaterialTheme.shapes.large
+        "extralarge" -> MaterialTheme.shapes.extraLarge
+        else -> MaterialTheme.shapes.medium // Default
+    }
+
+    Button(
+        onClick = onClick,
+        modifier = modifier
+            .height(72.dp)
+            .shadow(elevation = 10.dp, shape = RoundedCornerShape(8.dp)),
+        shape = shape,
+        colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary)
+    ) {
+        Icon(
+            imageVector = icon,
+            contentDescription = "AddMessage",
+            tint = MaterialTheme.colorScheme.onPrimary
+        )
+    }
+}
+

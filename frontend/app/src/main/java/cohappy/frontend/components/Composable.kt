@@ -20,12 +20,15 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowForwardIos
+import androidx.compose.material.icons.filled.ArrowForwardIos
 import androidx.compose.material.icons.filled.ChatBubble
 import androidx.compose.material.icons.filled.CheckCircle
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.Wallet
 import androidx.compose.material.icons.filled.WaterDrop
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextFieldDefaults.contentPadding
 import androidx.compose.material3.Text
@@ -333,6 +336,31 @@ fun SummRow(modifier: Modifier = Modifier){
             title = "Tocca a te",
             amount = "Bagno",
             modifier = Modifier.weight(1f)
+        )
+    }
+}
+
+@Composable
+fun UltimoAggRow(onClick: () -> Unit = {}){
+    val textColor = if (isSystemInDarkTheme()) Color.White else Color.Black
+
+    Row(modifier = Modifier.fillMaxWidth().clickable(onClick = onClick),horizontalArrangement = Arrangement.SpaceBetween, verticalAlignment = Alignment.CenterVertically){
+        Text(
+            text = "Ultimi Aggiornamenti",
+            color = textColor,
+            fontWeight = FontWeight.Bold,
+            textAlign = TextAlign.Start,
+            fontSize = 16.sp,
+            lineHeight = 46.sp
+        )
+
+        Spacer(modifier = Modifier.weight(1f))
+
+        Icon(
+            tint = textColor,
+            contentDescription = "ultimi aggiornamenti",
+            imageVector = Icons.Default.ArrowForwardIos,
+            modifier = Modifier.size(16.dp)
         )
     }
 }

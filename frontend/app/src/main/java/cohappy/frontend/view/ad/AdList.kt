@@ -167,7 +167,7 @@
 //    }
 //}
 
-package cohappy.frontend.view.Ad
+package cohappy.frontend.view.ad
 
 import android.graphics.BitmapFactory
 import android.util.Base64

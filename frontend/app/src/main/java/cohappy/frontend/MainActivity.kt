@@ -26,8 +26,8 @@ import cohappy.frontend.screen.SingleAdScreen
 import cohappy.frontend.screen.SingleChatScreen
 import cohappy.frontend.ui.theme.ProgettoMobileTheme
 import cohappy.frontend.view.PaginaIniziale
-import cohappy.frontend.view.Ad.PaginaAnnunci
-import cohappy.frontend.view.gestionale.ControllerGestionale
+import cohappy.frontend.view.ad.PaginaAnnunci
+import cohappy.frontend.view.gestionale.HomeMain
 import kotlinx.coroutines.launch
 
 class MainActivity : ComponentActivity() {
@@ -179,7 +179,7 @@ class MainActivity : ComponentActivity() {
                         composable(
                             route = "home_gestionale",
                         ) {
-                            ControllerGestionale(userToken = userToken)
+                            HomeMain(userToken = userToken)
                         }
 
                         composable(

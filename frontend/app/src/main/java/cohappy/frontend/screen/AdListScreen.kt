@@ -5,7 +5,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.lifecycle.viewmodel.compose.viewModel
 import cohappy.frontend.model.AdListViewModel
-import cohappy.frontend.view.Ad.AdListView
+import cohappy.frontend.view.ad.AdListView
 
 @Composable
 fun AdListScreen(
