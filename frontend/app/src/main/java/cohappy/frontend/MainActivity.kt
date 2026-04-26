@@ -4,10 +4,7 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.isSystemInDarkTheme
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -23,16 +20,15 @@ import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import cohappy.frontend.client.ClientSingleton
 import cohappy.frontend.client.dto.request.LoginDTO
-import cohappy.frontend.model.LoginViewModel
-import cohappy.frontend.model.LoginViewModelFactory
 import cohappy.frontend.screen.LoginScreen
 import cohappy.frontend.screen.RegistrationScreen
+import cohappy.frontend.screen.SingleChatScreen
+import cohappy.frontend.ui.theme.ProgettoMobileTheme
 import cohappy.frontend.view.PaginaIniziale
 import cohappy.frontend.view.annunci.PaginaAnnunci
 import cohappy.frontend.view.annunci.PaginaAnnuncioSingolo
-import cohappy.frontend.view.chat.ChatAnnunci
+import cohappy.frontend.view.chat.SingleChatView
 import cohappy.frontend.view.gestionale.ControllerGestionale
-import cohappy.frontend.ui.theme.ProgettoMobileTheme
 import kotlinx.coroutines.launch
 
 class MainActivity : ComponentActivity() {
@@ -157,7 +153,6 @@ class MainActivity : ComponentActivity() {
                         }
 
                         composable("chat_singola/{chatCode}") { backStackEntry ->
-                            // Peschiamo il codice della chat o utente dall'URL in modo pulito
                             val chatCode =
                                 backStackEntry.arguments?.getString("chatCode")?.trim() ?: ""
 
@@ -167,11 +162,10 @@ class MainActivity : ComponentActivity() {
                             )
 
                             if (chatCode.isNotBlank()) {
-                                ChatAnnunci(
+                                SingleChatScreen(
                                     chatCode = chatCode,
                                     userToken = userToken,
                                     onBackClick = { navController.popBackStack() },
-
                                     onNavigateToAnnuncio = { annuncioId ->
                                         navController.navigate("annuncio_singolo/$annuncioId")
                                     }
