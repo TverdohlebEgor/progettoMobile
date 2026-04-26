@@ -22,12 +22,11 @@ import cohappy.frontend.client.ClientSingleton
 import cohappy.frontend.client.dto.request.LoginDTO
 import cohappy.frontend.screen.LoginScreen
 import cohappy.frontend.screen.RegistrationScreen
+import cohappy.frontend.screen.SingleAdScreen
 import cohappy.frontend.screen.SingleChatScreen
 import cohappy.frontend.ui.theme.ProgettoMobileTheme
 import cohappy.frontend.view.PaginaIniziale
-import cohappy.frontend.view.annunci.PaginaAnnunci
-import cohappy.frontend.view.annunci.PaginaAnnuncioSingolo
-import cohappy.frontend.view.chat.SingleChatView
+import cohappy.frontend.view.Ad.PaginaAnnunci
 import cohappy.frontend.view.gestionale.ControllerGestionale
 import kotlinx.coroutines.launch
 
@@ -135,13 +134,12 @@ class MainActivity : ComponentActivity() {
                                 onChatAnnunciClick = { chatId -> navController.navigate("chat_singola/$chatId") },
                                 onLogoutClick = {
                                     with(sharedPref.edit()) {
-                                        clear() // Rimuove tutto, non solo la chiave, così siamo sicuri al 100%
+                                        clear()
                                         apply()
                                     }
                                     isLoggedIn = false
                                     userToken = null
 
-                                    // Rispediamo alla pagina iniziale killando tutta la storia di navigazione
                                     navController.navigate("iniziale") {
                                         popUpTo(0) { inclusive = true }
                                     }
@@ -188,16 +186,15 @@ class MainActivity : ComponentActivity() {
                             route = "annuncio_singolo/{id}",
                             arguments = listOf(navArgument("id") { type = NavType.StringType })
                         ) { backStackEntry ->
-                            // Estraiamo la stringa
                             val annuncioId = backStackEntry.arguments?.getString("id") ?: ""
 
-                            PaginaAnnuncioSingolo(
-                                annuncioId = annuncioId, // Passiamo la stringa
+                            SingleAdScreen(
+                                annuncioId = annuncioId,
                                 onBackClick = { navController.popBackStack() },
                                 onChatClick = { targetChat ->
                                     navController.navigate("chat_singola/$targetChat")
                                 },
-                                onRequireLoginClick = { //Reindirizza al login in modo super pulito
+                                onRequireLoginClick = {
                                     navController.navigate("login")
                                 },
                                 userToken = userToken

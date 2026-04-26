@@ -1,0 +1,159 @@
+package cohappy.frontend.view.Ad
+
+import android.graphics.BitmapFactory
+import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.isSystemInDarkTheme
+import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ArrowBackIosNew
+import androidx.compose.material.icons.outlined.ChatBubbleOutline
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Surface
+import androidx.compose.material3.Text
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.ImageBitmap
+import androidx.compose.ui.graphics.asImageBitmap
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
+import cohappy.frontend.R
+import cohappy.frontend.components.AnnuncioDetailDescription
+import cohappy.frontend.components.AnnuncioDetailHost
+import cohappy.frontend.components.AnnuncioDetailTitlePrice
+import cohappy.frontend.components.CustomBackButton
+import cohappy.frontend.client.dto.response.GetHouseAdvertesimentDTO
+
+@Composable
+fun SingleAdView(
+    adDetail: GetHouseAdvertesimentDTO?,
+    isLoading: Boolean,
+    coverBmpBytes: ByteArray?,
+    onBackClick: () -> Unit,
+    onStartChatClick: (String) -> Unit // 💅 Passiamo l'ID dell'host verso l'alto!
+) {
+    val isDark = isSystemInDarkTheme()
+    val bgColor = if (isDark) Color(0xFF121212) else Color.White
+    val contentColor = if (isDark) Color.White else Color.Black
+    val bottomButtonColor = if (isDark) Color(0xFF3B3054) else Color(0xFF121212)
+
+    // 💅 Decodifichiamo l'immagine in modo super efficiente
+    val coverBmp: ImageBitmap? = remember(coverBmpBytes) {
+        if (coverBmpBytes != null && coverBmpBytes.isNotEmpty()) {
+            try {
+                BitmapFactory.decodeByteArray(coverBmpBytes, 0, coverBmpBytes.size).asImageBitmap()
+            } catch (e: Exception) { null }
+        } else null
+    }
+
+    val displayTitle = if (!adDetail?.street.isNullOrBlank()) "Stanza in ${adDetail?.street}" else "Stanza singola"
+    val street = adDetail?.street ?: ""
+    val number = adDetail?.civicNumber?.toString() ?: ""
+    val displayLoc = "$street $number".trim().ifBlank { "Posizione non specificata" }
+    val displayPrice = "${adDetail?.costPerMonth?.toInt() ?: 0}€"
+
+    val hostMail = adDetail?.publishedByEmail ?: ""
+    val displayHost = if (hostMail.contains("@")) hostMail.substringBefore("@").replaceFirstChar { it.uppercase() } else "Host"
+    val displayDesc = adDetail?.description ?: "Nessuna descrizione disponibile per questa stanza."
+
+    Surface(modifier = Modifier.fillMaxSize(), color = bgColor, contentColor = contentColor) {
+        if (isLoading) {
+            Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                CircularProgressIndicator(color = Color(0xFF6B53A4))
+            }
+        } else if (adDetail == null) {
+            Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                Text("Annuncio non trovato", color = Color.Gray, fontSize = 18.sp)
+            }
+            CustomBackButton(color = MaterialTheme.colorScheme.primary, onClick = onBackClick, Modifier.padding(top = 48.dp))
+        } else {
+            Box(modifier = Modifier.fillMaxSize()) {
+                Column(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .verticalScroll(rememberScrollState())
+                        .padding(bottom = 120.dp)
+                ) {
+                    // Header con Immagine
+                    Box(modifier = Modifier.fillMaxWidth().height(360.dp)) {
+                        if (coverBmp != null) {
+                            Image(bitmap = coverBmp, contentDescription = null, contentScale = ContentScale.Crop, modifier = Modifier.fillMaxSize())
+                        } else {
+                            Image(painter = painterResource(id = R.drawable.casa1), contentDescription = null, contentScale = ContentScale.Crop, modifier = Modifier.fillMaxSize())
+                        }
+                        Box(modifier = Modifier.fillMaxSize().background(Brush.verticalGradient(colors = listOf(Color.Black.copy(alpha = 0.4f), Color.Transparent), endY = 200f)))
+                        Box(
+                            modifier = Modifier
+                                .padding(start = 16.dp, top = 48.dp)
+                                .size(48.dp)
+                                .clip(CircleShape)
+                                .background(Color.White.copy(alpha = 0.9f))
+                                .clickable { onBackClick() },
+                            contentAlignment = Alignment.Center
+                        ) {
+                            Icon(imageVector = Icons.Default.ArrowBackIosNew, contentDescription = "Indietro", tint = Color.Black)
+                        }
+                    }
+
+                    // Card Info
+                    Surface(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .offset(y = (-40).dp),
+                        shape = RoundedCornerShape(topStart = 40.dp, topEnd = 40.dp),
+                        color = bgColor
+                    ) {
+                        Column(modifier = Modifier.padding(24.dp)) {
+                            AnnuncioDetailTitlePrice(titolo = displayTitle, posizione = displayLoc, prezzo = displayPrice)
+                            Spacer(modifier = Modifier.height(24.dp))
+                            AnnuncioDetailHost(nomeHost = displayHost)
+                            Spacer(modifier = Modifier.height(32.dp))
+                            AnnuncioDetailDescription(descrizione = displayDesc)
+                        }
+                    }
+                }
+
+                // Bottone Chat in basso
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .align(Alignment.BottomCenter)
+                        .background(Brush.verticalGradient(colors = listOf(Color.Transparent, bgColor.copy(alpha = 0.9f), bgColor), startY = 0f))
+                        .padding(24.dp)
+                ) {
+                    Button(
+                        onClick = {
+                            // 💅 Passiamo al regista l'ID di chi ha pubblicato!
+                            val hostCode = adDetail.publishedByCode ?: ""
+                            onStartChatClick(hostCode)
+                        },
+                        modifier = Modifier.fillMaxWidth().height(64.dp),
+                        shape = RoundedCornerShape(20.dp),
+                        colors = ButtonDefaults.buttonColors(containerColor = bottomButtonColor, contentColor = Color.White)
+                    ) {
+                        Icon(imageVector = Icons.Outlined.ChatBubbleOutline, contentDescription = "Chat", modifier = Modifier.size(24.dp))
+                        Spacer(modifier = Modifier.width(12.dp))
+                        Text(text = "Scrivi a $displayHost", fontWeight = FontWeight.Bold, fontSize = 18.sp)
+                    }
+                }
+            }
+        }
+    }
+}

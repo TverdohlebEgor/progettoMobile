@@ -1,4 +1,4 @@
-package cohappy.frontend.view.annunci
+package cohappy.frontend.view.Ad
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.isSystemInDarkTheme
@@ -16,6 +16,8 @@ import androidx.compose.ui.graphics.Color
 import cohappy.frontend.components.FloatingBottomBar
 import cohappy.frontend.components.MenuAnnunciLoggato
 import cohappy.frontend.components.MenuOspite
+import cohappy.frontend.screen.AdListScreen
+import cohappy.frontend.screen.UserProfileScreen
 import cohappy.frontend.view.auth.LoginView
 import cohappy.frontend.view.chat.ElencoChat
 import dev.chrisbanes.haze.HazeState
@@ -70,13 +72,12 @@ fun PaginaAnnunci(
                 "annunci" -> {
                     Box(modifier = Modifier.fillMaxSize()) {
 
-                        ListaAnnunciView(
+                        AdListScreen(
                             innerPadding = paddingValues,
-                            onAnnuncioClick = onAnnuncioClick
+                            onAdClick = onAnnuncioClick
                         )
                     }
                 }
-
 
                 "chat" -> ElencoChat(
                     userToken = userToken,
@@ -85,7 +86,7 @@ fun PaginaAnnunci(
 
                 "profilo" -> {
                     if(isLoggedIn){
-                        ProfiloNoCasa(
+                        UserProfileScreen(
                             onLogoutClick = onLogoutClick,
                             onCreateHouseClick = onCreateHouseClick,
                             onJoinConfirmClick = onJoinConfirmClick,
@@ -94,6 +95,7 @@ fun PaginaAnnunci(
                     } else {
                         LoginView(
                             onLoginClick = onLoginClick,
+
                             onRegisterClick = onRegisterClick,
                             showError = showError
                         )
