@@ -3,12 +3,18 @@ package cohappy.frontend.feature.gestionale
 import androidx.compose.foundation.background
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.*
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ChatBubble
+import androidx.compose.material.icons.filled.Home
+import androidx.compose.material.icons.filled.Person
+import androidx.compose.material.icons.filled.Wallet
+import androidx.compose.material.icons.filled.WaterDrop
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import cohappy.frontend.components.FloatingBottomBar
-import cohappy.frontend.components.MenuGestionaleUtente
+import cohappy.frontend.components.NavItem
 import cohappy.frontend.screen.HomeGestionaleScreen
 import dev.chrisbanes.haze.HazeState
 import dev.chrisbanes.haze.haze
@@ -63,4 +69,13 @@ fun HouseMainScreen(
             }
         }
     }
+}
+
+@Composable
+fun MenuGestionaleUtente(currentTab: String, onTabSelected: (String) -> Unit){
+    NavItem("home", Icons.Default.Home, "Home", currentTab, onTabSelected)
+    NavItem("chat", Icons.Default.ChatBubble, "Chat", currentTab, onTabSelected)
+    NavItem("wallet", Icons.Default.Wallet, "Wallet", currentTab, onTabSelected)
+    NavItem("chore", Icons.Default.WaterDrop, "Annunci", currentTab, onTabSelected)
+    NavItem("profilo", Icons.Default.Person, "Profilo", currentTab, onTabSelected)
 }

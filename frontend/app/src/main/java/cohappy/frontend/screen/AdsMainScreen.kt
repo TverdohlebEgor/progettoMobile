@@ -5,6 +5,10 @@ import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ChatBubble
+import androidx.compose.material.icons.filled.Home
+import androidx.compose.material.icons.filled.Person
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -14,8 +18,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import cohappy.frontend.components.FloatingBottomBar
-import cohappy.frontend.components.MenuAnnunciLoggato
-import cohappy.frontend.components.MenuOspite
+import cohappy.frontend.components.NavItem
 import cohappy.frontend.screen.AdListScreen
 import cohappy.frontend.screen.ChatListScreen
 import cohappy.frontend.screen.UserProfileScreen
@@ -106,4 +109,17 @@ fun AdsMainScreen(
             }
         }
     }
+}
+
+@Composable
+fun MenuOspite(currentTab: String, onTabSelected: (String) -> Unit) {
+    NavItem("annunci", Icons.Default.Home, "Annunci", currentTab, onTabSelected)
+    NavItem("profilo", Icons.Default.Person, "Profilo", currentTab, onTabSelected)
+}
+
+@Composable
+fun MenuAnnunciLoggato(currentTab: String, onTabSelected: (String) -> Unit) {
+    NavItem("annunci", Icons.Default.Home, "Annunci", currentTab, onTabSelected)
+    NavItem("chat", Icons.Default.ChatBubble ,"Chat", currentTab, onTabSelected)
+    NavItem("profilo", Icons.Default.Person, "Profilo", currentTab, onTabSelected)
 }

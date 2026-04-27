@@ -35,10 +35,10 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import cohappy.frontend.R
-import cohappy.frontend.components.AnnuncioDetailHost
 import cohappy.frontend.components.AnnuncioDetailTitlePrice
 import cohappy.frontend.components.CustomBackButton
 import cohappy.frontend.client.dto.response.GetHouseAdvertesimentDTO
+import cohappy.frontend.components.CustomAvatar
 
 @Composable
 fun SingleAdView(
@@ -157,5 +157,27 @@ fun AnnuncioDetailDescription(descrizione: String) {
     Column(modifier = Modifier.fillMaxWidth()) {
         Text("Descrizione", fontSize = 20.sp, fontWeight = FontWeight.Bold, modifier = Modifier.padding(bottom = 12.dp), color = MaterialTheme.colorScheme.onBackground)
         Text(text = descrizione, color = Color.Gray, lineHeight = 24.sp, fontSize = 16.sp)
+    }
+}
+
+@Composable
+fun AnnuncioDetailHost(nomeHost: String) {
+    val isDark = isSystemInDarkTheme()
+    val PublisherBannerColor = if (isDark) Color(0xFF2D2342) else Color(0xFFF3EDFF)
+
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .background(PublisherBannerColor, RoundedCornerShape(16.dp))
+            .padding(16.dp),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        CustomAvatar(initial = nomeHost.take(1)) // Prende l'iniziale del nome!
+        Spacer(modifier = Modifier.width(16.dp))
+        Column(modifier = Modifier.weight(1f)) {
+            Text("Pubblicato da:", color = Color.Gray, fontSize = 14.sp)
+            Text(nomeHost, fontWeight = FontWeight.Black, fontSize = 20.sp, color = MaterialTheme.colorScheme.onBackground)
+        }
+        //Icon(imageVector = Icons.Default.Info, contentDescription = "Info", tint = Color.Gray)
     }
 }
