@@ -633,119 +633,6 @@ fun ProfileHeaderCard(
 }
 
 @Composable
-fun HouseSetupSection(
-    onCreateHouseClick: () -> Unit,
-    onJoinConfirmClick: (String) -> Unit,
-    modifier: Modifier = Modifier
-) {
-    var houseCode by remember { mutableStateOf("") }
-    val isDark = isSystemInDarkTheme()
-    val containerColor = if (isDark) Color(0xFF4A3973) else Color(0xFF6B53A4) // Viola scuro
-
-    Column(
-        modifier = modifier.fillMaxWidth(),
-        horizontalAlignment = Alignment.CenterHorizontally
-    ) {
-        // 3.A BOX 1: CREA UNA CASA
-        Box(
-            modifier = Modifier
-                .fillMaxWidth()
-                .clip(RoundedCornerShape(32.dp))
-                .background(containerColor)
-                .padding(24.dp)
-        ) {
-            Button(
-                onClick = onCreateHouseClick,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(56.dp),
-                shape = RoundedCornerShape(16.dp),
-                colors = ButtonDefaults.buttonColors(
-                    containerColor = Color.White,
-                    contentColor = containerColor
-                )
-            ) {
-                Text("Crea una casa", fontWeight = FontWeight.Bold, fontSize = 16.sp)
-            }
-        }
-
-        // 3.B SCRITTA "OPPURE"
-        Text(
-            text = "oppure",
-            color = Color.Gray,
-            fontWeight = FontWeight.Medium,
-            fontSize = 16.sp,
-            modifier = Modifier.padding(vertical = 5.dp)
-        )
-
-        // 3.C BOX 2: ACCEDI A UNA CASA
-        Box(
-            modifier = Modifier
-                .fillMaxWidth()
-                .clip(RoundedCornerShape(32.dp))
-                .background(containerColor)
-                .padding(24.dp)
-        ) {
-            Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                Text(
-                    text = "Accedi a una casa",
-                    color = Color.White.copy(alpha = 0.9f),
-                    fontWeight = FontWeight.Medium,
-                    fontSize = 14.sp
-                )
-
-                Spacer(modifier = Modifier.height(12.dp))
-
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    BasicTextField(
-                        value = houseCode,
-                        onValueChange = { houseCode = it.uppercase() },
-                        textStyle = LocalTextStyle.current.copy(
-                            color = Color.Black,
-                            fontWeight = FontWeight.Bold,
-                            textAlign = TextAlign.Center,
-                            fontSize = 16.sp
-                        ),
-                        singleLine = true,
-                        modifier = Modifier
-                            .weight(1f)
-                            .height(56.dp)
-                            .background(Color.White, RoundedCornerShape(16.dp))
-                            .padding(horizontal = 16.dp),
-                        decorationBox = { innerTextField ->
-                            Box(contentAlignment = Alignment.CenterStart) {
-                                if (houseCode.isEmpty()) {
-                                    Text("Codice (es. COH-8X2P)", color = Color.Gray.copy(alpha = 0.7f), fontSize = 14.sp)
-                                }
-                                innerTextField()
-                            }
-                        }
-                    )
-
-                    Spacer(modifier = Modifier.width(8.dp))
-
-                    Button(
-                        onClick = { onJoinConfirmClick(houseCode) },
-                        modifier = Modifier.size(56.dp),
-                        shape = RoundedCornerShape(16.dp),
-                        contentPadding = PaddingValues(0.dp),
-                        colors = ButtonDefaults.buttonColors(
-                            containerColor = Color.White.copy(alpha = 0.2f),
-                            contentColor = Color.White
-                        )
-                    ) {
-                        Icon(imageVector = Icons.Default.Check, contentDescription = "Conferma")
-                    }
-                }
-            }
-        }
-    }
-}
-
-@Composable
 fun LogoutTextButton(
     onClick: () -> Unit,
     modifier: Modifier = Modifier
@@ -778,60 +665,6 @@ fun HorizontalDivider(
         color = color
     )
 }
-
-@Composable
-fun MessageBubble(
-    textMessage: String,
-    isMe: Boolean
-) {
-    val isDark = isSystemInDarkTheme()
-
-
-    val bubbleColor = if (isMe) {
-        MaterialTheme.colorScheme.primary
-    } else {
-        if (isDark) Color.DarkGray else Color(0xFFE5E5EA)
-    }
-
-    val textColor = if (isMe) {
-        MaterialTheme.colorScheme.onPrimary // Bianco sul primary
-    } else {
-        if (isDark) Color.White else Color.Black
-    }
-
-    Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(horizontal = 16.dp, vertical = 4.dp),
-
-        horizontalArrangement = if (isMe) Arrangement.End else Arrangement.Start
-    ) {
-        Box(
-            modifier = Modifier
-
-                .widthIn(max = 280.dp)
-                .background(
-                    color = bubbleColor,
-                    shape = RoundedCornerShape(
-                        topStart = 18.dp,
-                        topEnd = 18.dp,
-
-                        bottomStart = if (isMe) 18.dp else 4.dp,
-                        bottomEnd = if (isMe) 4.dp else 18.dp
-                    )
-                )
-                .padding(horizontal = 16.dp, vertical = 10.dp)
-        ) {
-            Text(
-                text = textMessage,
-                color = textColor,
-                fontSize = 16.sp
-            )
-        }
-    }
-}
-
-
 
 @Composable
 fun CustomChip(text: String, bgColor: Color, textColor: Color, icon: ImageVector? = null) {
@@ -877,63 +710,6 @@ fun HousePosition(posizione: String){
 }
 
 @Composable
-fun SummBox(
-    title: String,
-    amount: String,
-    iconColor: Color,
-    iconBackColor: Color,
-    iconLabel: String,
-    icon: ImageVector,
-    backgroundColor: Color,
-    modifier: Modifier = Modifier
-) {
-    val isDark = isSystemInDarkTheme()
-    val textColor = if (isDark && backgroundColor == Color.White) Color.Black else if (!isDark && backgroundColor == Color.White) Color.Black else Color.White
-
-
-            Surface(
-                modifier = modifier,
-                shape = RoundedCornerShape(24.dp), // Forma tonda
-                color = backgroundColor, // Sfondo
-                shadowElevation = 10.dp // Ombra
-
-            ) {
-                Column(
-                    modifier = Modifier.padding(16.dp), // Padding interno
-                    horizontalAlignment = Alignment.Start,
-                    verticalArrangement = Arrangement.Center
-                ) {
-                    // Icona tonda
-                    Box(
-                        modifier = Modifier
-                            .size(48.dp)
-                            .clip(CircleShape)
-                            .background(iconBackColor),
-                        contentAlignment = Alignment.Center
-                    ) {
-                        Icon(imageVector = icon, contentDescription = iconLabel, tint = iconColor, modifier = Modifier.size(24.dp))
-                    }
-
-                    Spacer(modifier = Modifier.height(16.dp))
-
-                    // Testi del Box
-                    Text(
-                        text = title,
-                        color = if (isDark) Color.LightGray else Color.Gray,
-                        fontSize = 14.sp,
-                        fontWeight = FontWeight.Medium
-                    )
-                    Text(
-                        text = amount,
-                        color = textColor,
-                        fontSize = 22.sp,
-                        fontWeight = FontWeight.Black
-                    )
-                }
-            }
-}
-
-@Composable
 fun CustomIconButton(icon: ImageVector,
                      onClick: () -> Unit,
                      modifier: Modifier = Modifier,
@@ -965,4 +741,3 @@ fun CustomIconButton(icon: ImageVector,
         )
     }
 }
-

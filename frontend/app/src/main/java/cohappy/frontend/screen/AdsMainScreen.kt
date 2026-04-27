@@ -17,15 +17,15 @@ import cohappy.frontend.components.FloatingBottomBar
 import cohappy.frontend.components.MenuAnnunciLoggato
 import cohappy.frontend.components.MenuOspite
 import cohappy.frontend.screen.AdListScreen
+import cohappy.frontend.screen.ChatListScreen
 import cohappy.frontend.screen.UserProfileScreen
 import cohappy.frontend.view.auth.LoginView
-import cohappy.frontend.view.chat.ElencoChat
 import dev.chrisbanes.haze.HazeState
 import dev.chrisbanes.haze.haze
 
 
 @Composable
-fun PaginaAnnunci(
+fun AdsMainScreen(
     onLoginClick: (String, String) -> Unit,
     onRegisterClick: () -> Unit,
     onAnnuncioClick: (String) -> Unit,
@@ -79,10 +79,12 @@ fun PaginaAnnunci(
                     }
                 }
 
-                "chat" -> ElencoChat(
-                    userToken = userToken,
-                    onChatClick = onChatAnnunciClick
-                )
+                "chat" -> {
+                    ChatListScreen(
+                        userToken = userToken,
+                        onChatClick = onChatAnnunciClick
+                    )
+                }
 
                 "profilo" -> {
                     if(isLoggedIn){

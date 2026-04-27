@@ -17,10 +17,8 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.ArrowForwardIos
 import androidx.compose.material.icons.filled.ArrowForwardIos
 import androidx.compose.material.icons.filled.ChatBubble
 import androidx.compose.material.icons.filled.CheckCircle
@@ -36,14 +34,12 @@ import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import cohappy.frontend.view.chat.ChatItem
+import cohappy.frontend.view.house.SummBox
 
 data class Annuncio(
     val id: Int,
@@ -157,67 +153,67 @@ fun ElencoAnnunci(
     }
 }
 
-@Composable
-fun ChatListItem(chat: ChatItem, onClick: () -> Unit) {
-    val isDark = isSystemInDarkTheme()
-    val ContentColor = if (isDark) Color.White else Color.Black
-
-    Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .clickable { onClick() }
-            .padding(horizontal = 24.dp, vertical = 12.dp),
-        verticalAlignment = Alignment.CenterVertically
-    ) {
-        // Foto profilo (Placeholder colorato)
-        Box(
-            modifier = Modifier
-                .size(56.dp)
-                .clip(CircleShape)
-                .background(MaterialTheme.colorScheme.primaryContainer),
-            contentAlignment = Alignment.Center
-        ) {
-            Text(
-                text = chat.nome.take(1).uppercase(),
-                color = MaterialTheme.colorScheme.onPrimaryContainer,
-                fontWeight = FontWeight.Bold,
-                fontSize = 20.sp
-            )
-        }
-
-        Spacer(modifier = Modifier.width(16.dp))
-
-        // Nome e ultimo messaggio
-        Column(modifier = Modifier.weight(1f)) {
-            Text(
-                text = chat.nome,
-                color = ContentColor,
-                fontWeight = FontWeight.Bold,
-                fontSize = 16.sp,
-                maxLines = 1,
-                overflow = TextOverflow.Ellipsis
-            )
-            Spacer(modifier = Modifier.height(4.dp))
-            Text(
-                text = chat.ultimoMessaggio,
-                color = Color.Gray,
-                fontSize = 14.sp,
-                maxLines = 1,
-                overflow = TextOverflow.Ellipsis
-            )
-        }
-
-        Spacer(modifier = Modifier.width(8.dp))
-
-        // Orario
-        Text(
-            text = chat.orario,
-            color = Color.Gray,
-            fontSize = 12.sp,
-            modifier = Modifier.align(Alignment.Top) // Allinea l'orario in alto a destra
-        )
-    }
-}
+//@Composable
+//fun ChatListItem(chat: ChatListItem, onClick: () -> Unit) {
+//    val isDark = isSystemInDarkTheme()
+//    val ContentColor = if (isDark) Color.White else Color.Black
+//
+//    Row(
+//        modifier = Modifier
+//            .fillMaxWidth()
+//            .clickable { onClick() }
+//            .padding(horizontal = 24.dp, vertical = 12.dp),
+//        verticalAlignment = Alignment.CenterVertically
+//    ) {
+//        // Foto profilo (Placeholder colorato)
+//        Box(
+//            modifier = Modifier
+//                .size(56.dp)
+//                .clip(CircleShape)
+//                .background(MaterialTheme.colorScheme.primaryContainer),
+//            contentAlignment = Alignment.Center
+//        ) {
+//            Text(
+//                text = chat.nome.take(1).uppercase(),
+//                color = MaterialTheme.colorScheme.onPrimaryContainer,
+//                fontWeight = FontWeight.Bold,
+//                fontSize = 20.sp
+//            )
+//        }
+//
+//        Spacer(modifier = Modifier.width(16.dp))
+//
+//        // Nome e ultimo messaggio
+//        Column(modifier = Modifier.weight(1f)) {
+//            Text(
+//                text = chat.nome,
+//                color = ContentColor,
+//                fontWeight = FontWeight.Bold,
+//                fontSize = 16.sp,
+//                maxLines = 1,
+//                overflow = TextOverflow.Ellipsis
+//            )
+//            Spacer(modifier = Modifier.height(4.dp))
+//            Text(
+//                text = chat.ultimoMessaggio,
+//                color = Color.Gray,
+//                fontSize = 14.sp,
+//                maxLines = 1,
+//                overflow = TextOverflow.Ellipsis
+//            )
+//        }
+//
+//        Spacer(modifier = Modifier.width(8.dp))
+//
+//        // Orario
+//        Text(
+//            text = chat.orario,
+//            color = Color.Gray,
+//            fontSize = 12.sp,
+//            modifier = Modifier.align(Alignment.Top) // Allinea l'orario in alto a destra
+//        )
+//    }
+//}
 
 @Composable
 fun AnnuncioDetailTitlePrice(titolo: String, posizione: String, prezzo: String) {
@@ -302,13 +298,7 @@ fun AnnuncioDetailComforts() {
     }
 }
 
-@Composable
-fun AnnuncioDetailDescription(descrizione: String) {
-    Column(modifier = Modifier.fillMaxWidth()) {
-        Text("Descrizione", fontSize = 20.sp, fontWeight = FontWeight.Bold, modifier = Modifier.padding(bottom = 12.dp), color = MaterialTheme.colorScheme.onBackground)
-        Text(text = descrizione, color = Color.Gray, lineHeight = 24.sp, fontSize = 16.sp)
-    }
-}
+
 
 @Composable
 fun SummRow(modifier: Modifier = Modifier){

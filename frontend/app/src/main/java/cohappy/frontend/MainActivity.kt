@@ -20,14 +20,15 @@ import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import cohappy.frontend.client.ClientSingleton
 import cohappy.frontend.client.dto.request.LoginDTO
+import cohappy.frontend.components.HousePosition
+import cohappy.frontend.feature.gestionale.HouseMainScreen
 import cohappy.frontend.screen.LoginScreen
 import cohappy.frontend.screen.RegistrationScreen
 import cohappy.frontend.screen.SingleAdScreen
 import cohappy.frontend.screen.SingleChatScreen
 import cohappy.frontend.ui.theme.ProgettoMobileTheme
 import cohappy.frontend.view.PaginaIniziale
-import cohappy.frontend.view.ad.PaginaAnnunci
-import cohappy.frontend.view.gestionale.HomeMain
+import cohappy.frontend.view.ad.AdsMainScreen
 import kotlinx.coroutines.launch
 
 class MainActivity : ComponentActivity() {
@@ -95,7 +96,7 @@ class MainActivity : ComponentActivity() {
                         composable("annunci") {
                             var showError by remember { mutableStateOf(false) }
 
-                            PaginaAnnunci(
+                            AdsMainScreen(
                                 onLoginClick = { email, password ->
                                     showError = false
 
@@ -179,7 +180,7 @@ class MainActivity : ComponentActivity() {
                         composable(
                             route = "home_gestionale",
                         ) {
-                            HomeMain(userToken = userToken)
+                            HouseMainScreen(userToken = userToken)
                         }
 
                         composable(

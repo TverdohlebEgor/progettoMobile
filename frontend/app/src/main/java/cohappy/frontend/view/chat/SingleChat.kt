@@ -15,6 +15,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
@@ -48,7 +49,6 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import cohappy.frontend.R
 import cohappy.frontend.client.dto.response.ChatMessageDTO
-import cohappy.frontend.components.MessageBubble
 import cohappy.frontend.model.ChatUiState
 
 @Composable
@@ -159,7 +159,7 @@ fun ChatHeader(
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(horizontal = 16.dp, vertical = 12.dp),
+            .padding(horizontal = 0.dp, vertical = 12.dp),
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.spacedBy(8.dp)
     ) {
@@ -264,5 +264,57 @@ fun PreviewChatViewWithMesssages() {
             onBackClick = {},
             onHeaderClick = {}
         )
+    }
+}
+
+@Composable
+fun MessageBubble(
+    textMessage: String,
+    isMe: Boolean
+) {
+    val isDark = isSystemInDarkTheme()
+
+
+    val bubbleColor = if (isMe) {
+        MaterialTheme.colorScheme.primary
+    } else {
+        if (isDark) Color.DarkGray else Color(0xFFE5E5EA)
+    }
+
+    val textColor = if (isMe) {
+        MaterialTheme.colorScheme.onPrimary // Bianco sul primary
+    } else {
+        if (isDark) Color.White else Color.Black
+    }
+
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = 16.dp, vertical = 4.dp),
+
+        horizontalArrangement = if (isMe) Arrangement.End else Arrangement.Start
+    ) {
+        Box(
+            modifier = Modifier
+
+                .widthIn(max = 280.dp)
+                .background(
+                    color = bubbleColor,
+                    shape = RoundedCornerShape(
+                        topStart = 18.dp,
+                        topEnd = 18.dp,
+
+                        bottomStart = if (isMe) 18.dp else 4.dp,
+                        bottomEnd = if (isMe) 4.dp else 18.dp
+                    )
+                )
+                .padding(horizontal = 16.dp, vertical = 10.dp)
+        ) {
+            Text(
+                text = textMessage,
+                color = textColor,
+                fontSize = 16.sp
+            )
+        }
     }
 }

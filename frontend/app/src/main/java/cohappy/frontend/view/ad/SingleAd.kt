@@ -35,7 +35,6 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import cohappy.frontend.R
-import cohappy.frontend.components.AnnuncioDetailDescription
 import cohappy.frontend.components.AnnuncioDetailHost
 import cohappy.frontend.components.AnnuncioDetailTitlePrice
 import cohappy.frontend.components.CustomBackButton
@@ -47,14 +46,13 @@ fun SingleAdView(
     isLoading: Boolean,
     coverBmpBytes: ByteArray?,
     onBackClick: () -> Unit,
-    onStartChatClick: (String) -> Unit // 💅 Passiamo l'ID dell'host verso l'alto!
+    onStartChatClick: (String) -> Unit
 ) {
     val isDark = isSystemInDarkTheme()
     val bgColor = if (isDark) Color(0xFF121212) else Color.White
     val contentColor = if (isDark) Color.White else Color.Black
     val bottomButtonColor = if (isDark) Color(0xFF3B3054) else Color(0xFF121212)
 
-    // 💅 Decodifichiamo l'immagine in modo super efficiente
     val coverBmp: ImageBitmap? = remember(coverBmpBytes) {
         if (coverBmpBytes != null && coverBmpBytes.isNotEmpty()) {
             try {
@@ -91,7 +89,6 @@ fun SingleAdView(
                         .verticalScroll(rememberScrollState())
                         .padding(bottom = 120.dp)
                 ) {
-                    // Header con Immagine
                     Box(modifier = Modifier.fillMaxWidth().height(360.dp)) {
                         if (coverBmp != null) {
                             Image(bitmap = coverBmp, contentDescription = null, contentScale = ContentScale.Crop, modifier = Modifier.fillMaxSize())
@@ -112,7 +109,6 @@ fun SingleAdView(
                         }
                     }
 
-                    // Card Info
                     Surface(
                         modifier = Modifier
                             .fillMaxWidth()
@@ -130,7 +126,6 @@ fun SingleAdView(
                     }
                 }
 
-                // Bottone Chat in basso
                 Box(
                     modifier = Modifier
                         .fillMaxWidth()
@@ -140,7 +135,6 @@ fun SingleAdView(
                 ) {
                     Button(
                         onClick = {
-                            // 💅 Passiamo al regista l'ID di chi ha pubblicato!
                             val hostCode = adDetail.publishedByCode ?: ""
                             onStartChatClick(hostCode)
                         },
@@ -155,5 +149,13 @@ fun SingleAdView(
                 }
             }
         }
+    }
+}
+
+@Composable
+fun AnnuncioDetailDescription(descrizione: String) {
+    Column(modifier = Modifier.fillMaxWidth()) {
+        Text("Descrizione", fontSize = 20.sp, fontWeight = FontWeight.Bold, modifier = Modifier.padding(bottom = 12.dp), color = MaterialTheme.colorScheme.onBackground)
+        Text(text = descrizione, color = Color.Gray, lineHeight = 24.sp, fontSize = 16.sp)
     }
 }
