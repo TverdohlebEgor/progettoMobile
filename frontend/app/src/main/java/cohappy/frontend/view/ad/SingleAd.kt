@@ -12,6 +12,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBackIosNew
+import androidx.compose.material.icons.filled.CheckCircle
 import androidx.compose.material.icons.outlined.ChatBubbleOutline
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
@@ -35,10 +36,11 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import cohappy.frontend.R
-import cohappy.frontend.components.AnnuncioDetailTitlePrice
 import cohappy.frontend.components.CustomBackButton
 import cohappy.frontend.client.dto.response.GetHouseAdvertesimentDTO
 import cohappy.frontend.components.CustomAvatar
+import cohappy.frontend.components.CustomChip
+import cohappy.frontend.components.HousePosition
 
 @Composable
 fun SingleAdView(
@@ -179,5 +181,66 @@ fun AnnuncioDetailHost(nomeHost: String) {
             Text(nomeHost, fontWeight = FontWeight.Black, fontSize = 20.sp, color = MaterialTheme.colorScheme.onBackground)
         }
         //Icon(imageVector = Icons.Default.Info, contentDescription = "Info", tint = Color.Gray)
+    }
+}
+
+@Composable
+fun AnnuncioDetailTitlePrice(titolo: String, posizione: String, prezzo: String) {
+    val BadgeColor = Color(0xFF6B53A4) // Il tuo viola scuro
+
+    Row(
+        modifier = Modifier.fillMaxWidth(),
+        horizontalArrangement = Arrangement.SpaceBetween,
+        verticalAlignment = Alignment.Top
+    ) {
+        Column(modifier = Modifier.weight(1f).padding(end = 16.dp)) {
+            // Chip "Disponibile subito"
+            CustomChip(text = "Disponibile subito", bgColor = Color(0xFFEBE5F7), textColor = BadgeColor)
+            Spacer(modifier = Modifier.height(12.dp))
+
+            Text(text = titolo, fontSize = 32.sp, fontWeight = FontWeight.Black, lineHeight = 36.sp, color = MaterialTheme.colorScheme.onBackground)
+            Spacer(modifier = Modifier.height(8.dp))
+
+
+            HousePosition(posizione)
+//            Row(verticalAlignment = Alignment.CenterVertically) {
+//                Icon(imageVector = Icons.Outlined.LocationOn, contentDescription = null, tint = Color.Gray, modifier = Modifier.size(18.dp))
+//                Spacer(modifier = Modifier.width(4.dp))
+//                Text(text = posizione, color = Color.Gray, fontSize = 16.sp)
+//            }
+        }
+        Column(horizontalAlignment = Alignment.End) {
+            Text(text = "Prezzo", color = Color.Gray, fontSize = 14.sp, modifier = Modifier.padding(bottom = 6.dp))
+            Box(
+                modifier = Modifier
+                    .background(BadgeColor, RoundedCornerShape(12.dp))
+                    .padding(horizontal = 16.dp, vertical = 8.dp)
+            ) {
+                Text(text = prezzo, color = Color.White, fontWeight = FontWeight.Bold, fontSize = 18.sp)
+            }
+        }
+    }
+}
+
+@Composable
+fun AnnuncioDetailComforts() {
+    Column(modifier = Modifier.fillMaxWidth()) {
+        Text("I comfort", fontSize = 20.sp, fontWeight = FontWeight.Bold, modifier = Modifier.padding(bottom = 12.dp), color = MaterialTheme.colorScheme.onBackground)
+
+        // Mockup dei comfort
+        Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+            CustomChip(
+                text = "Wi-Fi",
+                bgColor = MaterialTheme.colorScheme.surfaceVariant,
+                textColor = MaterialTheme.colorScheme.onSurface,
+                icon = Icons.Default.CheckCircle
+            )
+            CustomChip(
+                text = "Aria Condizionata",
+                bgColor = MaterialTheme.colorScheme.surfaceVariant,
+                textColor = MaterialTheme.colorScheme.onSurface,
+                icon = Icons.Default.CheckCircle
+            )
+        }
     }
 }

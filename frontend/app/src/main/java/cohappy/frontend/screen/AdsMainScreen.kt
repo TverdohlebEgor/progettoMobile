@@ -1,4 +1,4 @@
-package cohappy.frontend.view.ad
+package cohappy.frontend.screen
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.isSystemInDarkTheme
@@ -19,9 +19,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import cohappy.frontend.components.FloatingBottomBar
 import cohappy.frontend.components.NavItem
-import cohappy.frontend.screen.AdListScreen
-import cohappy.frontend.screen.ChatListScreen
-import cohappy.frontend.screen.UserProfileScreen
 import cohappy.frontend.view.auth.LoginView
 import dev.chrisbanes.haze.HazeState
 import dev.chrisbanes.haze.haze

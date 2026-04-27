@@ -1,4 +1,4 @@
-package cohappy.frontend.feature.gestionale
+package cohappy.frontend.screen
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.isSystemInDarkTheme
@@ -15,7 +15,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import cohappy.frontend.components.FloatingBottomBar
 import cohappy.frontend.components.NavItem
-import cohappy.frontend.screen.HomeGestionaleScreen
 import dev.chrisbanes.haze.HazeState
 import dev.chrisbanes.haze.haze
 
