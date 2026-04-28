@@ -21,6 +21,10 @@ fun HouseDashboardScreen(
         isLoading = viewModel.isLoading,
         onAddClick = {
         },
-        notifications = viewModel.notifications
+        notifications = viewModel.notifications,
+        nextChore = viewModel.nextChore,
+        totalDebt = viewModel.totalDebt,
+
+        userToken = userToken
     )
 }

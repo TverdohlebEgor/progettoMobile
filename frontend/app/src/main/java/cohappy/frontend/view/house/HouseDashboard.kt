@@ -31,13 +31,17 @@ import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import cohappy.frontend.components.CustomIconButton
 import cohappy.frontend.components.HousePosition
 import cohappy.frontend.components.ProfileAvatar
 import cohappy.frontend.components.Titoli
+import cohappy.frontend.model.NextChore
 import cohappy.frontend.model.Notification
+import cohappy.frontend.model.TotalDebt
 
 @Composable
 fun HomeGestionaleView(
@@ -46,6 +50,9 @@ fun HomeGestionaleView(
     isLoading: Boolean,
     onAddClick: () -> Unit,
     notifications: List<Notification>,
+    nextChore: NextChore?,
+    totalDebt: TotalDebt?,
+    userToken: String
 ) {
     val isDark = isSystemInDarkTheme()
     val bgColor = if (isDark) Color.Black else Color.White
@@ -94,7 +101,11 @@ fun HomeGestionaleView(
 
                     Spacer(modifier = Modifier.height(24.dp))
 
-                    SummRow()
+                    SummRow(
+                        modifier = Modifier.fillMaxWidth(),
+                        nameChore = nextChore?.choreName ?: "Nessuna",
+                        debtAmount = totalDebt?.totalDebt ?: 0.0
+                    )
 
                     Spacer(modifier = Modifier.height(24.dp))
 
@@ -170,14 +181,16 @@ fun SummBox(
                 text = amount,
                 color = contentColor,
                 fontSize = 22.sp,
-                fontWeight = FontWeight.Black
+                fontWeight = FontWeight.Black,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis
             )
         }
     }
 }
 
 @Composable
-fun SummRow(modifier: Modifier = Modifier){
+fun SummRow(modifier: Modifier = Modifier, nameChore: String, debtAmount: Double){
     val isDark = isSystemInDarkTheme()
 
     val box1Bg = if (isDark) Color(0xFF1E1C22) else Color.White
@@ -201,7 +214,7 @@ fun SummRow(modifier: Modifier = Modifier){
             icon = Icons.Default.Wallet,
             backgroundColor = box1Bg,
             title = "Da dare",
-            amount = "15,00 €",
+            amount = "${String.format("%.2f", debtAmount)}€",
             modifier = Modifier.weight(1f)
         )
         SummBox(
@@ -211,7 +224,7 @@ fun SummRow(modifier: Modifier = Modifier){
             icon = Icons.Default.WaterDrop,
             backgroundColor = box2Bg,
             title = "Tocca a te",
-            amount = "Bagno",
+            amount = nameChore ,
             modifier = Modifier.weight(1f)
         )
     }
@@ -245,22 +258,67 @@ fun UltimoAggName(onClick: () -> Unit = {}){
 }
 
 @Composable
-fun LastMess(modifier: Modifier = Modifier, backgroundColor: Color, title:String, subTitle:String, type:String){
+fun LastMess(modifier: Modifier = Modifier, title: String, subTitle: String, type: String, image: ImageBitmap? = null){
     val isDark = isSystemInDarkTheme()
-    val bgColor = if (isDark) Color.Black else Color.White
     val contentColor = if (isDark) Color.White else Color.Black
 
+    val box1IconBg = if (isDark) Color(0xFF4A1C1C) else MaterialTheme.colorScheme.errorContainer
+    val box1IconColor = if (isDark) Color(0xFFFF6961) else MaterialTheme.colorScheme.error
+
+    val box2IconBg = MaterialTheme.colorScheme.primary
+    val box2IconColor = if(isDark) Color.Black else Color.White
+
+    val bgColor = if(type=="CHAT")MaterialTheme.colorScheme.primaryContainer else if(type=="PORTFOLIO") MaterialTheme.colorScheme.errorContainer else MaterialTheme.colorScheme.primaryContainer
+
     Surface(
-        modifier = Modifier.fillMaxWidth().padding(vertical = 8.dp),
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(vertical = 8.dp),
         shape = RoundedCornerShape(32.dp),
-        color = backgroundColor,
+        color = bgColor,
         shadowElevation = 10.dp
 
     ){
         Row(modifier = Modifier
             .padding(16.dp)
             .fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween  , verticalAlignment = Alignment.CenterVertically){
-            ProfileAvatar(size=40)
+
+            if (type == "CHAT") {
+                ProfileAvatar(size = 40, imageBitmap = image)
+            } else {
+                if(type=="CHORE"){
+                    Box(
+                        modifier = Modifier
+                            .size(40.dp)
+                            .clip(CircleShape)
+                            .background(box2IconBg),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Icon(
+                            tint =box2IconColor,
+                            contentDescription = "ultime faccende",
+                            imageVector = Icons.Default.WaterDrop,
+                            modifier = Modifier.size(24.dp)
+                        )
+                    }
+                }
+                else{
+                    Box(
+                        modifier = Modifier
+                            .size(40.dp)
+                            .clip(CircleShape)
+                            .background(box1IconBg),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Icon(
+                            tint = box1IconColor,
+                            contentDescription = "ultime spese",
+                            imageVector = Icons.Default.Wallet,
+                            modifier = Modifier.size(24.dp)
+                        )
+                    }
+                }
+            }
 
             Spacer(modifier = Modifier.width(16.dp))
 
@@ -286,12 +344,6 @@ fun LastMess(modifier: Modifier = Modifier, backgroundColor: Color, title:String
     }
 }
 
-
-
-
-/**
- * Capire come mettere i messaggi e le notifiche delle varie parti
- */
 @Composable
 fun LastMessView(
     isLoading: Boolean,
@@ -299,26 +351,60 @@ fun LastMessView(
     onChatClick: (String) -> Unit,
     modifier: Modifier
 ) {
-    val isDark = isSystemInDarkTheme()
+    LazyColumn(
+        modifier = Modifier.fillMaxSize(),
+        contentPadding = PaddingValues(start = 0.dp, end = 0.dp, bottom = 120.dp, top = 8.dp)
+    ) {
 
-        LazyColumn(
-            modifier = Modifier.fillMaxSize(),
-            contentPadding = PaddingValues(start = 0.dp, end = 0.dp, bottom = 120.dp, top = 8.dp)
-        ) {
-
-            if (isLoading) {
-                item {
-                    Box(modifier = Modifier
+        if (isLoading) {
+            item {
+                Box(
+                    modifier = Modifier
                         .fillMaxWidth()
-                        .height(250.dp), contentAlignment = Alignment.Center) {
-                        Text("Caricamento chat...", color = Color.Gray, fontSize = 16.sp)
-                    }
+                        .height(250.dp), contentAlignment = Alignment.Center
+                ) {
+                    Text("Caricamento chat...", color = Color.Gray, fontSize = 16.sp)
                 }
-            } else {
-                items(notification) { chat ->
-                    LastMess(backgroundColor = MaterialTheme.colorScheme.primaryContainer, title=chat.title, subTitle = chat.subtitle, type =chat.eventType, )
-                }
+            }
+        } else {
+            items(notification) { chat ->
+                LastMess(title = chat.title, subTitle = chat.subtitle, type = chat.eventType)
             }
         }
     }
+}
+
+
+@Preview(showBackground = true, showSystemUi = true)
+@Composable
+fun PreviewHouseDashboard() {
+    // 1. Creiamo una lista finta solo per farla vedere alla preview
+    val finteNotifiche = listOf(
+        Notification(
+            eventId = "1", eventType = "CHAT", title = "Marco",
+            subtitle = "Ciao, usciamo?", timestamp = "Ora", userCode = "test-token"
+        ),
+        Notification(
+            eventId = "2", eventType = "CHORE", title = "Fornello cucina",
+            subtitle = "Tocca a te", timestamp = "Oggi", userCode = "test-token"
+        )
+    )
+
+    val fintoDebitoTot = TotalDebt(totalDebt = 45.50)
+    val fintoProxFaccenda = NextChore(choreId = "1", choreName = "Fornello cucina", choreDate = "2026-04-28T18:30:00")
+
+    // 2. Chiamiamo la vista passandole i dati finti!
+    MaterialTheme {
+        HomeGestionaleView(
+            nomeUtente = "Ale Baddie",
+            imageBytes = null,
+            isLoading = false,
+            userToken = "test-token",
+            onAddClick = {},
+            notifications = finteNotifiche,
+            nextChore = fintoProxFaccenda,
+            totalDebt = fintoDebitoTot
+        )
+    }
+}
 
