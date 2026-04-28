@@ -1,3 +1,4 @@
+
 DTO per ultimi aggiornamenti
 Il DTO di ogni elemento della lista deve avere questa struttura:
 
@@ -23,6 +24,6 @@ Se eventType == "EXPENSE":
 
 Se eventType == "CHORE":
 - title: "Nuova faccenda per {nomepersona}".
-- subtitle: "Da completare entro {datascadenza}".
+- subtitle: "Pulizia {nomechore} entro {datascadenza}".
 
 Le icone le gestisco io lato frontend in base all'eventType. 
