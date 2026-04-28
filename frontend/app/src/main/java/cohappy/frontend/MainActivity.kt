@@ -152,7 +152,10 @@ class MainActivity : ComponentActivity() {
 
                         composable("home_gestionale") {
                             HouseMainScreen(
-                                userToken = userToken ?: "" // Assicuriamoci di passargli il token
+                                userToken = userToken ?: "",
+                                onChatClick = { targetChat ->
+                                    navController.navigate("chat_singola/$targetChat")
+                                },
                             )
                         }
                     }

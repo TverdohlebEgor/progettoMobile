@@ -13,6 +13,7 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.unit.dp
 import cohappy.frontend.components.FloatingBottomBar
 import cohappy.frontend.components.NavItem
 import dev.chrisbanes.haze.HazeState
@@ -25,12 +26,12 @@ fun HouseMainScreen(
 //    onRegisterClick: () -> Unit,
 //    onAnnuncioClick: (String) -> Unit,
 //    onProfiloAnnunciClick: () -> Unit,
-//    onChatAnnunciClick: (String) -> Unit,
 //    showError: Boolean,
 //    isLoggedIn: Boolean,
 //    onLogoutClick: () -> Unit = {},
 //    onCreateHouseClick :() -> Unit,
 //    onJoinConfirmClick: (String) -> Unit,
+    onChatClick: (String) -> Unit,
     userToken: String? = null
 ) {
     var activeTab by remember { mutableStateOf("home") }
@@ -63,6 +64,15 @@ fun HouseMainScreen(
                             userToken = userToken?: ""
                         )
 
+                    }
+                }
+
+                "chat" ->{
+                    Box(modifier = Modifier.fillMaxSize().padding(top= 16.dp)) {
+                        ChatListScreen(
+                            onChatClick = onChatClick,
+                            userToken = userToken ?: ""
+                        )
                     }
                 }
             }

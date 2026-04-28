@@ -1,0 +1,28 @@
+DTO per ultimi aggiornamenti
+Il DTO di ogni elemento della lista deve avere questa struttura:
+
+JSON
+{
+  "eventId": "string",
+  "eventType": "string", // Valori accettati: "CHAT", "EXPENSE", "CHORE"
+  "title": "string", // Vedi sotto come valorizzarlo
+  "subtitle": "string", // Vedi sotto come valorizzarlo
+  "timestamp": "string (ISO 8601)",
+  "imageBytes": "base64 string o null" // Può essere null Lo uso solo per la CHAT se c'è la foto profilo, altrimenti per le altre metti null.
+}
+
+Come devi valorizzare title e subtitle in base all'eventType:
+
+Se eventType == "CHAT":
+- title: Nome e cognome della persona.
+- subtitle: La preview dell'ultimo messaggio.
+
+Se eventType == "EXPENSE":
+- title: "Nuova spesa da {nomepersona}".
+- subtitle: Il nome/descrizione della spesa.
+
+Se eventType == "CHORE":
+- title: "Nuova faccenda per {nomepersona}".
+- subtitle: "Da completare entro {datascadenza}".
+
+Le icone le gestisco io lato frontend in base all'eventType. 

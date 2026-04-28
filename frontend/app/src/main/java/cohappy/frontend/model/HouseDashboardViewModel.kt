@@ -1,9 +1,12 @@
 package cohappy.frontend.model
 
 import android.util.Log
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.WaterDrop
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import cohappy.frontend.repository.HouseDashboardRepository
@@ -23,6 +26,14 @@ class HouseDashboardViewModel : ViewModel() {
     var isLoading by mutableStateOf(true)
         private set
 
+    val notifications = listOf(
+        Notification("Marco", "Ciao sei una merda umana"),
+        Notification("Luca", "Ciao sei una merda umana"),
+        Notification("Bagno", "Tocca a Marco", Icons.Default.WaterDrop),
+        Notification("Luca", "Ciao sei una merda umana"),
+        Notification("Luca", "Ciao sei una merda umana"),
+        Notification("Luca", "Ciao sei una merda umana"),
+    )
     fun loadDashboardData(userToken: String) {
         viewModelScope.launch {
             isLoading = true
@@ -34,7 +45,7 @@ class HouseDashboardViewModel : ViewModel() {
                     val data = response.body()!!
                     nomeUtente = data.name ?: "Utente"
 
-                                        val imageByteArray = data.images?.firstOrNull()
+                    val imageByteArray = data.images?.firstOrNull()
                     if (imageByteArray != null && imageByteArray.isNotEmpty()) {
                         profileImageBytes = imageByteArray
                     }
@@ -50,3 +61,8 @@ class HouseDashboardViewModel : ViewModel() {
         }
     }
 }
+
+data class Notification(val Nome: String, val UltimoMessaggio: String, val Icon: ImageVector = Icons.Default.WaterDrop ){
+
+}
+

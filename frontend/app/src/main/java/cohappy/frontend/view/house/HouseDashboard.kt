@@ -1,7 +1,7 @@
 package cohappy.frontend.view.house
 
-import android.R.attr.top
 import android.graphics.BitmapFactory
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.isSystemInDarkTheme
@@ -16,7 +16,6 @@ import androidx.compose.material.icons.filled.ArrowForwardIos
 import androidx.compose.material.icons.filled.Wallet
 import androidx.compose.material.icons.filled.WaterDrop
 import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
@@ -26,7 +25,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.asImageBitmap
@@ -38,17 +36,16 @@ import androidx.compose.ui.unit.sp
 import cohappy.frontend.components.CustomIconButton
 import cohappy.frontend.components.HousePosition
 import cohappy.frontend.components.ProfileAvatar
-import cohappy.frontend.components.ResearchBar
 import cohappy.frontend.components.Titoli
-import cohappy.frontend.model.ChatListItem
-import cohappy.frontend.view.chat.ChatListItemRow
+import cohappy.frontend.model.Notification
 
 @Composable
 fun HomeGestionaleView(
     nomeUtente: String,
     imageBytes: ByteArray?,
     isLoading: Boolean,
-    onAddClick: () -> Unit
+    onAddClick: () -> Unit,
+    notifications: List<Notification>,
 ) {
     val isDark = isSystemInDarkTheme()
     val bgColor = if (isDark) Color.Black else Color.White
@@ -103,40 +100,12 @@ fun HomeGestionaleView(
 
                     UltimoAggName(onClick = {})
 
-                    LazyColumn(
-                        modifier = Modifier.fillMaxSize(),
-                        contentPadding = PaddingValues(bottom = 120.dp)
-                    ) {
-                        item {
-                            LastMess(
-                                backgroundColor = MaterialTheme.colorScheme.onSecondary
-                            )
-                        }
-
-                        item {
-                            LastMess(
-                                backgroundColor = MaterialTheme.colorScheme.onSecondary
-                            )
-                        }
-
-                        item {
-                            LastMess(
-                                backgroundColor = MaterialTheme.colorScheme.onSecondary
-                            )
-                        }
-
-                        item {
-                            LastMess(
-                                backgroundColor = MaterialTheme.colorScheme.onSecondary
-                            )
-                        }
-
-                        item {
-                            LastMess(
-                                backgroundColor = MaterialTheme.colorScheme.onSecondary
-                            )
-                        }
-                    }
+                    LastMessView(
+                        isLoading = isLoading,
+                        notification = notifications,
+                        onChatClick = { },
+                        modifier = Modifier.weight(1f)
+                    )
                 }
 
                 CustomIconButton(
@@ -163,21 +132,21 @@ fun SummBox(
     modifier: Modifier = Modifier
 ) {
     val isDark = isSystemInDarkTheme()
-    val textColor = if (isDark) Color.White else Color.Black
-
+    val contentColor = if (isDark) Color.White else Color.Black
 
     Surface(
         modifier = modifier,
         shape = RoundedCornerShape(24.dp),
         color = backgroundColor,
-        shadowElevation = 10.dp
-
+        shadowElevation = if (isDark) 0.dp else 10.dp,
+        border = if (isDark) BorderStroke(1.dp, Color.White.copy(alpha = 0.1f)) else null
     ) {
         Column(
             modifier = Modifier.padding(16.dp),
             horizontalAlignment = Alignment.Start,
             verticalArrangement = Arrangement.Center
         ) {
+            // Icona tonda
             Box(
                 modifier = Modifier
                     .size(48.dp)
@@ -192,13 +161,14 @@ fun SummBox(
 
             Text(
                 text = title,
-                color = if (isDark) Color.LightGray else Color.Gray,
+                color = contentColor.copy(alpha = 0.7f),
                 fontSize = 14.sp,
                 fontWeight = FontWeight.Medium
             )
+
             Text(
                 text = amount,
-                color = textColor,
+                color = contentColor,
                 fontSize = 22.sp,
                 fontWeight = FontWeight.Black
             )
@@ -208,30 +178,38 @@ fun SummBox(
 
 @Composable
 fun SummRow(modifier: Modifier = Modifier){
-    val IconColorWater = if (isSystemInDarkTheme()) Color.Black else Color.White
-    val BgColor = if(isSystemInDarkTheme())Color.Gray else Color.White
+    val isDark = isSystemInDarkTheme()
 
+    val box1Bg = if (isDark) Color(0xFF1E1C22) else Color.White
+    val box1ContentColor = if (isDark) Color.White else Color.Black
+    val box1IconBg = if (isDark) Color(0xFF4A1C1C) else MaterialTheme.colorScheme.errorContainer
+    val box1IconColor = if (isDark) Color(0xFFFF6961) else MaterialTheme.colorScheme.error
+
+    val box2Bg = MaterialTheme.colorScheme.onPrimary
+    val box2ContentColor = Color.White
+    val box2IconBg = MaterialTheme.colorScheme.primary
+    val box2IconColor = if(isDark) Color.Black else Color.White
 
     Row(
         modifier = modifier.fillMaxWidth(),
         horizontalArrangement = Arrangement.spacedBy(16.dp)
     ){
         SummBox(
-            iconColor = MaterialTheme.colorScheme.error,
-            iconBackColor = MaterialTheme.colorScheme.errorContainer,
+            iconColor = box1IconColor,
+            iconBackColor = box1IconBg,
             iconLabel = "wallet",
             icon = Icons.Default.Wallet,
-            backgroundColor = BgColor,
+            backgroundColor = box1Bg,
             title = "Da dare",
             amount = "15,00 €",
             modifier = Modifier.weight(1f)
         )
         SummBox(
-            iconColor = IconColorWater,
-            iconBackColor = MaterialTheme.colorScheme.primary ,
+            iconColor = box2IconColor,
+            iconBackColor = box2IconBg,
             iconLabel = "chore",
             icon = Icons.Default.WaterDrop,
-            backgroundColor = MaterialTheme.colorScheme.onPrimary,
+            backgroundColor = box2Bg,
             title = "Tocca a te",
             amount = "Bagno",
             modifier = Modifier.weight(1f)
@@ -267,7 +245,7 @@ fun UltimoAggName(onClick: () -> Unit = {}){
 }
 
 @Composable
-fun LastMess(modifier: Modifier = Modifier, backgroundColor: Color){
+fun LastMess(modifier: Modifier = Modifier, backgroundColor: Color, title:String, subTitle:String ){
     val isDark = isSystemInDarkTheme()
     val bgColor = if (isDark) Color.Black else Color.White
     val contentColor = if (isDark) Color.White else Color.Black
@@ -288,7 +266,7 @@ fun LastMess(modifier: Modifier = Modifier, backgroundColor: Color){
 
             Column(modifier = Modifier.weight(1f)) {
                 Text(
-                    text = "Nome Utente o categoria",
+                    text = title,
                     color = contentColor,
                     fontWeight = FontWeight.Bold,
                     textAlign = TextAlign.Start,
@@ -296,7 +274,7 @@ fun LastMess(modifier: Modifier = Modifier, backgroundColor: Color){
                     lineHeight = 24.sp
                 )
                 Text(
-                    text = "Ultimo messaggio",
+                    text = subTitle,
                     color = if (isDark) Color.LightGray else Color.Gray,
                     fontWeight = FontWeight.Medium,
                     textAlign = TextAlign.Start,
@@ -309,27 +287,25 @@ fun LastMess(modifier: Modifier = Modifier, backgroundColor: Color){
 }
 
 
+
+
 /**
  * Capire come mettere i messaggi e le notifiche delle varie parti
  */
 @Composable
 fun LastMessView(
     isLoading: Boolean,
-    chats: List<ChatListItem>,
-    onChatClick: (String) -> Unit
+    notification: List<Notification>,
+    onChatClick: (String) -> Unit,
+    modifier: Modifier
 ) {
     val isDark = isSystemInDarkTheme()
     val bgColor = if (isDark) Color.Black else Color.White
     val contentColor = if (isDark) Color.White else Color.Black
 
-    Surface(
-        modifier = Modifier.fillMaxSize(),
-        color = bgColor,
-        contentColor = contentColor
-    ) {
         LazyColumn(
             modifier = Modifier.fillMaxSize(),
-            contentPadding = PaddingValues(bottom = 120.dp)
+            contentPadding = PaddingValues(start = 0.dp, end = 0.dp, bottom = 120.dp, top = 8.dp)
         ) {
 
             if (isLoading) {
@@ -341,10 +317,10 @@ fun LastMessView(
                     }
                 }
             } else {
-                items(chats) { chat ->
-                    LastMess(backgroundColor = Color.LightGray)
+                items(notification) { chat ->
+                    LastMess(backgroundColor = MaterialTheme.colorScheme.primaryContainer, title=chat.Nome, subTitle = chat.UltimoMessaggio)
                 }
             }
         }
     }
-}
+

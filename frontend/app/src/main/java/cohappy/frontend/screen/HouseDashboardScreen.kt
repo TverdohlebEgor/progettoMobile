@@ -20,6 +20,7 @@ fun HouseDashboardScreen(
         imageBytes = viewModel.profileImageBytes,
         isLoading = viewModel.isLoading,
         onAddClick = {
-        }
+        },
+        notifications = viewModel.notifications
     )
 }
