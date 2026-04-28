@@ -18,7 +18,7 @@ Se eventType == "CHAT":
 - title: Nome e cognome della persona.
 - subtitle: La preview dell'ultimo messaggio.
 
-Se eventType == "EXPENSE":
+Se eventType == "PORTFOLIO":
 - title: "Nuova spesa da {nomepersona}".
 - subtitle: Il nome/descrizione della spesa.
 
@@ -26,4 +26,35 @@ Se eventType == "CHORE":
 - title: "Nuova faccenda per {nomepersona}".
 - subtitle: "Pulizia {nomechore} entro {datascadenza}".
 
-Le icone le gestisco io lato frontend in base all'eventType. 
+Le icone le gestisco io lato frontend in base all'eventType.
+ 
+--------
+API 
+
+- GET /api/notifications/{userCode}
+
+Cosa fa: Ritorna la lista completa di tutte le notifiche attive per l'utente, mischiando chat, spese e faccende.
+
+Ordinamento: Deve essere rigorosamente in ordine cronologico decrescente (dalla più recente alla più vecchia) basandosi sul timestamp.
+
+- DELETE /api/notifications/{eventId}
+
+Cosa fa: Elimina una singola notifica dal DB.
+
+Quando si usa: Quando l'utente elimina manualmente la notifica dalla UI (es. con uno swipe o cliccando su una "X").
+
+- DELETE /api/notifications/clear/{userCode}?type={eventType}
+
+Cosa fa: Elimina in blocco tutte le notifiche di una specifica categoria per quell'utente.
+
+Quando si usa: Quando l'utente entra nella pagina dedicata.
+
+-------
+Logica di Creazione
+Le notifiche devono essere salvate a database quando:
+
+CHAT: Viene creata una notifica per ogni singolo nuovo messaggio ricevuto dall'utente in una delle sue chat attive.
+
+PORTFOLIO: Viene creata una notifica solo se la nuova spesa registrata nella casa riguarda direttamente l'utente (es. ha un debito, o è una spesa condivisa a cui deve partecipare).
+
+CHORE: Viene creata una notifica in ogni caso a chiunque appartiene la faccenda

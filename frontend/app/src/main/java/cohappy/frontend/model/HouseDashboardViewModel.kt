@@ -27,13 +27,54 @@ class HouseDashboardViewModel : ViewModel() {
         private set
 
     val notifications = listOf(
-        Notification("Marco", "Ciao sei una merda umana"),
-        Notification("Luca", "Ciao sei una merda umana"),
-        Notification("Bagno", "Tocca a Marco", Icons.Default.WaterDrop),
-        Notification("Luca", "Ciao sei una merda umana"),
-        Notification("Luca", "Ciao sei una merda umana"),
-        Notification("Luca", "Ciao sei una merda umana"),
-    )
+        Notification(
+            eventId = "1",
+            eventType = "CHAT",
+            title = "Marco",
+            subtitle = "Ciao sei una merda umana",
+            timestamp = "2026-04-28T18:30:00",
+            imageBytes = null
+        ),
+        Notification(
+            eventId = "2",
+            eventType = "CHAT",
+            title = "Luca",
+            subtitle = "Ciao sei una merda umana",
+            timestamp = "2026-04-28T18:32:00",
+            imageBytes = null
+        ),
+        Notification(
+            eventId = "3",
+            eventType = "CHORE",
+            title = "Nuova faccenda per Marco",
+            subtitle = "Da completare entro il 27/04",
+            timestamp = "2026-04-28T18:35:00",
+            imageBytes = null
+        ),
+        Notification(
+            eventId = "4",
+            eventType = "CHAT",
+            title = "Luca",
+            subtitle = "Ciao sei una merda umana",
+            timestamp = "2026-04-28T18:40:00",
+            imageBytes = null
+        ),
+        Notification(
+            eventId = "5",
+            eventType = "CHAT",
+            title = "Luca",
+            subtitle = "Ciao sei una merda umana",
+            timestamp = "2026-04-28T18:45:00",
+            imageBytes = null
+        ),
+        Notification(
+            eventId = "6",
+            eventType = "CHAT",
+            title = "Luca",
+            subtitle = "Ciao sei una merda umana",
+            timestamp = "2026-04-28T18:50:00",
+            imageBytes = null
+        )
     fun loadDashboardData(userToken: String) {
         viewModelScope.launch {
             isLoading = true
@@ -62,7 +103,12 @@ class HouseDashboardViewModel : ViewModel() {
     }
 }
 
-data class Notification(val Nome: String, val UltimoMessaggio: String, val Icon: ImageVector = Icons.Default.WaterDrop ){
-
-}
+data class Notification(
+    val eventId: String,
+    val eventType: String,
+    val title: String,
+    val subtitle: String,
+    val timestamp: String,
+    val imageBytes: ByteArray? = null
+)
 
