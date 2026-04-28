@@ -59,7 +59,7 @@ fun HouseMainScreen(
             when (activeTab) {
                 "home" -> {
                     Box(modifier = Modifier.fillMaxSize()) {
-                        HomeGestionaleScreen(
+                        HouseDashboardScreen(
                             userToken = userToken?: ""
                         )
 

@@ -549,8 +549,10 @@ fun ProfileAvatar(
         modifier = modifier
             .size(size.dp)
             .clip(CircleShape)
-            .background(MaterialTheme.colorScheme.surfaceVariant), // Sfondo grigetto se è vuoto
-        contentAlignment = Alignment.Center
+            .shadow(elevation = 10.dp, shape = CircleShape)
+            .background(MaterialTheme.colorScheme.surfaceVariant),
+        contentAlignment = Alignment.Center,
+
     ) {
         if (imageBitmap != null) {
 

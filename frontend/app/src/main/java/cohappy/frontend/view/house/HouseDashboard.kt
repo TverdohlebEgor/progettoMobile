@@ -1,10 +1,13 @@
 package cohappy.frontend.view.house
 
+import android.R.attr.top
 import android.graphics.BitmapFactory
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
@@ -13,6 +16,7 @@ import androidx.compose.material.icons.filled.ArrowForwardIos
 import androidx.compose.material.icons.filled.Wallet
 import androidx.compose.material.icons.filled.WaterDrop
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
@@ -22,6 +26,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.asImageBitmap
@@ -33,7 +38,10 @@ import androidx.compose.ui.unit.sp
 import cohappy.frontend.components.CustomIconButton
 import cohappy.frontend.components.HousePosition
 import cohappy.frontend.components.ProfileAvatar
+import cohappy.frontend.components.ResearchBar
 import cohappy.frontend.components.Titoli
+import cohappy.frontend.model.ChatListItem
+import cohappy.frontend.view.chat.ChatListItemRow
 
 @Composable
 fun HomeGestionaleView(
@@ -93,7 +101,42 @@ fun HomeGestionaleView(
 
                     Spacer(modifier = Modifier.height(24.dp))
 
-                    UltimoAggRow(onClick = {})
+                    UltimoAggName(onClick = {})
+
+                    LazyColumn(
+                        modifier = Modifier.fillMaxSize(),
+                        contentPadding = PaddingValues(bottom = 120.dp)
+                    ) {
+                        item {
+                            LastMess(
+                                backgroundColor = MaterialTheme.colorScheme.onSecondary
+                            )
+                        }
+
+                        item {
+                            LastMess(
+                                backgroundColor = MaterialTheme.colorScheme.onSecondary
+                            )
+                        }
+
+                        item {
+                            LastMess(
+                                backgroundColor = MaterialTheme.colorScheme.onSecondary
+                            )
+                        }
+
+                        item {
+                            LastMess(
+                                backgroundColor = MaterialTheme.colorScheme.onSecondary
+                            )
+                        }
+
+                        item {
+                            LastMess(
+                                backgroundColor = MaterialTheme.colorScheme.onSecondary
+                            )
+                        }
+                    }
                 }
 
                 CustomIconButton(
@@ -120,7 +163,7 @@ fun SummBox(
     modifier: Modifier = Modifier
 ) {
     val isDark = isSystemInDarkTheme()
-    val textColor = if (isDark && backgroundColor == Color.White) Color.Black else if (!isDark && backgroundColor == Color.White) Color.Black else Color.White
+    val textColor = if (isDark) Color.White else Color.Black
 
 
     Surface(
@@ -165,7 +208,10 @@ fun SummBox(
 
 @Composable
 fun SummRow(modifier: Modifier = Modifier){
-    val BgColor = if (isSystemInDarkTheme()) Color.Black else Color.White
+    val IconColorWater = if (isSystemInDarkTheme()) Color.Black else Color.White
+    val BgColor = if(isSystemInDarkTheme())Color.Gray else Color.White
+
+
     Row(
         modifier = modifier.fillMaxWidth(),
         horizontalArrangement = Arrangement.spacedBy(16.dp)
@@ -175,14 +221,14 @@ fun SummRow(modifier: Modifier = Modifier){
             iconBackColor = MaterialTheme.colorScheme.errorContainer,
             iconLabel = "wallet",
             icon = Icons.Default.Wallet,
-            backgroundColor = Color.White,
+            backgroundColor = BgColor,
             title = "Da dare",
             amount = "15,00 €",
             modifier = Modifier.weight(1f)
         )
         SummBox(
-            iconColor = BgColor,
-            iconBackColor = MaterialTheme.colorScheme.primary,
+            iconColor = IconColorWater,
+            iconBackColor = MaterialTheme.colorScheme.primary ,
             iconLabel = "chore",
             icon = Icons.Default.WaterDrop,
             backgroundColor = MaterialTheme.colorScheme.onPrimary,
@@ -194,10 +240,12 @@ fun SummRow(modifier: Modifier = Modifier){
 }
 
 @Composable
-fun UltimoAggRow(onClick: () -> Unit = {}){
+fun UltimoAggName(onClick: () -> Unit = {}){
     val textColor = if (isSystemInDarkTheme()) Color.White else Color.Black
 
-    Row(modifier = Modifier.fillMaxWidth().clickable(onClick = onClick),horizontalArrangement = Arrangement.SpaceBetween, verticalAlignment = Alignment.CenterVertically){
+    Row(modifier = Modifier
+        .fillMaxWidth()
+        .clickable(onClick = onClick),horizontalArrangement = Arrangement.SpaceBetween, verticalAlignment = Alignment.CenterVertically){
         Text(
             text = "Ultimi Aggiornamenti",
             color = textColor,
@@ -215,5 +263,88 @@ fun UltimoAggRow(onClick: () -> Unit = {}){
             imageVector = Icons.Default.ArrowForwardIos,
             modifier = Modifier.size(16.dp)
         )
+    }
+}
+
+@Composable
+fun LastMess(modifier: Modifier = Modifier, backgroundColor: Color){
+    val isDark = isSystemInDarkTheme()
+    val bgColor = if (isDark) Color.Black else Color.White
+    val contentColor = if (isDark) Color.White else Color.Black
+
+    Surface(
+        modifier = Modifier.fillMaxWidth().padding(vertical = 8.dp),
+        shape = RoundedCornerShape(32.dp),
+        color = backgroundColor,
+        shadowElevation = 10.dp
+
+    ){
+        Row(modifier = Modifier
+            .padding(16.dp)
+            .fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween  , verticalAlignment = Alignment.CenterVertically){
+            ProfileAvatar(size=40)
+
+            Spacer(modifier = Modifier.width(16.dp))
+
+            Column(modifier = Modifier.weight(1f)) {
+                Text(
+                    text = "Nome Utente o categoria",
+                    color = contentColor,
+                    fontWeight = FontWeight.Bold,
+                    textAlign = TextAlign.Start,
+                    fontSize = 16.sp,
+                    lineHeight = 24.sp
+                )
+                Text(
+                    text = "Ultimo messaggio",
+                    color = if (isDark) Color.LightGray else Color.Gray,
+                    fontWeight = FontWeight.Medium,
+                    textAlign = TextAlign.Start,
+                    fontSize = 14.sp,
+                    lineHeight = 24.sp
+                )
+            }
+        }
+    }
+}
+
+
+/**
+ * Capire come mettere i messaggi e le notifiche delle varie parti
+ */
+@Composable
+fun LastMessView(
+    isLoading: Boolean,
+    chats: List<ChatListItem>,
+    onChatClick: (String) -> Unit
+) {
+    val isDark = isSystemInDarkTheme()
+    val bgColor = if (isDark) Color.Black else Color.White
+    val contentColor = if (isDark) Color.White else Color.Black
+
+    Surface(
+        modifier = Modifier.fillMaxSize(),
+        color = bgColor,
+        contentColor = contentColor
+    ) {
+        LazyColumn(
+            modifier = Modifier.fillMaxSize(),
+            contentPadding = PaddingValues(bottom = 120.dp)
+        ) {
+
+            if (isLoading) {
+                item {
+                    Box(modifier = Modifier
+                        .fillMaxWidth()
+                        .height(250.dp), contentAlignment = Alignment.Center) {
+                        Text("Caricamento chat...", color = Color.Gray, fontSize = 16.sp)
+                    }
+                }
+            } else {
+                items(chats) { chat ->
+                    LastMess(backgroundColor = Color.LightGray)
+                }
+            }
+        }
     }
 }

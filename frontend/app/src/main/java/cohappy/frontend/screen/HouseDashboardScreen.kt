@@ -7,7 +7,7 @@ import cohappy.frontend.model.HouseDashboardViewModel
 import cohappy.frontend.view.house.HomeGestionaleView
 
 @Composable
-fun HomeGestionaleScreen(
+fun HouseDashboardScreen(
     userToken: String,
     viewModel: HouseDashboardViewModel = viewModel()
 ) {
