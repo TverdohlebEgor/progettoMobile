@@ -9,8 +9,8 @@ data class UserAccountDTO(
     var birthDate: String? = null,
     var cv: String? = null,
     var age: Int? = null,
-    var userCode: String? = null, // Mettiamo il nullable per sicurezza
-    var images: List<ByteArray>? = null, // 💅 MAGIC: Torniamo al ByteArray!
+    var userCode: String? = null, 
+    var images: List<ByteArray>? = null,
     var email: String? = null,
     var phoneNumber: String? = null,
     var password: String? = null,

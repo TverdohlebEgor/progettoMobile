@@ -30,7 +30,7 @@ class HouseDashboardViewModel : ViewModel() {
         Notification(
             eventId = "1",
             eventType = "CHAT",
-            title = "Marco",
+            title = "Marco Rossi",
             subtitle = "Ciao sei una merda umana",
             timestamp = "2026-04-28T18:30:00",
             imageBytes = null
@@ -38,7 +38,7 @@ class HouseDashboardViewModel : ViewModel() {
         Notification(
             eventId = "2",
             eventType = "CHAT",
-            title = "Luca",
+            title = "Luca Bianchi",
             subtitle = "Ciao sei una merda umana",
             timestamp = "2026-04-28T18:32:00",
             imageBytes = null
@@ -47,22 +47,22 @@ class HouseDashboardViewModel : ViewModel() {
             eventId = "3",
             eventType = "CHORE",
             title = "Nuova faccenda per Marco",
-            subtitle = "Da completare entro il 27/04",
+            subtitle = "Pulizia Bagno entro 30/04/2026",
             timestamp = "2026-04-28T18:35:00",
             imageBytes = null
         ),
         Notification(
             eventId = "4",
-            eventType = "CHAT",
-            title = "Luca",
-            subtitle = "Ciao sei una merda umana",
+            eventType = "PORTFOLIO",
+            title = "Nuova spesa da Luca",
+            subtitle = "Spesa per la casa",
             timestamp = "2026-04-28T18:40:00",
             imageBytes = null
         ),
         Notification(
             eventId = "5",
             eventType = "CHAT",
-            title = "Luca",
+            title = "Luca Bianchi",
             subtitle = "Ciao sei una merda umana",
             timestamp = "2026-04-28T18:45:00",
             imageBytes = null
@@ -70,11 +70,13 @@ class HouseDashboardViewModel : ViewModel() {
         Notification(
             eventId = "6",
             eventType = "CHAT",
-            title = "Luca",
+            title = "Luca Bianchi",
             subtitle = "Ciao sei una merda umana",
             timestamp = "2026-04-28T18:50:00",
             imageBytes = null
         )
+    )
+
     fun loadDashboardData(userToken: String) {
         viewModelScope.launch {
             isLoading = true

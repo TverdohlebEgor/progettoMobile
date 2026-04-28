@@ -245,7 +245,7 @@ fun UltimoAggName(onClick: () -> Unit = {}){
 }
 
 @Composable
-fun LastMess(modifier: Modifier = Modifier, backgroundColor: Color, title:String, subTitle:String ){
+fun LastMess(modifier: Modifier = Modifier, backgroundColor: Color, title:String, subTitle:String, type:String){
     val isDark = isSystemInDarkTheme()
     val bgColor = if (isDark) Color.Black else Color.White
     val contentColor = if (isDark) Color.White else Color.Black
@@ -300,8 +300,6 @@ fun LastMessView(
     modifier: Modifier
 ) {
     val isDark = isSystemInDarkTheme()
-    val bgColor = if (isDark) Color.Black else Color.White
-    val contentColor = if (isDark) Color.White else Color.Black
 
         LazyColumn(
             modifier = Modifier.fillMaxSize(),
@@ -318,7 +316,7 @@ fun LastMessView(
                 }
             } else {
                 items(notification) { chat ->
-                    LastMess(backgroundColor = MaterialTheme.colorScheme.primaryContainer, title=chat.Nome, subTitle = chat.UltimoMessaggio)
+                    LastMess(backgroundColor = MaterialTheme.colorScheme.primaryContainer, title=chat.title, subTitle = chat.subtitle, type =chat.eventType, )
                 }
             }
         }

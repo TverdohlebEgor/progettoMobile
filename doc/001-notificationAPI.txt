@@ -10,6 +10,7 @@ JSON
   "subtitle": "string", // Vedi sotto come valorizzarlo
   "timestamp": "string (ISO 8601)",
   "imageBytes": "base64 string o null" // Può essere null Lo uso solo per la CHAT se c'è la foto profilo, altrimenti per le altre metti null.
+  "userCode":"String"
 }
 
 Come devi valorizzare title e subtitle in base all'eventType:
