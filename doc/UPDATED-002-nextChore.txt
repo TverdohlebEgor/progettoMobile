@@ -10,3 +10,7 @@ JSON
 }
 (Nota: se l'utente non ha faccende assegnate, fammi tornare un 204 No Content o un DTO con choreName nullo, così la grafica mostra "Nessuna").
 
+
+------
+
+Cosa significa la "prossima", se intendi la prima dopo una certa data mi devi fornare la data in request
