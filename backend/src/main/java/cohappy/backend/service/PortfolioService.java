@@ -6,6 +6,7 @@ import cohappy.backend.exceptions.IllegalInputException;
 import cohappy.backend.exceptions.NotFoundException;
 import cohappy.backend.mappers.PortafolioMapper;
 import cohappy.backend.model.Debt;
+import cohappy.backend.model.NotificationType;
 import cohappy.backend.model.UserAccount;
 import cohappy.backend.model.dto.request.CreateDebtDTO;
 import cohappy.backend.model.dto.request.MoveMoneyDTO;
@@ -26,6 +27,7 @@ import static cohappy.backend.model.OperationResultMessages.*;
 @AllArgsConstructor
 @Service
 public class PortfolioService {
+    private final NotificationService notificationService;
     private final UserRepository userRepository;
     private final DebtRepository debtRepository;
     private final PortafolioMapper mapper = new PortafolioMapper();
@@ -146,6 +148,14 @@ public class PortfolioService {
 
         userRepository.save(senderUserAccount);
         userRepository.save(receiverUserAccount);
+
+        notificationService.createNotification(
+                NotificationType.PORTFOLIO,
+                "Nuovo debito",
+                createDebtDTO.getDescription(),
+                null,
+                receiverUserCode
+        );
     }
 
     public void deleteDebt(String debtId) {

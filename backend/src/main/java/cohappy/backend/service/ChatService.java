@@ -6,6 +6,7 @@ import cohappy.backend.exceptions.NotFoundException;
 import cohappy.backend.mappers.ChatMapper;
 import cohappy.backend.model.Chat;
 import cohappy.backend.model.ChatMessage;
+import cohappy.backend.model.NotificationType;
 import cohappy.backend.model.UserAccount;
 import cohappy.backend.model.dto.request.*;
 import cohappy.backend.model.dto.response.ChatMessageDTO;
@@ -30,6 +31,7 @@ public class ChatService {
 
     private final ChatRepository chatRepository;
     private final UserRepository userRepository;
+    private final NotificationService notificationService;
     private final ChatMapper mapper = new ChatMapper();
 
     public List<UserChatDTO> getUserChats(String userCode) {
@@ -186,6 +188,14 @@ public class ChatService {
 
         chat.getMessages().add(newMessage);
         chatRepository.save(chat);
+
+        notificationService.createNotification(
+                NotificationType.CHAT,
+                chat.getName(),
+                addMessageDTO.getMessage(),
+                immage,
+                userAccount.getUserCode()
+        );
     }
 
     private void validateInput(Object value, String name){

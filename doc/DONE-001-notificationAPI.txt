@@ -32,17 +32,23 @@ Le icone le gestisco io lato frontend in base all'eventType.
 --------
 API 
 
+DONE
+------------------------------------------------------------------------------------------------
 - GET /api/notifications/{userCode}
 
 Cosa fa: Ritorna la lista completa di tutte le notifiche attive per l'utente, mischiando chat, spese e faccende.
 
 Ordinamento: Deve essere rigorosamente in ordine cronologico decrescente (dalla più recente alla più vecchia) basandosi sul timestamp.
+------------------------------------------------------------------------------------------------
 
+DONE
+------------------------------------------------------------------------------------------------
 - DELETE /api/notifications/{eventId}
 
 Cosa fa: Elimina una singola notifica dal DB.
 
 Quando si usa: Quando l'utente elimina manualmente la notifica dalla UI (es. con uno swipe o cliccando su una "X").
+------------------------------------------------------------------------------------------------
 
 - DELETE /api/notifications/clear/{userCode}?type={eventType}
 
@@ -54,11 +60,17 @@ Quando si usa: Quando l'utente entra nella pagina dedicata.
 Logica di Creazione
 Le notifiche devono essere salvate a database quando:
 
+DONE
+------------------------------------------------------------------------------------------------
 CHAT: Viene creata una notifica per ogni singolo nuovo messaggio ricevuto dall'utente in una delle sue chat attive.
+------------------------------------------------------------------------------------------------
 
+DONE
+------------------------------------------------------------------------------------------------
 PORTFOLIO: Viene creata una notifica solo se la nuova spesa registrata nella casa riguarda direttamente l'utente (es. ha un debito, o è una spesa condivisa a cui deve partecipare).
+------------------------------------------------------------------------------------------------
 
+DONE
+------------------------------------------------------------------------------------------------
 CHORE: Viene creata una notifica in ogni caso a chiunque appartiene la faccenda
-
-
-
+------------------------------------------------------------------------------------------------

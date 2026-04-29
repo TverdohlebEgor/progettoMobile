@@ -67,4 +67,5 @@ object ClientSingleton {
     val chatApi: ChatApiClient by lazy { retrofit.create(ChatApiClient::class.java) }
     val portfolioApi: PortfolioApiClient by lazy { retrofit.create(PortfolioApiClient::class.java) }
     val choreApi: ChoreApiClient by lazy { retrofit.create(ChoreApiClient::class.java) }
+    val notificationApi: NotificationApiClient by lazy { retrofit.create(NotificationApiClient::class.java) }
 }

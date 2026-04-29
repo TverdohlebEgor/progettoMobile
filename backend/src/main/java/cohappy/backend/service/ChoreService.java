@@ -5,6 +5,7 @@ import cohappy.backend.exceptions.NoPatchException;
 import cohappy.backend.exceptions.NotFoundException;
 import cohappy.backend.mappers.ChoreMapper;
 import cohappy.backend.model.HouseChore;
+import cohappy.backend.model.NotificationType;
 import cohappy.backend.model.UserAccount;
 import cohappy.backend.model.dto.request.CreateChoreDTO;
 import cohappy.backend.model.dto.request.PatchChoreDTO;
@@ -25,6 +26,7 @@ import static cohappy.backend.model.OperationResultMessages.*;
 @Service
 public class ChoreService {
 
+    private final NotificationService notificationService;
     private final ChoreRepository choreRepository;
     private final UserRepository userRepository;
     private final HouseRepository houseRepository;
@@ -120,6 +122,14 @@ public class ChoreService {
             String userCode = createChoreDTO.getAssignedTo().get(day);
             userRepository.findByUserCode(userCode)
                     .orElseThrow(() -> new NotFoundException(USER_NOT_FOUND.formatted(userCode)));
+
+            notificationService.createNotification(
+                    NotificationType.CHORE,
+                    "Nuova faccenda: "+createChoreDTO.getName(),
+                    createChoreDTO.getDescription(),
+                    null,
+                    userCode
+            );
         }
 
         HouseChore newChore = mapper.createDTOtoChore(createChoreDTO);
