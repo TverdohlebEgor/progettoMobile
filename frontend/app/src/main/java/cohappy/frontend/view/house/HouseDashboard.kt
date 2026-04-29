@@ -49,6 +49,8 @@ fun HomeGestionaleView(
     imageBytes: ByteArray?,
     isLoading: Boolean,
     onAddClick: () -> Unit,
+    onChoreClick: (String) -> Unit,
+    onWalletClick: (String) -> Unit,
     notifications: List<Notification>,
     nextChore: NextChore?,
     totalDebt: TotalDebt?,
@@ -140,13 +142,14 @@ fun SummBox(
     iconLabel: String,
     icon: ImageVector,
     backgroundColor: Color,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    onClick: () -> Unit = {}
 ) {
     val isDark = isSystemInDarkTheme()
     val contentColor = if (isDark) Color.White else Color.Black
 
     Surface(
-        modifier = modifier,
+        modifier = modifier.clickable(onClick = onClick),
         shape = RoundedCornerShape(24.dp),
         color = backgroundColor,
         shadowElevation = if (isDark) 0.dp else 10.dp,
@@ -190,7 +193,7 @@ fun SummBox(
 }
 
 @Composable
-fun SummRow(modifier: Modifier = Modifier, nameChore: String, debtAmount: Double){
+fun SummRow(modifier: Modifier = Modifier, nameChore: String, debtAmount: Double, onWalletClick: () -> Unit = {}, onChoreClick: () -> Unit = {}){
     val isDark = isSystemInDarkTheme()
 
     val box1Bg = if (isDark) Color(0xFF1E1C22) else Color.White
@@ -215,7 +218,8 @@ fun SummRow(modifier: Modifier = Modifier, nameChore: String, debtAmount: Double
             backgroundColor = box1Bg,
             title = "Da dare",
             amount = "${String.format("%.2f", debtAmount)}€",
-            modifier = Modifier.weight(1f)
+            modifier = Modifier.weight(1f),
+            onClick = onWalletClick
         )
         SummBox(
             iconColor = box2IconColor,
@@ -225,7 +229,8 @@ fun SummRow(modifier: Modifier = Modifier, nameChore: String, debtAmount: Double
             backgroundColor = box2Bg,
             title = "Tocca a te",
             amount = nameChore ,
-            modifier = Modifier.weight(1f)
+            modifier = Modifier.weight(1f),
+            onClick = onChoreClick
         )
     }
 }
@@ -378,7 +383,6 @@ fun LastMessView(
 @Preview(showBackground = true, showSystemUi = true)
 @Composable
 fun PreviewHouseDashboard() {
-    // 1. Creiamo una lista finta solo per farla vedere alla preview
     val finteNotifiche = listOf(
         Notification(
             eventId = "1", eventType = "CHAT", title = "Marco",
@@ -393,17 +397,18 @@ fun PreviewHouseDashboard() {
     val fintoDebitoTot = TotalDebt(totalDebt = 45.50)
     val fintoProxFaccenda = NextChore(choreId = "1", choreName = "Fornello cucina", choreDate = "2026-04-28T18:30:00")
 
-    // 2. Chiamiamo la vista passandole i dati finti!
     MaterialTheme {
         HomeGestionaleView(
-            nomeUtente = "Ale Baddie",
+            nomeUtente = "Ale",
             imageBytes = null,
             isLoading = false,
             userToken = "test-token",
             onAddClick = {},
             notifications = finteNotifiche,
             nextChore = fintoProxFaccenda,
-            totalDebt = fintoDebitoTot
+            totalDebt = fintoDebitoTot,
+            onChoreClick = {},
+            onWalletClick = {  }
         )
     }
 }

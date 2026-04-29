@@ -43,18 +43,28 @@ fun UserProfileScreen(
         viewModel.loadProfile(userToken)
     }
 
+    LaunchedEffect(viewModel.navigateToHouse) {
+        if (viewModel.navigateToHouse) {
+            onJoinConfirmClick("navigami_da_questa_prigione")
+            viewModel.resetNavigation() // Spegniamo l'interruttore
+        }
+    }
+
     UserProfileView(
         userName = viewModel.userName,
         userSurname = viewModel.userSurname,
         imageBytes = viewModel.profileImageBytes,
         isLoading = viewModel.isLoading,
+        joinErrorMessage = viewModel.houseJoinError,
         onEditClick = {
             photoPickerLauncher.launch(
                 PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly)
             )
         },
         onCreateHouseClick = onCreateHouseClick,
-        onJoinConfirmClick = onJoinConfirmClick,
+        onJoinConfirmClick = { houseCode ->
+            viewModel.joinHouse(houseCode, userToken)
+        },
         onLogoutClick = onLogoutClick
     )
 }

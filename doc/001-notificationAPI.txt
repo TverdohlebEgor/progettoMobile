@@ -61,26 +61,4 @@ PORTFOLIO: Viene creata una notifica solo se la nuova spesa registrata nella cas
 CHORE: Viene creata una notifica in ogni caso a chiunque appartiene la faccenda
 
 
------------------------------------------------------------
 
-AGGIUNTA 2 fun 
-- GET /api/chores/next/{userCode}
-Il backend deve scansionare le faccende della casa e restituirmi la prossima faccenda in ordine temporale assegnata a questo specifico utente.
-Il DTO di risposta deve essere così:
-
-JSON
-{
-  "choreCode": "string", 
-  "choreName": "string", 
-  "deadline": "string (ISO 8601)" 
-}
-(Nota: se l'utente non ha faccende assegnate, fammi tornare un 204 No Content o un DTO con choreName nullo, così la grafica mostra "Nessuna").
-
-- GET /api/debts/total/{userCode}
-Il backend deve sommare tutti i debiti che l'utente ha attualmente con tutti i suoi coinquilini, e restituirmi una singola cifra netta.
-Il DTO di risposta può essere semplicissimo:
-
-JSON
-{
-  "totalDebt": "Double" 
-}

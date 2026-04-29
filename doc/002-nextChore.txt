@@ -1,0 +1,12 @@
+- GET /api/chores/next/{userCode}
+Il backend deve scansionare le faccende della casa e restituirmi la prossima faccenda in ordine temporale assegnata a questo specifico utente.
+Il DTO di risposta deve essere così:
+
+JSON
+{
+  "choreCode": "string", 
+  "choreName": "string", 
+  "deadline": "string (ISO 8601)" 
+}
+(Nota: se l'utente non ha faccende assegnate, fammi tornare un 204 No Content o un DTO con choreName nullo, così la grafica mostra "Nessuna").
+

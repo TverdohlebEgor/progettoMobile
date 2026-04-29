@@ -15,6 +15,7 @@ import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.LocalTextStyle
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -46,7 +47,8 @@ fun UserProfileView(
     onEditClick: () -> Unit,
     onCreateHouseClick: () -> Unit,
     onJoinConfirmClick: (String) -> Unit,
-    onLogoutClick: () -> Unit
+    onLogoutClick: () -> Unit,
+    joinErrorMessage: String?
 ) {
     val isDark = isSystemInDarkTheme()
     val bgColor = if (isDark) Color.Black else Color.White
@@ -90,7 +92,8 @@ fun UserProfileView(
 
                 HouseSetupSection(
                     onCreateHouseClick = onCreateHouseClick,
-                    onJoinConfirmClick = onJoinConfirmClick
+                    onJoinConfirmClick = onJoinConfirmClick,
+                    joinErrorMessage = joinErrorMessage
                 )
 
                 Spacer(modifier = Modifier.height(25.dp))
@@ -107,7 +110,8 @@ fun UserProfileView(
 fun HouseSetupSection(
     onCreateHouseClick: () -> Unit,
     onJoinConfirmClick: (String) -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    joinErrorMessage: String? = null
 ) {
     var houseCode by remember { mutableStateOf("") }
     val isDark = isSystemInDarkTheme()
@@ -117,7 +121,6 @@ fun HouseSetupSection(
         modifier = modifier.fillMaxWidth(),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        // 3.A BOX 1: CREA UNA CASA
         Box(
             modifier = Modifier
                 .fillMaxWidth()
@@ -140,7 +143,6 @@ fun HouseSetupSection(
             }
         }
 
-        // 3.B SCRITTA "OPPURE"
         Text(
             text = "oppure",
             color = Color.Gray,
@@ -149,7 +151,6 @@ fun HouseSetupSection(
             modifier = Modifier.padding(vertical = 5.dp)
         )
 
-        // 3.C BOX 2: ACCEDI A UNA CASA
         Box(
             modifier = Modifier
                 .fillMaxWidth()
@@ -166,6 +167,16 @@ fun HouseSetupSection(
                 )
 
                 Spacer(modifier = Modifier.height(12.dp))
+
+                if (joinErrorMessage != null) {
+                    Text(
+                        text = joinErrorMessage,
+                        color = MaterialTheme.colorScheme.error,
+                        fontWeight = FontWeight.Bold,
+                        fontSize = 13.sp,
+                        modifier = Modifier.padding(bottom = 8.dp)
+                    )
+                }
 
                 Row(
                     modifier = Modifier.fillMaxWidth(),

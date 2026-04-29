@@ -23,6 +23,10 @@ class UserProfileViewModel : ViewModel() {
     var isLoading by mutableStateOf(true)
         private set
 
+    var houseJoinError by mutableStateOf<String?>(null)
+        private set
+    var navigateToHouse by mutableStateOf(false)
+        private set
     fun loadProfile(userToken: String) {
         viewModelScope.launch {
             isLoading = true
@@ -73,5 +77,41 @@ class UserProfileViewModel : ViewModel() {
                 Log.e("UserProfileVM", "🚨 Errore di rete upload foto", e)
             }
         }
+    }
+
+    fun joinHouse(houseCode: String, userToken: String) {
+        val codicePulito = houseCode.trim().uppercase()
+        if (codicePulito.isBlank()) {
+            houseJoinError = "Inserisci un codice valido"
+            return
+        }
+
+        houseJoinError = null
+
+        viewModelScope.launch {
+            try {
+                val tokenPulito = userToken.replace("\"", "").trim()
+                val response = withContext(Dispatchers.IO) { repository.joinHouse(codicePulito, tokenPulito) }
+
+                if (response.isSuccessful) {
+                    navigateToHouse = true
+                } else {
+                    if (response.code() == 404) {
+                        houseJoinError = "La casa non esiste"
+                    } else if (response.code() == 409) {
+                        houseJoinError = "Sei già in questa casa"
+                    } else {
+                        houseJoinError = "Errore dal server: ${response.code()}"
+                    }
+                }
+            } catch (e: Exception) {
+                Log.e("UserProfileVM", "Errore Join House", e)
+                houseJoinError = "Nessuna connessione a internet"
+            }
+        }
+    }
+
+    fun resetNavigation() {
+        navigateToHouse = false
     }
 }

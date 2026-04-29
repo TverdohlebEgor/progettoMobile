@@ -9,7 +9,9 @@ import cohappy.frontend.view.house.HomeGestionaleView
 @Composable
 fun HouseDashboardScreen(
     userToken: String,
-    viewModel: HouseDashboardViewModel = viewModel()
+    viewModel: HouseDashboardViewModel = viewModel(),
+    onChoreClick: (String) -> Unit,
+    onWalletClick: (String) -> Unit
 ) {
     LaunchedEffect(userToken) {
         viewModel.loadDashboardData(userToken)
@@ -24,7 +26,8 @@ fun HouseDashboardScreen(
         notifications = viewModel.notifications,
         nextChore = viewModel.nextChore,
         totalDebt = viewModel.totalDebt,
-
-        userToken = userToken
+        userToken = userToken,
+        onChoreClick = onChoreClick,
+        onWalletClick = onWalletClick
     )
 }

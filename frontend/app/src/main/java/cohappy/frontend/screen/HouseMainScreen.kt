@@ -61,18 +61,33 @@ fun HouseMainScreen(
                 "home" -> {
                     Box(modifier = Modifier.fillMaxSize()) {
                         HouseDashboardScreen(
-                            userToken = userToken?: ""
+                            userToken = userToken ?: "",
+                            onChoreClick = { chore -> /**capire come collegare qui*/},
+                            onWalletClick = { activeTab = "wallet" }
                         )
 
                     }
                 }
 
                 "chat" ->{
-                    Box(modifier = Modifier.fillMaxSize().padding(top= 16.dp)) {
+                    Box(modifier = Modifier
+                        .fillMaxSize()
+                        .padding(top = 16.dp)) {
                         ChatListScreen(
                             onChatClick = onChatClick,
                             userToken = userToken ?: ""
                         )
+                    }
+                }
+
+                "wallet" ->{
+                    Box(modifier = Modifier
+                        .fillMaxSize()
+                        .padding(top = 16.dp)) {
+//                        ChatListScreen(
+//                            onChatClick = onChatClick,
+//                            userToken = userToken ?: ""
+//                        )
                     }
                 }
             }

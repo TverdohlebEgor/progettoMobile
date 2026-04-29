@@ -1,6 +1,7 @@
 package cohappy.frontend.repository
 
 import cohappy.frontend.client.ClientSingleton
+import cohappy.frontend.client.dto.request.AddUserDTO
 import cohappy.frontend.client.dto.request.PatchUserDTO
 import cohappy.frontend.client.dto.response.UserAccountDTO
 import retrofit2.Response
@@ -17,5 +18,10 @@ class UserProfileRepository {
             images = listOf(imageBytes)
         )
         return ClientSingleton.userApi.patchUser(patchRequest)
+    }
+
+    suspend fun joinHouse(houseCode: String, userCode: String): Response<String> {
+        val pacchetto = AddUserDTO(houseCode = houseCode, userCode = userCode)
+        return ClientSingleton.houseApi.addUser(pacchetto)
     }
 }

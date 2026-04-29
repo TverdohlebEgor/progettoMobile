@@ -1,0 +1,8 @@
+- GET /api/debts/total/{userCode}
+Il backend deve sommare tutti i debiti che l'utente ha attualmente con tutti i suoi coinquilini, e restituirmi una singola cifra netta.
+Il DTO di risposta può essere semplicissimo:
+
+JSON
+{
+  "totalDebt": "Double" 
+}
