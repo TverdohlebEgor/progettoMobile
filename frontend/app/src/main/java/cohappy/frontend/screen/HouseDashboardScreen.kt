@@ -4,7 +4,8 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.lifecycle.viewmodel.compose.viewModel
 import cohappy.frontend.model.HouseDashboardViewModel
-import cohappy.frontend.view.house.HomeGestionaleView
+
+import cohappy.frontend.view.house.HouseDashboardView
 
 @Composable
 fun HouseDashboardScreen(
@@ -17,17 +18,19 @@ fun HouseDashboardScreen(
         viewModel.loadDashboardData(userToken)
     }
 
-    HomeGestionaleView(
+    HouseDashboardView(
         nomeUtente = viewModel.nomeUtente,
         imageBytes = viewModel.profileImageBytes,
         isLoading = viewModel.isLoading,
         onAddClick = {
         },
         notifications = viewModel.notifications,
-        nextChore = viewModel.nextChore,
-        totalDebt = viewModel.totalDebt,
+//        nextChore = viewModel.nextChore,
+//        totalDebt = viewModel.totalDebt,
         userToken = userToken,
-        onChoreClick = onChoreClick,
-        onWalletClick = onWalletClick
+        nextChoreName = "Bagno",
+        totalDebtAmount = "35",
+//        onChoreClick = onChoreClick,
+//        onWalletClick = onWalletClick
     )
 }

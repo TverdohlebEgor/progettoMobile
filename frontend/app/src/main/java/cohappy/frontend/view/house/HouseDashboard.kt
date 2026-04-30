@@ -1,6 +1,7 @@
 package cohappy.frontend.view.house
 
 import android.graphics.BitmapFactory
+import androidx.camera.core.Preview
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -31,35 +32,28 @@ import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.text.style.TextOverflow
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import cohappy.frontend.client.dto.response.GetNotificationDTO
 import cohappy.frontend.components.CustomIconButton
 import cohappy.frontend.components.HousePosition
 import cohappy.frontend.components.ProfileAvatar
 import cohappy.frontend.components.Titoli
-import cohappy.frontend.model.NextChore
-import cohappy.frontend.model.Notification
-import cohappy.frontend.model.TotalDebt
 
 @Composable
-fun HomeGestionaleView(
+fun HouseDashboardView(
     nomeUtente: String,
     imageBytes: ByteArray?,
     isLoading: Boolean,
+    userToken: String,
     onAddClick: () -> Unit,
-    onChoreClick: (String) -> Unit,
-    onWalletClick: (String) -> Unit,
-    notifications: List<Notification>,
-    nextChore: NextChore?,
-    totalDebt: TotalDebt?,
-    userToken: String
+    notifications: List<GetNotificationDTO>,
+    nextChoreName: String,
+    totalDebtAmount: String
 ) {
     val isDark = isSystemInDarkTheme()
     val bgColor = if (isDark) Color.Black else Color.White
     val contentColor = if (isDark) Color.White else Color.Black
-
 
     val profileBitmap: ImageBitmap? = remember(imageBytes) {
         if (imageBytes != null && imageBytes.isNotEmpty()) {
@@ -70,21 +64,23 @@ fun HomeGestionaleView(
     }
 
     Surface(modifier = Modifier.fillMaxSize(), color = bgColor, contentColor = contentColor) {
-        if (isLoading) {
+        if (isLoading && notifications.isEmpty()) {
             Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
                 CircularProgressIndicator(color = Color(0xFF6B53A4))
             }
         } else {
             Box(modifier = Modifier.fillMaxSize()) {
                 Column(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .padding(horizontal = 24.dp)
+                    modifier = Modifier.fillMaxSize()
                 ) {
-                    HousePosition("La tua Casa")
+                    Box(modifier = Modifier.padding(horizontal = 24.dp)) {
+                        HousePosition("La tua Casa")
+                    }
 
                     Row(
-                        modifier = Modifier.fillMaxWidth(),
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(horizontal = 24.dp),
                         verticalAlignment = Alignment.CenterVertically
                     ) {
                         Box(modifier = Modifier.weight(1f)) {
@@ -92,7 +88,6 @@ fun HomeGestionaleView(
                                 titolo1 = "Ciao! $nomeUtente",
                                 color = contentColor,
                                 paddingTop = 16.dp
-
                             )
                         }
 
@@ -104,19 +99,21 @@ fun HomeGestionaleView(
                     Spacer(modifier = Modifier.height(24.dp))
 
                     SummRow(
-                        modifier = Modifier.fillMaxWidth(),
-                        nameChore = nextChore?.choreName ?: "Nessuna",
-                        debtAmount = totalDebt?.totalDebt ?: 0.0
+                        nextChoreName = nextChoreName,
+                        totalDebtAmount = totalDebtAmount,
+                        modifier = Modifier.padding(horizontal = 24.dp)
                     )
 
                     Spacer(modifier = Modifier.height(24.dp))
 
-                    UltimoAggName(onClick = {})
+                    UltimoAggName(
+                        modifier = Modifier.padding(horizontal = 24.dp),
+                        onClick = {}
+                    )
 
                     LastMessView(
                         isLoading = isLoading,
-                        notification = notifications,
-                        onChatClick = { },
+                        notifications = notifications,
                         modifier = Modifier.weight(1f)
                     )
                 }
@@ -142,14 +139,13 @@ fun SummBox(
     iconLabel: String,
     icon: ImageVector,
     backgroundColor: Color,
-    modifier: Modifier = Modifier,
-    onClick: () -> Unit = {}
+    modifier: Modifier = Modifier
 ) {
     val isDark = isSystemInDarkTheme()
     val contentColor = if (isDark) Color.White else Color.Black
 
     Surface(
-        modifier = modifier.clickable(onClick = onClick),
+        modifier = modifier,
         shape = RoundedCornerShape(24.dp),
         color = backgroundColor,
         shadowElevation = if (isDark) 0.dp else 10.dp,
@@ -160,7 +156,6 @@ fun SummBox(
             horizontalAlignment = Alignment.Start,
             verticalArrangement = Arrangement.Center
         ) {
-            // Icona tonda
             Box(
                 modifier = Modifier
                     .size(48.dp)
@@ -184,32 +179,28 @@ fun SummBox(
                 text = amount,
                 color = contentColor,
                 fontSize = 22.sp,
-                fontWeight = FontWeight.Black,
-                maxLines = 1,
-                overflow = TextOverflow.Ellipsis
+                fontWeight = FontWeight.Black
             )
         }
     }
 }
 
 @Composable
-fun SummRow(modifier: Modifier = Modifier, nameChore: String, debtAmount: Double, onWalletClick: () -> Unit = {}, onChoreClick: () -> Unit = {}){
+fun SummRow(nextChoreName: String, totalDebtAmount: String, modifier: Modifier = Modifier) {
     val isDark = isSystemInDarkTheme()
 
     val box1Bg = if (isDark) Color(0xFF1E1C22) else Color.White
-    val box1ContentColor = if (isDark) Color.White else Color.Black
     val box1IconBg = if (isDark) Color(0xFF4A1C1C) else MaterialTheme.colorScheme.errorContainer
     val box1IconColor = if (isDark) Color(0xFFFF6961) else MaterialTheme.colorScheme.error
 
     val box2Bg = MaterialTheme.colorScheme.onPrimary
-    val box2ContentColor = Color.White
     val box2IconBg = MaterialTheme.colorScheme.primary
-    val box2IconColor = if(isDark) Color.Black else Color.White
+    val box2IconColor = if (isDark) Color.Black else Color.White
 
     Row(
         modifier = modifier.fillMaxWidth(),
         horizontalArrangement = Arrangement.spacedBy(16.dp)
-    ){
+    ) {
         SummBox(
             iconColor = box1IconColor,
             iconBackColor = box1IconBg,
@@ -217,9 +208,8 @@ fun SummRow(modifier: Modifier = Modifier, nameChore: String, debtAmount: Double
             icon = Icons.Default.Wallet,
             backgroundColor = box1Bg,
             title = "Da dare",
-            amount = "${String.format("%.2f", debtAmount)}€",
-            modifier = Modifier.weight(1f),
-            onClick = onWalletClick
+            amount = totalDebtAmount,
+            modifier = Modifier.weight(1f)
         )
         SummBox(
             iconColor = box2IconColor,
@@ -228,20 +218,23 @@ fun SummRow(modifier: Modifier = Modifier, nameChore: String, debtAmount: Double
             icon = Icons.Default.WaterDrop,
             backgroundColor = box2Bg,
             title = "Tocca a te",
-            amount = nameChore ,
-            modifier = Modifier.weight(1f),
-            onClick = onChoreClick
+            amount = nextChoreName,
+            modifier = Modifier.weight(1f)
         )
     }
 }
 
 @Composable
-fun UltimoAggName(onClick: () -> Unit = {}){
+fun UltimoAggName(modifier: Modifier = Modifier, onClick: () -> Unit = {}) {
     val textColor = if (isSystemInDarkTheme()) Color.White else Color.Black
 
-    Row(modifier = Modifier
-        .fillMaxWidth()
-        .clickable(onClick = onClick),horizontalArrangement = Arrangement.SpaceBetween, verticalAlignment = Alignment.CenterVertically){
+    Row(
+        modifier = modifier
+            .fillMaxWidth()
+            .clickable(onClick = onClick),
+        horizontalArrangement = Arrangement.SpaceBetween,
+        verticalAlignment = Alignment.CenterVertically
+    ) {
         Text(
             text = "Ultimi Aggiornamenti",
             color = textColor,
@@ -263,7 +256,7 @@ fun UltimoAggName(onClick: () -> Unit = {}){
 }
 
 @Composable
-fun LastMess(modifier: Modifier = Modifier, title: String, subTitle: String, type: String, image: ImageBitmap? = null){
+fun LastMess(modifier: Modifier = Modifier, title: String, subTitle: String, type: String, image: ImageBitmap? = null) {
     val isDark = isSystemInDarkTheme()
     val contentColor = if (isDark) Color.White else Color.Black
 
@@ -271,9 +264,9 @@ fun LastMess(modifier: Modifier = Modifier, title: String, subTitle: String, typ
     val box1IconColor = if (isDark) Color(0xFFFF6961) else MaterialTheme.colorScheme.error
 
     val box2IconBg = MaterialTheme.colorScheme.primary
-    val box2IconColor = if(isDark) Color.Black else Color.White
+    val box2IconColor = if (isDark) Color.Black else Color.White
 
-    val bgColor = if(type=="CHAT")MaterialTheme.colorScheme.primaryContainer else if(type=="PORTFOLIO") MaterialTheme.colorScheme.errorContainer else MaterialTheme.colorScheme.primaryContainer
+    val bgColor = if (type == "CHAT") MaterialTheme.colorScheme.primaryContainer else if (type == "PORTFOLIO") MaterialTheme.colorScheme.errorContainer else MaterialTheme.colorScheme.primaryContainer
 
     Surface(
         modifier = Modifier
@@ -282,16 +275,18 @@ fun LastMess(modifier: Modifier = Modifier, title: String, subTitle: String, typ
         shape = RoundedCornerShape(32.dp),
         color = bgColor,
         shadowElevation = 10.dp
-
-    ){
-        Row(modifier = Modifier
-            .padding(16.dp)
-            .fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween  , verticalAlignment = Alignment.CenterVertically){
-
+    ) {
+        Row(
+            modifier = Modifier
+                .padding(16.dp)
+                .fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
             if (type == "CHAT") {
                 ProfileAvatar(size = 40, imageBitmap = image)
             } else {
-                if(type=="CHORE"){
+                if (type == "CHORE") {
                     Box(
                         modifier = Modifier
                             .size(40.dp)
@@ -300,14 +295,13 @@ fun LastMess(modifier: Modifier = Modifier, title: String, subTitle: String, typ
                         contentAlignment = Alignment.Center
                     ) {
                         Icon(
-                            tint =box2IconColor,
+                            tint = box2IconColor,
                             contentDescription = "ultime faccende",
                             imageVector = Icons.Default.WaterDrop,
                             modifier = Modifier.size(24.dp)
                         )
                     }
-                }
-                else{
+                } else {
                     Box(
                         modifier = Modifier
                             .size(40.dp)
@@ -352,63 +346,93 @@ fun LastMess(modifier: Modifier = Modifier, title: String, subTitle: String, typ
 @Composable
 fun LastMessView(
     isLoading: Boolean,
-    notification: List<Notification>,
-    onChatClick: (String) -> Unit,
-    modifier: Modifier
+    notifications: List<GetNotificationDTO>,
+    modifier: Modifier = Modifier
 ) {
     LazyColumn(
-        modifier = Modifier.fillMaxSize(),
+        modifier = modifier.fillMaxSize(),
         contentPadding = PaddingValues(start = 0.dp, end = 0.dp, bottom = 120.dp, top = 8.dp)
     ) {
-
-        if (isLoading) {
+        if (isLoading && notifications.isEmpty()) {
             item {
                 Box(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .height(250.dp), contentAlignment = Alignment.Center
+                        .height(250.dp),
+                    contentAlignment = Alignment.Center
                 ) {
-                    Text("Caricamento chat...", color = Color.Gray, fontSize = 16.sp)
+                    Text("Caricamento notifiche...", color = Color.Gray, fontSize = 16.sp)
+                }
+            }
+        } else if (notifications.isEmpty()) {
+            item {
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(250.dp),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Text("Nessuna notifica per te", color = Color.Gray, fontSize = 16.sp)
                 }
             }
         } else {
-            items(notification) { chat ->
-                LastMess(title = chat.title, subTitle = chat.subtitle, type = chat.eventType)
+            items(items = notifications) { notif ->
+                var imageBmp: ImageBitmap? = null
+                val imageString = notif.imageBytes
+
+                if (imageString != null && imageString.isNotEmpty()) {
+                    try {
+                        val imageBytesArr = android.util.Base64.decode(imageString, android.util.Base64.DEFAULT)
+                        imageBmp = BitmapFactory.decodeByteArray(imageBytesArr, 0, imageBytesArr.size).asImageBitmap()
+                    } catch (e: Exception) {
+                        e.printStackTrace()
+                    }
+                }
+
+                LastMess(
+                    title = notif.title ?: "Avviso",
+                    subTitle = notif.subtitle ?: "",
+                    type = notif.eventType ?: "CHAT",
+                    image = imageBmp
+                )
             }
         }
     }
 }
 
 
-@Preview(showBackground = true, showSystemUi = true)
+@Preview(showBackground = true)
 @Composable
-fun PreviewHouseDashboard() {
-    val finteNotifiche = listOf(
-        Notification(
-            eventId = "1", eventType = "CHAT", title = "Marco",
-            subtitle = "Ciao, usciamo?", timestamp = "Ora", userCode = "test-token"
-        ),
-        Notification(
-            eventId = "2", eventType = "CHORE", title = "Fornello cucina",
-            subtitle = "Tocca a te", timestamp = "Oggi", userCode = "test-token"
-        )
-    )
-
-    val fintoDebitoTot = TotalDebt(totalDebt = 45.50)
-    val fintoProxFaccenda = NextChore(choreId = "1", choreName = "Fornello cucina", choreDate = "2026-04-28T18:30:00")
-
+fun HouseDashboardPreview() {
     MaterialTheme {
-        HomeGestionaleView(
+        HouseDashboardView(
             nomeUtente = "Ale",
             imageBytes = null,
             isLoading = false,
-            userToken = "test-token",
+            userToken = "token_finto",
             onAddClick = {},
-            notifications = finteNotifiche,
-            nextChore = fintoProxFaccenda,
-            totalDebt = fintoDebitoTot,
-            onChoreClick = {},
-            onWalletClick = {  }
+            notifications = listOf(
+                GetNotificationDTO(
+                    eventId = "1",
+                    eventType = "CHAT",
+                    title = "Marco",
+                    subtitle = "Ciao, usciamo?",
+                    timestamp = "2026-04-30T18:30:00",
+                    imageBytes = null,
+                    userCode = "token_finto"
+                ),
+                GetNotificationDTO(
+                    eventId = "2",
+                    eventType = "CHORE",
+                    title = "Pulizie",
+                    subtitle = "Tocca a te pulire il bagno",
+                    timestamp = "2026-04-30T18:30:00",
+                    imageBytes = null,
+                    userCode = "token_finto"
+                )
+            ),
+            nextChoreName = "Bagno",
+            totalDebtAmount = "15.50 €"
         )
     }
 }

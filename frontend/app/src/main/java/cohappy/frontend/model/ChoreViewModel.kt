@@ -13,13 +13,12 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
-// 💅 1. LA VERA STRUTTURA DELLA FACCENDA
 data class Chore(
     val choreCode: String,
     val title: String,
     val description: String,
-    val assignedToCode: String, // Ci serve per capire se sei TU!
-    val assigneeName: String,   // Il nome di chi deve farla ("Marco", "Sofia")
+    val assignedToCode: String,
+    val assigneeName: String,
     val isCompleted: Boolean,
     val dayLabel: String
 )

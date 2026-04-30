@@ -13,14 +13,7 @@ class HouseDashboardRepository {
     }
 
     suspend fun fetchNotifications(userCode: String): Response<List<GetNotificationDTO>> {
-        return ClientSingleton.notificationApi.getNotifications(userCode)
+        return ClientSingleton.notificationApi.getUserNotifications(userCode)
     }
 
-    suspend fun fetchNextChore(userCode: String): Response<GetChoreDTO> {
-        return ClientSingleton.choreApi.getNextChore(userCode)
-    }
-
-    suspend fun fetchTotalDebt(userCode: String): Response<Double> {
-        return ClientSingleton.portfolioApi.getTotalDebt(userCode)
-    }
 }

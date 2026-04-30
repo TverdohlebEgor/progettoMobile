@@ -4,6 +4,8 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
@@ -19,6 +21,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.modifier.modifierLocalOf
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.tooling.preview.Preview
@@ -88,21 +91,32 @@ fun ChoresView(
 
                 Spacer(modifier = Modifier.height(16.dp))
 
-                chores.forEach { chore ->
-                    ChoreCard(
-                        choreCode = chore.choreCode,
-                        title = chore.title,
-                        description = chore.description,
-                        assigneeText = if (chore.assignedToCode == cleanToken) "È il tuo turno" else "È il turno di ${chore.assigneeName}",
-                        assignedToCode = chore.assignedToCode,
-                        currentUserCode = cleanToken,
-                        isCompleted = chore.isCompleted,
-                        dayLabel = chore.dayLabel,
-                        onToggleClick = onChoreToggle
-                    )
-                    Spacer(modifier = Modifier.height(16.dp))
+                    ChoreColumn(chores = chores, onChoreToggle = onChoreToggle, cleanToken = cleanToken)
                 }
             }
+        }
+    }
+
+
+@Composable
+fun ChoreColumn(chores: List<Chore>, onChoreToggle: (String, String, Boolean) -> Unit, cleanToken: String){
+    LazyColumn(modifier = Modifier.fillMaxSize(), contentPadding = PaddingValues(bottom = 120.dp)){
+        item {
+        chores.forEach { chore ->
+            ChoreCard(
+                choreCode = chore.choreCode,
+                title = chore.title,
+                description = chore.description,
+                assigneeText = if (chore.assignedToCode == cleanToken) "È il tuo turno" else "È il turno di ${chore.assigneeName}",
+                assignedToCode = chore.assignedToCode,
+                currentUserCode = cleanToken,
+                isCompleted = chore.isCompleted,
+                dayLabel = chore.dayLabel,
+                onToggleClick = onChoreToggle
+            )
+
+            Spacer(modifier = Modifier.height(16.dp))
+        }
         }
     }
 }
@@ -141,7 +155,6 @@ fun DayLetter(
             )
         }
 
-        // 💅 MAGIC: Un solo pallino minimale. Rosso se > 0, grigio spento se 0.
         val dotColor = if (numberOfChores > 0) Color(0xFFFF6961) else Color.LightGray.copy(alpha = 0.5f)
         Box(
             modifier = Modifier

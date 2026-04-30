@@ -12,6 +12,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import cohappy.frontend.client.dto.request.PatchChoreDTO
 import cohappy.frontend.client.dto.response.GetHouseAdvertesimentDTO
+import cohappy.frontend.client.dto.response.GetNotificationDTO
 import cohappy.frontend.repository.ChoresRepository
 import cohappy.frontend.repository.HouseDashboardRepository
 import kotlinx.coroutines.Dispatchers
@@ -31,7 +32,8 @@ class HouseDashboardViewModel : ViewModel() {
     var isLoading by mutableStateOf(true)
         private set
 
-    var notifications by mutableStateOf<List<Notification>>(emptyList())
+
+    var notifications by mutableStateOf<List<GetNotificationDTO>>(emptyList())
         private set
 
     var nextChore by mutableStateOf<NextChore?>(null)
@@ -41,13 +43,14 @@ class HouseDashboardViewModel : ViewModel() {
         private set
 
 
+
     fun loadDashboardData(userToken: String) {
         viewModelScope.launch {
             isLoading = true
             try {
                 val tokenPulito = userToken.replace("\"", "").trim()
                 val response = withContext(Dispatchers.IO) { repository.fetchUserProfile(tokenPulito) }
-
+/*
                 notifications = listOf(
                     Notification(
                         eventId = "1",
@@ -103,7 +106,7 @@ class HouseDashboardViewModel : ViewModel() {
                         imageBytes = null,
                         userCode = tokenPulito
                     )
-                )
+                )*/
                 nextChore = NextChore(
                     choreId = "1",
                     choreName = "Bagno",
@@ -114,59 +117,44 @@ class HouseDashboardViewModel : ViewModel() {
                     totalDebt = 45.5
                 )
 
-
-
-
-                if (response.isSuccessful && response.body() != null) {
-                    val data = response.body()!!
-                    nomeUtente = data.name ?: "Utente"
-
-                    val imageByteArray = data.images?.firstOrNull()
-                    if (imageByteArray != null && imageByteArray.isNotEmpty()) {
-                        profileImageBytes = imageByteArray
+                try {
+                    val responseUser = withContext(Dispatchers.IO) { repository.fetchUserProfile(tokenPulito) }
+                    if (responseUser.isSuccessful && responseUser.body() != null) {
+                        val data = responseUser.body()!!
+                        nomeUtente = data.name ?: "Utente"
+                        val imageByteArray = data.images?.firstOrNull()
+                        if (imageByteArray != null && imageByteArray.isNotEmpty()) {
+                            profileImageBytes = imageByteArray
+                        }
+                    } else {
+                        nomeUtente = "Errore API"
                     }
-                } else {
-                    nomeUtente = "Errore API"
+                } catch (e: Exception) {
+                    Log.e("HouseDashboardVM", "Errore profilo", e)
                 }
+
+                try {
+                    val responseNotif = withContext(Dispatchers.IO) { repository.fetchNotifications(tokenPulito) }
+                    if (responseNotif.isSuccessful && responseNotif.body() != null) {
+                        // Riempiamo il secchiello con la lista ufficiale di Egor!
+                        notifications = responseNotif.body()!!
+                        Log.d("HouseDashboardVM", "✅ Trovate ${notifications.size} notifiche!")
+                    } else {
+                        Log.e("HouseDashboardVM", "❌ Errore Egor Notifiche: ${responseNotif.code()}")
+                    }
+                } catch (e: Exception) {
+                    Log.e("HouseDashboardVM", "🚨 Errore rete notifiche", e)
+                }
+
+
             } catch (e: Exception) {
-                Log.e("HouseDashboardVM", "Errore caricamento dati dashboard", e)
+                Log.e("HouseDashboardVM", "Errore generale caricamento dati dashboard", e)
                 nomeUtente = "Offline"
             } finally {
                 isLoading = false
             }
         }
     }
-
-    fun toggleChoreCompletion(choreCode: String, userCode: String, newStatus: Boolean) {
-        viewModelScope.launch {
-            isLoading = true
-            try {
-                val patchData = PatchChoreDTO(
-                    choreCode = choreCode,
-                    assignedTo = userCode,
-                    completed = newStatus,
-                )
-
-                Log.d("HouseDashboardVM", "📤 Spedisco aggiornamento: Faccenda $choreCode -> Completata: $newStatus")
-
-                val response = withContext(Dispatchers.IO) {
-                    choresRepository.updateChoreStatus(patchData)
-                }
-
-                if (response.isSuccessful) {
-                    Log.d("HouseDashboardVM", "✅ Faccenda aggiornata con successo sul server!")
-                } else {
-                    Log.e("HouseDashboardVM", "❌ Errore aggiornamento faccenda: ${response.code()}")
-                }
-            } catch (e: Exception) {
-                Log.e("HouseDashboardVM", "🚨 Errore di rete", e)
-            } finally {
-                isLoading = false
-            }
-        }
-    }
-
-
 }
 
 data class Notification(
