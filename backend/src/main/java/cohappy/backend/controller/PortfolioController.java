@@ -13,13 +13,15 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.function.BinaryOperator;
+
 import static cohappy.backend.model.OperationResultMessages.OPERATION_COMPLETED;
 
 @RestController
 @RequestMapping("/api/portafolio")
 @Slf4j
 @AllArgsConstructor
-public class PortafolioController {
+public class PortfolioController {
     private final PortfolioService portafolioService;
 
     @GetMapping("/{userCode}")
@@ -82,6 +84,42 @@ public class PortafolioController {
             return ResponseEntity.badRequest().body(e.getMessage());
         } catch (Exception e) {
             return ResponseEntity.internalServerError().body(e.getMessage());
+        }
+    }
+
+    @GetMapping("debt/{userCode}/total")
+    public ResponseEntity<Float> getUserTotalDebt(@PathVariable String userCode) {
+        try {
+            PortfolioDTO portfolio = portafolioService.getUserPortfolio(userCode);
+            return ResponseEntity.ok(
+                    portfolio.getDebts().stream()
+                            .filter(d -> d.getDebtorUserCode().equals(userCode))
+                            .map(d -> d.getAmount())
+                            .reduce((a1,a2) -> a1+a2)
+                            .get()
+            );
+        } catch (NotFoundException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+        } catch (Exception e) {
+            return ResponseEntity.internalServerError().build();
+        }
+    }
+
+    @GetMapping("/credits/{userCode}/total")
+    public ResponseEntity<Float> getUserTotalCredits(@PathVariable String userCode) {
+        try {
+            PortfolioDTO portfolio = portafolioService.getUserPortfolio(userCode);
+            return ResponseEntity.ok(
+                    portfolio.getDebts().stream()
+                            .filter(d -> d.getBeneficiaryUserCode().equals(userCode))
+                            .map(d -> d.getAmount())
+                            .reduce((a1,a2) -> a1+a2)
+                            .get()
+            );
+        } catch (NotFoundException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+        } catch (Exception e) {
+            return ResponseEntity.internalServerError().build();
         }
     }
 
