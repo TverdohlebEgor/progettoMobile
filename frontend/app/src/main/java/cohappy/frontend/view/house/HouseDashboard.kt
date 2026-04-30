@@ -1,7 +1,8 @@
 package cohappy.frontend.view.house
 
 import android.graphics.BitmapFactory
-import androidx.camera.core.Preview
+import androidx.compose.ui.tooling.preview.Preview
+import cohappy.frontend.ui.theme.ProgettoMobileTheme
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -404,7 +405,7 @@ fun LastMessView(
 @Preview(showBackground = true)
 @Composable
 fun HouseDashboardPreview() {
-    MaterialTheme {
+    ProgettoMobileTheme {
         HouseDashboardView(
             nomeUtente = "Ale",
             imageBytes = null,
