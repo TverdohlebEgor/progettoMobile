@@ -5,7 +5,6 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.lifecycle.viewmodel.compose.viewModel
 import cohappy.frontend.model.ChoresViewModel
 import cohappy.frontend.view.house.ChoresView
-import cohappy.frontend.view.house.HomeGestionaleView
 
 @Composable
 fun ChoresScreen(

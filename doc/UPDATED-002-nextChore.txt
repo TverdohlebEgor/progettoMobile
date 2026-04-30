@@ -25,7 +25,9 @@ JSON
 {
 "choreCode": "string",
 "choreName": "string",
+"assignedTo": "string",
 "deadline": "string (ISO 8601)"
+"completed": "boolean"
 }
 
 (Nota: se l'utente non ha faccende assegnate a partire da quella data, è richiesto il ritorno di un HTTP 204 No Content, oppure di un DTO con choreName nullo, così da permettere alla UI di gestire lo stato "Nessuna").
