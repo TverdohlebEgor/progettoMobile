@@ -90,6 +90,16 @@ fun HouseMainScreen(
 //                        )
                     }
                 }
+
+                "chore" ->{
+                    Box(modifier = Modifier
+                        .fillMaxSize()
+                        .padding(top = 16.dp)) {
+                        ChoresScreen(
+                            userToken = userToken ?: "",
+                        )
+                    }
+                }
             }
         }
     }

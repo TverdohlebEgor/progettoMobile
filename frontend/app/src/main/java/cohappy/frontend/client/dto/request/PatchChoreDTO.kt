@@ -4,7 +4,7 @@ import java.time.LocalDate;
 
 data class PatchChoreDTO(
     val choreCode: String,
-    val day: LocalDate,
+    val day: LocalDate? = null,
     var assignedTo: String? = null,
     var completed: Boolean? = null,
     var houseCode: String? = null,

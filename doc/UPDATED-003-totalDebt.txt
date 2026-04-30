@@ -1,6 +1,6 @@
 - GET /api/debts/total/{userCode}
 Il backend deve sommare tutti i debiti che l'utente ha attualmente con tutti i suoi coinquilini, e restituirmi una singola cifra netta.
-Il DTO di risposta può essere semplicissimo:
+Il DTO di risposta può:
 
 JSON
 {
@@ -12,3 +12,23 @@ JSON
 Nei debiti c'è una differenza tra quelli che l'utente deve a qualcunaltro e quelli che qualcuno gli deve
 Non si capisce a quale sei interessato. Vuoi due API endpoint diverse per queste 2
 una totale che fa la differenza tra dovuti e riceventi?
+----------------------
+Facciamone due separate in modo da ottenere sia i debiti totali, cioè la somma dei debiti che lutente ha con i coinquilini, e i crediti che invece sono la somma dei crediti che ha con i coinquilini
+GET /api/debts/total/{userCode}
+GET /api/creds/total/{userCode}
+
+
+Il DTO di risposta deve essere il seguente per i debiti:
+
+JSON
+{
+"totalDebt": "Double"
+}
+
+
+Il DTO di risposta deve essere il seguente per i crediti:
+
+JSON
+{
+"totalCreds": "Double"
+}

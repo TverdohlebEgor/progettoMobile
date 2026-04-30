@@ -10,7 +10,9 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import cohappy.frontend.client.dto.request.PatchChoreDTO
 import cohappy.frontend.client.dto.response.GetHouseAdvertesimentDTO
+import cohappy.frontend.repository.ChoresRepository
 import cohappy.frontend.repository.HouseDashboardRepository
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -18,6 +20,7 @@ import kotlinx.coroutines.withContext
 
 class HouseDashboardViewModel : ViewModel() {
     private val repository = HouseDashboardRepository()
+    private val choresRepository = ChoresRepository()
 
     var nomeUtente by mutableStateOf("Caricamento...")
         private set
@@ -128,6 +131,35 @@ class HouseDashboardViewModel : ViewModel() {
             } catch (e: Exception) {
                 Log.e("HouseDashboardVM", "Errore caricamento dati dashboard", e)
                 nomeUtente = "Offline"
+            } finally {
+                isLoading = false
+            }
+        }
+    }
+
+    fun toggleChoreCompletion(choreCode: String, userCode: String, newStatus: Boolean) {
+        viewModelScope.launch {
+            isLoading = true
+            try {
+                val patchData = PatchChoreDTO(
+                    choreCode = choreCode,
+                    assignedTo = userCode,
+                    completed = newStatus,
+                )
+
+                Log.d("HouseDashboardVM", "📤 Spedisco aggiornamento: Faccenda $choreCode -> Completata: $newStatus")
+
+                val response = withContext(Dispatchers.IO) {
+                    choresRepository.updateChoreStatus(patchData)
+                }
+
+                if (response.isSuccessful) {
+                    Log.d("HouseDashboardVM", "✅ Faccenda aggiornata con successo sul server!")
+                } else {
+                    Log.e("HouseDashboardVM", "❌ Errore aggiornamento faccenda: ${response.code()}")
+                }
+            } catch (e: Exception) {
+                Log.e("HouseDashboardVM", "🚨 Errore di rete", e)
             } finally {
                 isLoading = false
             }

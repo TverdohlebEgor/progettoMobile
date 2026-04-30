@@ -14,3 +14,18 @@ JSON
 ------
 
 Cosa significa la "prossima", se intendi la prima dopo una certa data mi devi fornare la data in request
+
+------
+
+Il backend deve scansionare le faccende della casa e restituire la prossima faccenda in ordine temporale assegnata allo specifico utente, a partire dalla data fornita nella richiesta (inclusa). La data inviata dal frontend sarà in formato standard ISO 8601 (es. YYYY-MM-DD).
+
+Il DTO di risposta deve avere la seguente struttura:
+
+JSON
+{
+"choreCode": "string",
+"choreName": "string",
+"deadline": "string (ISO 8601)"
+}
+
+(Nota: se l'utente non ha faccende assegnate a partire da quella data, è richiesto il ritorno di un HTTP 204 No Content, oppure di un DTO con choreName nullo, così da permettere alla UI di gestire lo stato "Nessuna").
