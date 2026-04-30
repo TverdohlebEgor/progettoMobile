@@ -1,5 +1,6 @@
 package cohappy.frontend.view.chat
 
+import android.graphics.BitmapFactory
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -21,6 +22,7 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.AddPhotoAlternate
 import androidx.compose.material.icons.filled.ArrowBackIosNew
 import androidx.compose.material.icons.filled.Send
 import androidx.compose.material3.CircularProgressIndicator
@@ -40,6 +42,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ImageBitmap
+import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
@@ -55,6 +58,7 @@ import cohappy.frontend.model.ChatUiState
 fun SingleChatView(
     uiState: ChatUiState,
     onSendClick: (String) -> Unit,
+    onPhotoClick: () -> Unit,
     onBackClick: () -> Unit,
     onHeaderClick: () -> Unit
 ) {
@@ -80,7 +84,7 @@ fun SingleChatView(
             }
         }
 
-        ChatInput(onSendClick)
+        ChatInput(onSendClick,onPhotoClick)
     }
 }
 
@@ -93,14 +97,18 @@ private fun MessageList(messages: List<ChatMessageDTO>, myUserCode: String?) {
         items(messages) { msg ->
             MessageBubble(
                 textMessage = msg.message ?: "",
-                isMe = msg.userCode == myUserCode
+                isMe = msg.userCode == myUserCode,
+                msg.messageImmage
             )
         }
     }
 }
 
 @Composable
-private fun ChatInput(onSendClick: (String) -> Unit) {
+private fun ChatInput(
+    onSendClick: (String) -> Unit,
+    onPhotoClick: () -> Unit
+) {
     var textInput by remember { mutableStateOf("") }
     val inputBgColor = if (isSystemInDarkTheme()) Color.DarkGray else Color(0xFFF0F0F0)
 
@@ -109,7 +117,7 @@ private fun ChatInput(onSendClick: (String) -> Unit) {
             .fillMaxWidth()
             .padding(16.dp),
         verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.spacedBy(12.dp)
+        horizontalArrangement = Arrangement.spacedBy(8.dp)
     ) {
         TextField(
             value = textInput,
@@ -126,7 +134,16 @@ private fun ChatInput(onSendClick: (String) -> Unit) {
             placeholder = { Text("Scrivi un messaggio...") },
             maxLines = 3
         )
-
+        IconButton(
+            onClick = onPhotoClick,
+            modifier = Modifier.size(48.dp)
+        ) {
+            Icon(
+                imageVector = Icons.Default.AddPhotoAlternate,
+                contentDescription = "Invia foto",
+                tint = MaterialTheme.colorScheme.primary
+            )
+        }
         IconButton(
             onClick = {
                 if (textInput.isNotBlank()) {
@@ -220,60 +237,13 @@ private fun ProfileImage(bitmap: ImageBitmap?, name: String) {
         }
     }
 }
-
-@Preview(showBackground = true, name = "Empty chat")
-@Composable
-fun PreviewChatView() {
-    MaterialTheme {
-        SingleChatView(
-            uiState = ChatUiState(isLoading = false, nomeChat = "Mario Rossi"),
-            onSendClick = {},
-            onBackClick = {},
-            onHeaderClick = {}
-        )
-    }
-}
-
-@Preview(showBackground = true, name = "Filles")
-@Composable
-fun PreviewChatViewWithMesssages() {
-    MaterialTheme {
-        SingleChatView(
-            uiState = ChatUiState(
-                mioUserCode = "USER1",
-                isLoading = false,
-                nomeChat = "Mario Rossi",
-                messaggi = listOf(
-                    ChatMessageDTO(
-                        "CIAO",
-                        null,
-                        "USER1",
-                        null,
-                        null
-                    ),
-                    ChatMessageDTO(
-                        "CIAO",
-                        null,
-                        "USER2",
-                        null,
-                        null
-                    )
-                )
-            ),
-            onSendClick = {},
-            onBackClick = {},
-            onHeaderClick = {}
-        )
-    }
-}
-
 @Composable
 fun MessageBubble(
     textMessage: String,
-    isMe: Boolean
+    isMe: Boolean,
+    immage: ByteArray? = null
 ) {
     val isDark = isSystemInDarkTheme()
-
 
     val bubbleColor = if (isMe) {
         MaterialTheme.colorScheme.primary
@@ -282,39 +252,63 @@ fun MessageBubble(
     }
 
     val textColor = if (isMe) {
-        MaterialTheme.colorScheme.onPrimary // Bianco sul primary
+        MaterialTheme.colorScheme.onPrimary
     } else {
         if (isDark) Color.White else Color.Black
+    }
+
+    val imageBitmap = remember(immage) {
+        immage?.let {
+            try {
+                BitmapFactory.decodeByteArray(it, 0, it.size)?.asImageBitmap()
+            } catch (e: Exception) {
+                null
+            }
+        }
     }
 
     Row(
         modifier = Modifier
             .fillMaxWidth()
             .padding(horizontal = 16.dp, vertical = 4.dp),
-
         horizontalArrangement = if (isMe) Arrangement.End else Arrangement.Start
     ) {
         Box(
             modifier = Modifier
-
                 .widthIn(max = 280.dp)
                 .background(
                     color = bubbleColor,
                     shape = RoundedCornerShape(
                         topStart = 18.dp,
                         topEnd = 18.dp,
-
                         bottomStart = if (isMe) 18.dp else 4.dp,
                         bottomEnd = if (isMe) 4.dp else 18.dp
                     )
                 )
                 .padding(horizontal = 16.dp, vertical = 10.dp)
         ) {
-            Text(
-                text = textMessage,
-                color = textColor,
-                fontSize = 16.sp
-            )
+            Column {
+                imageBitmap?.let {
+                    Image(
+                        bitmap = it,
+                        contentDescription = null,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .clip(RoundedCornerShape(8.dp)),
+                        contentScale = ContentScale.FillWidth
+                    )
+                    if (textMessage.isNotBlank()) {
+                        Spacer(modifier = Modifier.size(8.dp))
+                    }
+                }
+                if (textMessage.isNotBlank()) {
+                    Text(
+                        text = textMessage,
+                        color = textColor,
+                        fontSize = 16.sp
+                    )
+                }
+            }
         }
     }
 }
