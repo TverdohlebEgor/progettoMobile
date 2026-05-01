@@ -84,10 +84,9 @@ fun HouseMainScreen(
                     Box(modifier = Modifier
                         .fillMaxSize()
                         .padding(top = 16.dp)) {
-//                        ChatListScreen(
-//                            onChatClick = onChatClick,
-//                            userToken = userToken ?: ""
-//                        )
+                        PortfolioScreen(
+                            userToken = userToken ?: ""
+                        )
                     }
                 }
 

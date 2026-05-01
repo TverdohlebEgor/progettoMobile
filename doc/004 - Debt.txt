@@ -1,0 +1,26 @@
+Potresti per favore aggiornare il DebtDTO per includere un nuovo campo category, un enum da cui poi ricavo l'icona
+
+Le categorie (Enum) che mi servono per la UI sono:
+- GROCERIES (Spesa alimentare)
+- BILLS (Bollette e Utenze)
+- RENT (Affitto/Spese Condominiali)
+- SUBSCRIPTIONS (Abbonamenti condivisi, es. Internet, Netflix)
+- DELIVERY_AND_EATING_OUT (Cibo a domicilio o uscite)
+- MAINTENANCE (Riparazioni/Manutenzione)
+- ENTERTAINMENT (Feste, eventi, regali in comune)
+- OTHER (Altro)
+
+Attualmente il DTO che ricevo ha questa struttura:
+
+JSON
+{
+"debtId": "String",
+"linkedDebtId": "String",
+"debtorUserCode": "String",
+"beneficiaryUserCode": "String",
+"amount": "Float",
+"description": "String"
+}
+
+Servirebbe aggiungere: "icon": "String".
+

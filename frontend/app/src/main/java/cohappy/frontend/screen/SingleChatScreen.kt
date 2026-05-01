@@ -32,6 +32,7 @@ fun SingleChatScreen(
             if (uiState.resolvedAnnuncioId.isNotBlank()) {
                 onNavigateToAnnuncio(uiState.resolvedAnnuncioId)
             }
-        }
+        },
+        onPhotoClick = { TODO() }
     )
 }
