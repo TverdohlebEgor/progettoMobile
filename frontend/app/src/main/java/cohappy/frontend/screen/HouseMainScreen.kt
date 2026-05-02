@@ -32,6 +32,8 @@ fun HouseMainScreen(
 //    onCreateHouseClick :() -> Unit,
 //    onJoinConfirmClick: (String) -> Unit,
     onChatClick: (String) -> Unit,
+    onLogoutClick: () -> Unit,
+    onLeaveHouseSuccess: () -> Unit,
     userToken: String? = null
 ) {
     var activeTab by remember { mutableStateOf("home") }
@@ -107,11 +109,11 @@ fun HouseMainScreen(
                         HouseProfileScreen(
                             userToken = userToken ?: "",
                             houseCode = "",
-                            onLogoutClick = {},
-                            onLeaveHouseSuccess = {},
+                            onLogoutClick = onLogoutClick,
+                            onLeaveHouseSuccess = onLeaveHouseSuccess,
                             onRulesClick = {},
-                            onRoommatesClick = {},
-                            onPasswordChangeClick = {}
+                            onPasswordChangeClick = {},
+                            onRoommatesClick = {}
                         )
 
                     }

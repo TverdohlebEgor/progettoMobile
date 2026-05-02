@@ -16,9 +16,18 @@ fun PreviewHouseProfile() {
             isLoading = false,
             onLeaveHouseClick = {},
             onLogoutClick = {},
-            onRulesClick = {},
             onRoommatesClick = {},
-            onPasswordChangeClick = {}
+            onPasswordChangeClick = {},
+            showRoommatesPopup = TODO(),
+            roommatesList = TODO(),
+            isCurrentUserAdmin = TODO(),
+            isRoommatesLoading = TODO(),
+            onDismissRoommatesPopup = TODO(),
+            onPromoteClick = TODO(),
+            houseAddress = TODO(),
+            houseCode = TODO(),
+            onEditPhotoClick = TODO(),
+            onKickClick = TODO(),
         )
     }
 }

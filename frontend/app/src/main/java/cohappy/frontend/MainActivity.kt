@@ -114,13 +114,13 @@ class MainActivity : ComponentActivity() {
                                     isLoggedIn = false
                                     userToken = null
 
-                                    navController.navigate("iniziale") {
+                                    navController.navigate("annunci") {
                                         popUpTo(0) { inclusive = true }
                                     }
                                 },
                                 onCreateHouseClick = { navController.navigate("home_gestionale") },
-                                onJoinConfirmClick = {
-                                    navController.navigate("house_main") {
+                                onJoinConfirmClick = { code ->
+                                    navController.navigate("home_gestionale") {
                                         popUpTo(0) { inclusive = true }
                                     }
                                 },
@@ -168,6 +168,22 @@ class MainActivity : ComponentActivity() {
                                 onChatClick = { targetChat ->
                                     navController.navigate("chat_singola/$targetChat")
                                 },
+                                onLogoutClick = {
+                                    with(sharedPref.edit()) {
+                                        clear()
+                                        apply()
+                                    }
+                                    isLoggedIn = false
+                                    userToken = null
+                                    navController.navigate("annunci") {
+                                        popUpTo(0) { inclusive = true }
+                                    }
+                                },
+                                onLeaveHouseSuccess = {
+                                    navController.navigate("annunci") {
+                                        popUpTo(0) { inclusive = true }
+                                    }
+                                }
                             )
                         }
                     }
