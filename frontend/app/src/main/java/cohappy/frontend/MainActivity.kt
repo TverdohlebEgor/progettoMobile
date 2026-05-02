@@ -65,6 +65,11 @@ class MainActivity : ComponentActivity() {
                             LoginScreen(
                                 sharedPref = sharedPref,
                                 onNavigateToAnnunci = {
+                                    val newToken = sharedPref.getString("USER_TOKEN", null)
+                                    if (newToken != null) {
+                                        isLoggedIn = true
+                                        userToken = newToken
+                                    }
                                     navController.navigate("annunci") {
                                         popUpTo("iniziale") { inclusive = true }
                                     }
@@ -89,16 +94,18 @@ class MainActivity : ComponentActivity() {
 
                         composable("annunci") {
                             AdsMainScreen(
-                                userToken = userToken,
-                                isLoggedIn = isLoggedIn,
-                                showError = false,
-                                onLoginClick = { _, _ ->
-                                    navController.navigate("login")
+                                sharedPref = sharedPref,
+                                onLoginSuccess = {
+                                    val newToken = sharedPref.getString("USER_TOKEN", null)
+                                    if (newToken != null) {
+                                        isLoggedIn = true
+                                        userToken = newToken
+                                    }
                                 },
                                 onRegisterClick = { navController.navigate("registration") },
                                 onAnnuncioClick = { id -> navController.navigate("annuncio_singolo/$id") },
                                 onChatAnnunciClick = { chatId -> navController.navigate("chat_singola/$chatId") },
-                                onProfiloAnnunciClick = { /* TODO: Navigazione profilo se serve */ },
+                                isLoggedIn = isLoggedIn,
                                 onLogoutClick = {
                                     with(sharedPref.edit()) {
                                         clear()
@@ -112,7 +119,12 @@ class MainActivity : ComponentActivity() {
                                     }
                                 },
                                 onCreateHouseClick = { navController.navigate("home_gestionale") },
-                                onJoinConfirmClick = { /* TODO */ }
+                                onJoinConfirmClick = {
+                                    navController.navigate("house_main") {
+                                        popUpTo(0) { inclusive = true }
+                                    }
+                                },
+                                userToken = userToken
                             )
                         }
 

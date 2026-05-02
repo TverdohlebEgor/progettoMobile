@@ -1,5 +1,6 @@
 package cohappy.frontend.screen
 
+import android.content.SharedPreferences
 import androidx.compose.foundation.background
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Box
@@ -26,12 +27,13 @@ import dev.chrisbanes.haze.haze
 
 @Composable
 fun AdsMainScreen(
-    onLoginClick: (String, String) -> Unit,
+    sharedPref: SharedPreferences,
+    onLoginSuccess: () -> Unit,
+    //onLoginClick: (String, String) -> Unit,
     onRegisterClick: () -> Unit,
     onAnnuncioClick: (String) -> Unit,
-    onProfiloAnnunciClick: () -> Unit,
+    //onProfiloAnnunciClick: () -> Unit,
     onChatAnnunciClick: (String) -> Unit,
-    showError: Boolean,
     isLoggedIn: Boolean,
     onLogoutClick: () -> Unit = {},
     onCreateHouseClick :() -> Unit,
@@ -95,11 +97,10 @@ fun AdsMainScreen(
                             userToken = userToken ?: ""
                         )
                     } else {
-                        LoginView(
-                            onLoginClick = onLoginClick,
-
-                            onRegisterClick = onRegisterClick,
-                            showError = showError
+                        LoginScreen(
+                            sharedPref = sharedPref,
+                            onNavigateToAnnunci = { onLoginSuccess() },
+                            onNavigateToRegistration = onRegisterClick
                         )
                     }
                 }

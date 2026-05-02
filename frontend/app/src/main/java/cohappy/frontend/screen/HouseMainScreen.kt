@@ -99,6 +99,23 @@ fun HouseMainScreen(
                         )
                     }
                 }
+
+                "profilo" ->{
+                    Box(modifier = Modifier
+                        .fillMaxSize()
+                        .padding(top = 16.dp)) {
+                        HouseProfileScreen(
+                            userToken = userToken ?: "",
+                            houseCode = "",
+                            onLogoutClick = {},
+                            onLeaveHouseSuccess = {},
+                            onRulesClick = {},
+                            onRoommatesClick = {},
+                            onPasswordChangeClick = {}
+                        )
+
+                    }
+                }
             }
         }
     }
