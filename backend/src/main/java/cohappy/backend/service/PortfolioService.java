@@ -128,7 +128,8 @@ public class PortfolioService {
                 senderUserCode,
                 receiverUserCode,
                 createDebtDTO.getAmount(),
-                createDebtDTO.getDescription()
+                createDebtDTO.getDescription(),
+                createDebtDTO.getDebtType()
         );
 
         Debt receiverDebt = new Debt(
@@ -137,7 +138,8 @@ public class PortfolioService {
                 receiverUserCode,
                 senderUserCode,
                 createDebtDTO.getAmount(),
-                createDebtDTO.getDescription()
+                createDebtDTO.getDescription(),
+                createDebtDTO.getDebtType()
         );
 
         debtRepository.save(senderDebt);

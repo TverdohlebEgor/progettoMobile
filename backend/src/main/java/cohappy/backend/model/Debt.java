@@ -16,4 +16,5 @@ public class Debt {
     private String beneficiaryUserCode;
     private float amount;
     private String description;
+    private DebtType debtType;
 }

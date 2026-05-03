@@ -20,7 +20,8 @@ public class PortafolioMapper {
                 debt.getDebtorUserCode(),
                 debt.getBeneficiaryUserCode(),
                 debt.getAmount(),
-                debt.getDescription()
+                debt.getDescription(),
+                debt.getDebtType()
         );
     }
 }

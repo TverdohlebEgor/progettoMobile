@@ -1,6 +1,7 @@
 package cohappy.backend.it;
 
 import cohappy.backend.exceptions.NotFoundException;
+import cohappy.backend.model.DebtType;
 import cohappy.backend.model.Portfolio;
 import cohappy.backend.model.UserAccount;
 import cohappy.backend.model.dto.request.CreateDebtDTO;
@@ -273,7 +274,8 @@ public class PortfolioControllerIT extends BaseIT {
                 USER_CODE,
                 USER_CODE_2,
                 50,
-                ""
+                "",
+                DebtType.OTHER
         );
 
         mockMvc.perform(post("/api/portafolio/debt/create")
@@ -312,7 +314,8 @@ public class PortfolioControllerIT extends BaseIT {
                 "NOTEXISTING",
                 USER_CODE_2,
                 50,
-                ""
+                "",
+                DebtType.DELIVERY_AND_EATING_OUT
         );
 
         mockMvc.perform(post("/api/portafolio/debt/create")
@@ -330,7 +333,8 @@ public class PortfolioControllerIT extends BaseIT {
                 USER_CODE,
                 "NOTEXISTING",
                 50,
-                ""
+                "",
+                DebtType.DELIVERY_AND_EATING_OUT
         );
 
         mockMvc.perform(post("/api/portafolio/debt/create")
@@ -348,7 +352,8 @@ public class PortfolioControllerIT extends BaseIT {
                 USER_CODE,
                 USER_CODE,
                 50,
-                ""
+                "",
+                DebtType.OTHER
         );
 
         mockMvc.perform(post("/api/portafolio/debt/create")
@@ -370,7 +375,8 @@ public class PortfolioControllerIT extends BaseIT {
                 USER_CODE,
                 USER_CODE_2,
                 50,
-                ""
+                "",
+                DebtType.OTHER
         );
         mockMvc.perform(post("/api/portafolio/debt/create")
                         .contentType(MediaType.APPLICATION_JSON)

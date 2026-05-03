@@ -1,5 +1,6 @@
 package cohappy.backend.model.dto.response;
 
+import cohappy.backend.model.DebtType;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -16,4 +17,5 @@ public class DebtDTO {
     private String beneficiaryUserCode;
     private float amount;
     private String description;
+    private DebtType debtType;
 }
