@@ -10,6 +10,7 @@ import cohappy.backend.model.UserAccount;
 import cohappy.backend.model.dto.request.CreateChoreDTO;
 import cohappy.backend.model.dto.request.PatchChoreDTO;
 import cohappy.backend.model.dto.response.GetChoreDTO;
+import cohappy.backend.model.dto.response.GetNextChoreDTO;
 import cohappy.backend.repositories.ChoreRepository;
 import cohappy.backend.repositories.HouseRepository;
 import cohappy.backend.repositories.UserRepository;
@@ -18,6 +19,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.bind.annotation.RequestBody;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 
 import static cohappy.backend.model.OperationResultMessages.*;
@@ -39,8 +42,8 @@ public class ChoreService {
         return chores.stream().filter(c -> c.getDays().contains(date))
                 .map(c -> {
                     String userCode = c.getAssignedTo().get(date);
-                    if(userCode == null){
-                       throw new IllegalInputException("A day of the chore has not assigned user");
+                    if (userCode == null) {
+                        throw new IllegalInputException("A day of the chore has not assigned user");
                     }
                     UserAccount asignedTo = userRepository.findByUserCode(userCode)
                             .orElseThrow(() -> new NotFoundException(USER_NOT_FOUND.formatted(userCode)));
@@ -48,8 +51,40 @@ public class ChoreService {
                 }).toList();
     }
 
+    public List<GetNextChoreDTO> getNextUserChore(String userCode, LocalDate date) {
+        userRepository.findByUserCode(userCode)
+                .orElseThrow(() -> new NotFoundException(USER_NOT_FOUND.formatted(userCode)));
+        List<HouseChore> chores = choreRepository.findByAssignedToValue(userCode);
+        List<GetNextChoreDTO> result = new ArrayList<>();
+        for (var chore : chores) {
+            LocalDate firstDateAfterGiven = chore.getDays().stream()
+                    .filter(d ->
+                            d.isAfter(date) && chore.getAssignedTo().get(d).equals(userCode)
+                    )
+                    .findFirst()
+                    .orElse(null);
+            if (firstDateAfterGiven == null) continue;
+
+            result.add(new GetNextChoreDTO(
+                    chore.getChoreCode(),
+                    chore.getName(),
+                    userCode,
+                    firstDateAfterGiven,
+                    chore.getCompleted().get(firstDateAfterGiven)
+            ));
+        }
+
+        LocalDate minDate = result.stream().map(GetNextChoreDTO::getDate).min(Comparator.naturalOrder()).orElse(null);
+
+        if(minDate != null){
+            result = result.stream().filter(gnc -> gnc.getDate().isEqual(minDate)).toList();
+        }
+
+        return result;
+    }
+
     public void patchChore(@RequestBody PatchChoreDTO patchChoreDTO) {
-        if(patchChoreDTO.getChoreCode() == null){
+        if (patchChoreDTO.getChoreCode() == null) {
             throw new IllegalInputException(INVALID_INPUT.formatted("chore code"));
         }
 
@@ -104,7 +139,7 @@ public class ChoreService {
     }
 
     public void createChore(CreateChoreDTO createChoreDTO) {
-        if(createChoreDTO.getHouseCode() == null){
+        if (createChoreDTO.getHouseCode() == null) {
             throw new IllegalInputException(INVALID_INPUT.formatted("house code"));
         }
         houseRepository.findByHouseCode(createChoreDTO.getHouseCode())
@@ -125,7 +160,7 @@ public class ChoreService {
 
             notificationService.createNotification(
                     NotificationType.CHORE,
-                    "Nuova faccenda: "+createChoreDTO.getName(),
+                    "Nuova faccenda: " + createChoreDTO.getName(),
                     createChoreDTO.getDescription(),
                     null,
                     userCode

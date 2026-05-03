@@ -3,6 +3,7 @@ package cohappy.frontend.client
 import cohappy.frontend.client.dto.request.CreateChoreDTO
 import cohappy.frontend.client.dto.request.PatchChoreDTO
 import cohappy.frontend.client.dto.response.GetChoreDTO
+import cohappy.frontend.client.dto.response.GetNextChoreDTO
 import retrofit2.Response
 import retrofit2.http.Body
 import retrofit2.http.GET
@@ -18,6 +19,12 @@ interface ChoreApiClient {
         @Path("houseCode") houseCode: String,
         @Path("date") date: LocalDate
     ): Response<List<GetChoreDTO>>
+
+    @GET("api/chore/next/{userCode}/{date}")
+    suspend fun getNextUserChore(
+        @Path("userCode") userCode: String,
+        @Path("date") date: LocalDate
+    ): Response<List<GetNextChoreDTO>>
 
     @PATCH("api/chore/patch")
     suspend fun patchChore(@Body request: PatchChoreDTO): Response<String>

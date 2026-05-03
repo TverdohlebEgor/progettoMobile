@@ -1,5 +1,8 @@
 package cohappy.frontend.client.dto.response
 
+import com.squareup.moshi.JsonClass
+
+@JsonClass(generateAdapter = true)
 data class GetNotificationDTO(
     val eventId: String,
     val eventType: String,

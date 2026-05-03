@@ -386,6 +386,48 @@ public class ChoreControllerIT extends BaseIT {
                         .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isBadRequest());
     }
+    @Test
+    void shouldGetNextUserChoresFilteredByMinDate() throws Exception {
+        saveDefaultUser();
+        saveDefaultHouse();
+        LocalDate tomorrow = DEFAULT_DATE.plusDays(1);
+        HouseChore nextChore = createDefaultChore();
+        nextChore.setChoreCode("NEXT-001");
+        nextChore.setDays(List.of(tomorrow));
+        nextChore.setAssignedTo(Map.of(tomorrow, "USR-999"));
+        nextChore.setCompleted(Map.of(tomorrow, false));
+        choreRepository.save(nextChore);
+        LocalDate nextWeek = DEFAULT_DATE.plusWeeks(1);
+        HouseChore farChore = createDefaultChore();
+        farChore.setChoreCode("FAR-001");
+        farChore.setDays(List.of(nextWeek));
+        farChore.setAssignedTo(Map.of(nextWeek, "USR-999"));
+        farChore.setCompleted(Map.of(nextWeek, false));
+        choreRepository.save(farChore);
+        mockMvc.perform(get(path("/next/USR-999/" + DEFAULT_DATE))
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.length()").value(1))
+                .andExpect(jsonPath("$[0].choreCode").value("NEXT-001"))
+                .andExpect(jsonPath("$[0].date").value(tomorrow.toString()));
+    }
+
+    @Test
+    void shouldReturnNoContentWhenNoFutureChoresForUser() throws Exception {
+        saveDefaultUser();
+        saveDefaultHouse();
+        saveDefaultChore();
+        mockMvc.perform(get(path("/next/USR-999/" + DEFAULT_DATE))
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isNoContent());
+    }
+
+    @Test
+    void shouldReturnInternalServerErrorOnUnexpectedException() throws Exception {
+        mockMvc.perform(get(path("/next/NON_EXISTENT_USER/null"))
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isBadRequest());
+    }
 
     // -------------------------------------------------------------------------
     // Helpers

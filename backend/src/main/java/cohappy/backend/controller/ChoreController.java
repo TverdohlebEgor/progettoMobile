@@ -6,9 +6,11 @@ import cohappy.backend.exceptions.NotFoundException;
 import cohappy.backend.model.dto.request.CreateChoreDTO;
 import cohappy.backend.model.dto.request.PatchChoreDTO;
 import cohappy.backend.model.dto.response.GetChoreDTO;
+import cohappy.backend.model.dto.response.GetNextChoreDTO;
 import cohappy.backend.service.ChoreService;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -29,6 +31,21 @@ public class ChoreController {
     public ResponseEntity<List<GetChoreDTO>> getChore(@PathVariable String houseCode, @PathVariable LocalDate date) {
         try {
             List<GetChoreDTO> result = choreService.getChore(houseCode, date);
+            return ResponseEntity.ok(result);
+        } catch (NotFoundException e) {
+            return ResponseEntity.notFound().build();
+        } catch (Exception e) {
+            return ResponseEntity.internalServerError().build();
+        }
+    }
+
+    @GetMapping("/next/{userCode}/{date}")
+    public ResponseEntity<List<GetNextChoreDTO>> getNextUserChore(@PathVariable String userCode, @PathVariable @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date) {
+        try {
+            List<GetNextChoreDTO> result = choreService.getNextUserChore(userCode, date);
+            if(result.isEmpty()){
+                return ResponseEntity.noContent().build();
+            }
             return ResponseEntity.ok(result);
         } catch (NotFoundException e) {
             return ResponseEntity.notFound().build();
