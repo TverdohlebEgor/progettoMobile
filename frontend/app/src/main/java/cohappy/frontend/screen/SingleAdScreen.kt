@@ -18,8 +18,6 @@ fun SingleAdScreen(
     onRequireLoginClick: () -> Unit,
     viewModel: SingleAdViewModel = viewModel()
 ) {
-
-
     LaunchedEffect(annuncioId) {
         viewModel.loadAd(annuncioId)
     }

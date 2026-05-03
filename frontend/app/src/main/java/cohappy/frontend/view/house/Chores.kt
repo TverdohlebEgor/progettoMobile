@@ -58,7 +58,6 @@ fun ChoresView(
                     .fillMaxSize()
                     .padding(horizontal = 24.dp)
             ) {
-                // TITOLO
                 Titoli(
                     titolo1 = "Pulizie",
                     color = contentColor,
@@ -68,11 +67,9 @@ fun ChoresView(
 
                 Spacer(modifier = Modifier.height(8.dp))
 
-                // Calendar assegna 1 a Domenica, noi facciamo un po' di matematica per far sì che 0 sia Lunedì!
                 val calendar = Calendar.getInstance()
                 val dayOfWeek = (calendar.get(Calendar.DAY_OF_WEEK) + 5) % 7
 
-               // Es: 1 lunedì, 0 martedì, 2 mercoledì, ecc...
                 val faccendePerGiorno = listOf(1, 0, 2, 0, 1, 0, 3)
 
                 WeekRow(

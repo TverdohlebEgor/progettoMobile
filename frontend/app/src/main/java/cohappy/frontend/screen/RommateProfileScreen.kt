@@ -20,6 +20,7 @@ fun HouseProfileScreen(
     onLeaveHouseSuccess: () -> Unit,
     onRulesClick: () -> Unit,
     onRoommatesClick: () -> Unit,
+    onCreateAdClick: () -> Unit,
     onPasswordChangeClick: () -> Unit,
     viewModel: HouseProfileViewModel = viewModel()
 ) {
@@ -67,7 +68,6 @@ fun HouseProfileScreen(
         onUpdateCodeClick = { nuovoCodice ->
             viewModel.updateHouseCode(oldHouseCode = houseCode, newHouseCode = nuovoCodice)
         },
-        // 💅 COLLEGHIAMO LA VIA AL CERVELLO!
         isUpdatingAddress = viewModel.isUpdatingAddress,
         addressUpdateError = viewModel.addressUpdateError,
         onUpdateAddressClick = { nuovaVia ->
@@ -81,6 +81,7 @@ fun HouseProfileScreen(
         onLeaveHouseClick = { viewModel.leaveHouse(userToken, houseCode) },
         onLogoutClick = onLogoutClick,
         onRoommatesClick = { viewModel.openRoommatesPopup(houseCode, userToken) },
+        onCreateAdClick = onCreateAdClick,
         onPasswordChangeClick = onPasswordChangeClick,
         showRoommatesPopup = viewModel.showRoommatesPopup,
         roommatesList = viewModel.roommatesList,

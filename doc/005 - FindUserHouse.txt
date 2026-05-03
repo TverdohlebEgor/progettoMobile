@@ -1,0 +1,12 @@
+Per ottimizzare il login, ho la necessità di sapere in modo immediato se un utente loggato fa già parte di una casa (per poterlo reindirizzare automaticamente alla dashboard del gestionale o, in caso contrario, alla pagina annunci).
+
+Attualmente cercare l'utente all'interno delle liste "users" o "admins" delle varie case lato frontend
+
+Ti chiedo se possiamo procedere con una di queste due soluzioni:
+
+Opzione 1 (La più pulita e performante):
+Aggiungere il campo houseCode (String) direttamente all'interno del UserAccountDTO restituito dalla tua API /api/user/profile/{userCode}.
+Se l'utente fa parte di una casa, il campo conterrà l'ID della casa. Se l'utente non ha una casa, il campo sarà semplicemente null. Questo ci risparmia una chiamata API aggiuntiva durante il login.
+
+Opzione 2 (Alternativa):
+Creare un nuovo endpoint dedicato, ad esempio GET /api/user/{userCode}/house, che prenda in ingresso l'ID utente e restituisca unicamente la stringa del houseCode (oppure restituisca un HTTP 204 No Content / null se l'utente è senza casa).

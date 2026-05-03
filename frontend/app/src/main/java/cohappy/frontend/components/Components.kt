@@ -96,8 +96,8 @@ fun CustomButton(
             .shadow(elevation = 10.dp, shape = RoundedCornerShape(8.dp)),
         shape = shape,
         colors = ButtonDefaults.buttonColors(
-            containerColor = if (isPrimary) ContentColor else MaterialTheme.colorScheme.secondary,
-            contentColor = if (isPrimary) MaterialTheme.colorScheme.onPrimary else MaterialTheme.colorScheme.onSecondary
+            containerColor = MaterialTheme.colorScheme.primary,//if (isPrimary) ContentColor else MaterialTheme.colorScheme.secondary,
+            contentColor = MaterialTheme.colorScheme.onPrimary//if (isPrimary) MaterialTheme.colorScheme.onPrimary else MaterialTheme.colorScheme.onSecondary
         )
     ) {
         Text(
@@ -593,7 +593,7 @@ fun ProfileHeaderCard(
     modifier: Modifier = Modifier
 ) {
     val isDark = isSystemInDarkTheme()
-    val bgColor = if (isDark) Color(0xFF2D2342) else Color(0xFFEBE5F7) // Lilla chiaro come da foto
+    val bgColor = MaterialTheme.colorScheme.primary // Lilla chiaro come da foto
 
     val nomeUp = nome.replaceFirstChar { it.uppercase() }
     val cognomeUp = cognome.replaceFirstChar { it.uppercase() }
@@ -615,7 +615,7 @@ fun ProfileHeaderCard(
                 text = "Ciao! $nomeUp $cognomeUp",
                 fontWeight = FontWeight.Black,
                 fontSize = 24.sp,
-                color = MaterialTheme.colorScheme.onSurface
+                color = MaterialTheme.colorScheme.onPrimary
             )
 
             Spacer(modifier = Modifier.height(12.dp))
@@ -624,8 +624,8 @@ fun ProfileHeaderCard(
                 onClick = onEditClick,
                 shape = RoundedCornerShape(16.dp),
                 colors = ButtonDefaults.buttonColors(
-                    containerColor = Color(0xFF6B53A4).copy(alpha = 0.8f),
-                    contentColor = Color.White
+                    containerColor = MaterialTheme.colorScheme.onPrimary.copy(alpha = 0.8f),
+                    contentColor = MaterialTheme.colorScheme.primary
                 )
             ) {
                 Text("Modifica foto profilo", fontWeight = FontWeight.Medium)

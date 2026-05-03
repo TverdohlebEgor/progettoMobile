@@ -45,8 +45,8 @@ fun UserProfileScreen(
 
     LaunchedEffect(viewModel.navigateToHouse) {
         if (viewModel.navigateToHouse) {
-            onJoinConfirmClick("navigami_da_questa_prigione")
-            viewModel.resetNavigation() // Spegniamo l'interruttore
+            onJoinConfirmClick(viewModel.joinedHouseCode)
+            viewModel.resetNavigation()
         }
     }
 

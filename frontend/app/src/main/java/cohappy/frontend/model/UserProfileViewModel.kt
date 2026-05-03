@@ -27,6 +27,8 @@ class UserProfileViewModel : ViewModel() {
         private set
     var navigateToHouse by mutableStateOf(false)
         private set
+    var joinedHouseCode by mutableStateOf("")
+        private set
     fun loadProfile(userToken: String) {
         viewModelScope.launch {
             isLoading = true
@@ -94,6 +96,7 @@ class UserProfileViewModel : ViewModel() {
                 val response = withContext(Dispatchers.IO) { repository.joinHouse(codicePulito, tokenPulito) }
 
                 if (response.isSuccessful) {
+                    joinedHouseCode = codicePulito
                     navigateToHouse = true
                 } else {
                     if (response.code() == 404) {

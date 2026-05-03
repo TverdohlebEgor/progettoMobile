@@ -94,7 +94,9 @@ fun AdsMainScreen(
                             onLogoutClick = onLogoutClick,
                             onCreateHouseClick = onCreateHouseClick,
                             onJoinConfirmClick = onJoinConfirmClick,
-                            userToken = userToken ?: ""
+                            userToken = userToken ?: "",
+
+
                         )
                     } else {
                         LoginScreen(

@@ -26,7 +26,6 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.asImageBitmap
@@ -115,7 +114,7 @@ fun HouseSetupSection(
 ) {
     var houseCode by remember { mutableStateOf("") }
     val isDark = isSystemInDarkTheme()
-    val containerColor = if (isDark) Color(0xFF4A3973) else Color(0xFF6B53A4) // Viola scuro
+    val containerColor = MaterialTheme.colorScheme.primary
 
     Column(
         modifier = modifier.fillMaxWidth(),
@@ -135,7 +134,7 @@ fun HouseSetupSection(
                     .height(56.dp),
                 shape = RoundedCornerShape(16.dp),
                 colors = ButtonDefaults.buttonColors(
-                    containerColor = Color.White,
+                    containerColor = MaterialTheme.colorScheme.onPrimary,
                     contentColor = containerColor
                 )
             ) {
@@ -161,7 +160,7 @@ fun HouseSetupSection(
             Column(horizontalAlignment = Alignment.CenterHorizontally) {
                 Text(
                     text = "Accedi a una casa",
-                    color = Color.White.copy(alpha = 0.9f),
+                    color = MaterialTheme.colorScheme.onPrimary.copy(alpha = 0.9f),
                     fontWeight = FontWeight.Medium,
                     fontSize = 14.sp
                 )

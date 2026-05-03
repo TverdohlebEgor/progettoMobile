@@ -15,6 +15,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.ArrowForwardIos
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Close
@@ -72,7 +73,6 @@ fun HouseProfileView(
     isUpdatingCode: Boolean = false,
     codeUpdateError: String? = null,
     onUpdateCodeClick: (String) -> Unit = {},
-    // 💅 NUOVI PARAMETRI PER L'INDIRIZZO!
     isUpdatingAddress: Boolean = false,
     addressUpdateError: String? = null,
     onUpdateAddressClick: (String) -> Unit = {},
@@ -80,6 +80,7 @@ fun HouseProfileView(
     onLeaveHouseClick: () -> Unit = {},
     onLogoutClick: () -> Unit = {},
     onRoommatesClick: () -> Unit = {},
+    onCreateAdClick: () -> Unit = {},
     onPasswordChangeClick: () -> Unit = {},
     showRoommatesPopup: Boolean = false,
     roommatesList: List<RoommateItem> = emptyList(),
@@ -135,9 +136,9 @@ fun HouseProfileView(
                     isUpdatingCode = isUpdatingCode,
                     codeUpdateError = codeUpdateError,
                     onUpdateCodeClick = onUpdateCodeClick,
-                    isUpdatingAddress = isUpdatingAddress,
-                    addressUpdateError = addressUpdateError,
-                    onUpdateAddressClick = onUpdateAddressClick,
+                    //isUpdatingAddress = isUpdatingAddress,
+                    //addressUpdateError = addressUpdateError,
+                    //onUpdateAddressClick = onUpdateAddressClick,
                     onLeaveHouseClick = onLeaveHouseClick
                 )
 
@@ -152,13 +153,31 @@ fun HouseProfileView(
                         modifier = Modifier.padding(bottom = 8.dp)
                     )
 
-                    // 💅 COME PROMESSO: REGOLE CANCELLATO, POLVERIZZATO, VAPORIZZATO. 💥
-
                     SettingItem(
                         icon = Icons.Default.Group,
                         title = "Coinquilini",
                         onClick = onRoommatesClick
                     )
+                }
+
+                if (isCurrentUserAdmin) {
+                    Spacer(modifier = Modifier.height(24.dp))
+
+                    Column(modifier = Modifier.fillMaxWidth()) {
+                        Text(
+                            text = "Gestione Annunci",
+                            color = Color.Gray,
+                            fontWeight = FontWeight.Bold,
+                            fontSize = 14.sp,
+                            modifier = Modifier.padding(bottom = 8.dp)
+                        )
+
+                        SettingItem(
+                            icon = Icons.Default.Add,
+                            title = "Crea annuncio",
+                            onClick = onCreateAdClick
+                        )
+                    }
                 }
 
                 Spacer(modifier = Modifier.height(24.dp))
@@ -296,9 +315,9 @@ fun HouseInfoCard(
     isUpdatingCode: Boolean,
     codeUpdateError: String?,
     onUpdateCodeClick: (String) -> Unit,
-    isUpdatingAddress: Boolean,
-    addressUpdateError: String?,
-    onUpdateAddressClick: (String) -> Unit,
+    //isUpdatingAddress: Boolean,
+    //addressUpdateError: String?,
+    //onUpdateAddressClick: (String) -> Unit,
     onLeaveHouseClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
@@ -329,7 +348,6 @@ fun HouseInfoCard(
             )
             Spacer(modifier = Modifier.height(4.dp))
 
-            // 💅 GESTIONE DELL'INDIRIZZO ESATTAMENTE COME QUELLA DEL CODICE!
             Row(
                 verticalAlignment = Alignment.CenterVertically,
                 modifier = Modifier.fillMaxWidth()
@@ -361,51 +379,50 @@ fun HouseInfoCard(
                         }
                     )
 
-                    if (addressUpdateError != null) {
-                        Text(
-                            text = addressUpdateError,
-                            color = Color(0xFFFF6961),
-                            fontWeight = FontWeight.Bold,
-                            fontSize = 12.sp,
-                            modifier = Modifier.padding(top = 4.dp)
-                        )
-                    }
-                }
+//                    if (addressUpdateError != null) {
+//                        Text(
+//                            text = addressUpdateError,
+//                            color = Color(0xFFFF6961),
+//                            fontWeight = FontWeight.Bold,
+//                            fontSize = 12.sp,
+//                            modifier = Modifier.padding(top = 4.dp)
+//                        )
+//                    }
+//                }
 
-                // 💅 SE L'INDIRIZZO E' STATO MODIFICATO COMPAIONO LA SPUNTA VERDE E LA X ROSSA
-                if (editableAddress != houseAddress) {
-                    Spacer(modifier = Modifier.width(16.dp))
-                    Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                        Box(
-                            modifier = Modifier
-                                .size(40.dp)
-                                .clip(CircleShape)
-                                .background(Color(0xFFFF6961).copy(alpha = 0.2f))
-                                .clickable { editableAddress = houseAddress },
-                            contentAlignment = Alignment.Center
-                        ) {
-                            Icon(Icons.Default.Close, contentDescription = "Annulla", tint = Color(0xFFFF6961), modifier = Modifier.size(20.dp))
-                        }
-
-                        Box(
-                            modifier = Modifier
-                                .size(40.dp)
-                                .clip(CircleShape)
-                                .background(Color(0xFF34D399).copy(alpha = 0.2f))
-                                .clickable {
-                                    if (editableAddress.isNotBlank() && !isUpdatingAddress) {
-                                        onUpdateAddressClick(editableAddress)
-                                    }
-                                },
-                            contentAlignment = Alignment.Center
-                        ) {
-                            if (isUpdatingAddress) {
-                                CircularProgressIndicator(color = Color(0xFF34D399), modifier = Modifier.size(20.dp), strokeWidth = 2.dp)
-                            } else {
-                                Icon(Icons.Default.Check, contentDescription = "Salva", tint = Color(0xFF34D399), modifier = Modifier.size(20.dp))
-                            }
-                        }
-                    }
+//                if (editableAddress != houseAddress) {
+//                    Spacer(modifier = Modifier.width(16.dp))
+//                    Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+//                        Box(
+//                            modifier = Modifier
+//                                .size(40.dp)
+//                                .clip(CircleShape)
+//                                .background(Color(0xFFFF6961).copy(alpha = 0.2f))
+//                                .clickable { editableAddress = houseAddress },
+//                            contentAlignment = Alignment.Center
+//                        ) {
+//                            Icon(Icons.Default.Close, contentDescription = "Annulla", tint = Color(0xFFFF6961), modifier = Modifier.size(20.dp))
+//                        }
+//
+//                        Box(
+//                            modifier = Modifier
+//                                .size(40.dp)
+//                                .clip(CircleShape)
+//                                .background(Color(0xFF34D399).copy(alpha = 0.2f))
+//                                .clickable {
+//                                    if (editableAddress.isNotBlank() && !isUpdatingAddress) {
+//                                        onUpdateAddressClick(editableAddress)
+//                                    }
+//                                },
+//                            contentAlignment = Alignment.Center
+//                        ) {
+//                            if (isUpdatingAddress) {
+//                                CircularProgressIndicator(color = Color(0xFF34D399), modifier = Modifier.size(20.dp), strokeWidth = 2.dp)
+//                            } else {
+//                                Icon(Icons.Default.Check, contentDescription = "Salva", tint = Color(0xFF34D399), modifier = Modifier.size(20.dp))
+//                            }
+//                        }
+//                    }
                 }
             }
 

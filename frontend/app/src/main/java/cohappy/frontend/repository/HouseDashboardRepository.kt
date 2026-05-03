@@ -2,9 +2,11 @@ package cohappy.frontend.repository
 
 import cohappy.frontend.client.ClientSingleton
 import cohappy.frontend.client.dto.response.GetChoreDTO
+import cohappy.frontend.client.dto.response.GetNextChoreDTO
 import cohappy.frontend.client.dto.response.GetNotificationDTO
 import cohappy.frontend.client.dto.response.UserAccountDTO
 import retrofit2.Response
+import java.time.LocalDate
 
 class HouseDashboardRepository {
 
@@ -16,4 +18,11 @@ class HouseDashboardRepository {
         return ClientSingleton.notificationApi.getUserNotifications(userCode)
     }
 
+    suspend fun fetchNextChore(userCode: String): Response<List<GetNextChoreDTO>> {
+        return ClientSingleton.choreApi.getNextUserChore(userCode, LocalDate.now())
+    }
+
+    suspend fun fetchTotalDebt(userCode: String): Response<Float> {
+        return ClientSingleton.portfolioApi.getUserTotalDebt(userCode)
+    }
 }

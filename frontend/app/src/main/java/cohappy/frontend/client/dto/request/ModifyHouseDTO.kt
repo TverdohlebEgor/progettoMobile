@@ -4,6 +4,7 @@ import com.squareup.moshi.JsonClass
 @JsonClass(generateAdapter = true)
 data class ModifyHouseDTO(
     val houseCode: String,
+    val newHouseCode: String? = null,
     val images: List<ByteArray>? = null,
     val costPerMonth: Int? = null,
     val country: String? = null,
@@ -12,7 +13,8 @@ data class ModifyHouseDTO(
     val civicNumber: Int? = null
 ) {
     fun areAllNull(): Boolean {
-        return images.isNullOrEmpty() &&
+        return newHouseCode == null &&
+                images.isNullOrEmpty() &&
                 costPerMonth == null &&
                 country == null &&
                 region == null &&

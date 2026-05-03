@@ -174,13 +174,12 @@ fun AnnuncioDetailHost(nomeHost: String) {
             .padding(16.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
-        CustomAvatar(initial = nomeHost.take(1)) // Prende l'iniziale del nome!
+        CustomAvatar(initial = nomeHost.take(1))
         Spacer(modifier = Modifier.width(16.dp))
         Column(modifier = Modifier.weight(1f)) {
             Text("Pubblicato da:", color = Color.Gray, fontSize = 14.sp)
             Text(nomeHost, fontWeight = FontWeight.Black, fontSize = 20.sp, color = MaterialTheme.colorScheme.onBackground)
         }
-        //Icon(imageVector = Icons.Default.Info, contentDescription = "Info", tint = Color.Gray)
     }
 }
 
@@ -194,20 +193,13 @@ fun AnnuncioDetailTitlePrice(titolo: String, posizione: String, prezzo: String) 
         verticalAlignment = Alignment.Top
     ) {
         Column(modifier = Modifier.weight(1f).padding(end = 16.dp)) {
-            // Chip "Disponibile subito"
             CustomChip(text = "Disponibile subito", bgColor = Color(0xFFEBE5F7), textColor = BadgeColor)
             Spacer(modifier = Modifier.height(12.dp))
 
             Text(text = titolo, fontSize = 32.sp, fontWeight = FontWeight.Black, lineHeight = 36.sp, color = MaterialTheme.colorScheme.onBackground)
             Spacer(modifier = Modifier.height(8.dp))
 
-
             HousePosition(posizione)
-//            Row(verticalAlignment = Alignment.CenterVertically) {
-//                Icon(imageVector = Icons.Outlined.LocationOn, contentDescription = null, tint = Color.Gray, modifier = Modifier.size(18.dp))
-//                Spacer(modifier = Modifier.width(4.dp))
-//                Text(text = posizione, color = Color.Gray, fontSize = 16.sp)
-//            }
         }
         Column(horizontalAlignment = Alignment.End) {
             Text(text = "Prezzo", color = Color.Gray, fontSize = 14.sp, modifier = Modifier.padding(bottom = 6.dp))
@@ -227,7 +219,6 @@ fun AnnuncioDetailComforts() {
     Column(modifier = Modifier.fillMaxWidth()) {
         Text("I comfort", fontSize = 20.sp, fontWeight = FontWeight.Bold, modifier = Modifier.padding(bottom = 12.dp), color = MaterialTheme.colorScheme.onBackground)
 
-        // Mockup dei comfort
         Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
             CustomChip(
                 text = "Wi-Fi",

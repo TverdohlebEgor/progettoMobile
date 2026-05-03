@@ -22,10 +22,12 @@ import cohappy.frontend.ui.theme.ProgettoMobileTheme
 import cohappy.frontend.view.PaginaIniziale
 
 import cohappy.frontend.screen.AdsMainScreen
+import cohappy.frontend.screen.CreateHouseScreen
 import cohappy.frontend.screen.LoginScreen
 import cohappy.frontend.screen.RegistrationScreen
 import cohappy.frontend.screen.SingleAdScreen
 import cohappy.frontend.screen.SingleChatScreen
+import cohappy.frontend.screen.CreateAdScreen
 import cohappy.frontend.screen.HouseDashboardScreen
 import cohappy.frontend.screen.HouseMainScreen
 
@@ -35,7 +37,13 @@ class MainActivity : ComponentActivity() {
 
         val sharedPref = getSharedPreferences("CohappyPrefs", MODE_PRIVATE)
         val tokenSalvato = sharedPref.getString("USER_TOKEN", null)
-        val partenza = if (tokenSalvato != null) "annunci" else "iniziale"
+        val houseCodeSalvato = sharedPref.getString("HOUSE_CODE", null)
+
+        val partenza = when {
+            tokenSalvato != null && houseCodeSalvato != null -> "home_gestionale"
+            tokenSalvato != null -> "annunci"
+            else -> "iniziale"
+        }
 
         setContent {
             ProgettoMobileTheme {
@@ -118,8 +126,9 @@ class MainActivity : ComponentActivity() {
                                         popUpTo(0) { inclusive = true }
                                     }
                                 },
-                                onCreateHouseClick = { navController.navigate("home_gestionale") },
+                                onCreateHouseClick = { navController.navigate("create_house") },
                                 onJoinConfirmClick = { code ->
+                                    sharedPref.edit().putString("HOUSE_CODE", code).apply()
                                     navController.navigate("home_gestionale") {
                                         popUpTo(0) { inclusive = true }
                                     }
@@ -165,8 +174,15 @@ class MainActivity : ComponentActivity() {
                         composable("home_gestionale") {
                             HouseMainScreen(
                                 userToken = userToken ?: "",
+                                sharedPref = sharedPref,
                                 onChatClick = { targetChat ->
                                     navController.navigate("chat_singola/$targetChat")
+                                },
+                                onAnnuncioClick = { id -> 
+                                    navController.navigate("annuncio_singolo/$id")
+                                },
+                                onCreateAdClick = {
+                                    navController.navigate("create_ad")
                                 },
                                 onLogoutClick = {
                                     with(sharedPref.edit()) {
@@ -180,10 +196,30 @@ class MainActivity : ComponentActivity() {
                                     }
                                 },
                                 onLeaveHouseSuccess = {
+                                    sharedPref.edit().remove("HOUSE_CODE").apply()
                                     navController.navigate("annunci") {
                                         popUpTo(0) { inclusive = true }
                                     }
                                 }
+                            )
+                        }
+
+                        composable("create_house"){
+                            CreateHouseScreen(
+                                userToken = userToken ?: "",
+                                onBackClick = { navController.popBackStack() },
+                                onHouseCreated = { code ->
+                                    sharedPref.edit().putString("HOUSE_CODE", code).apply()
+                                    navController.navigate("home_gestionale") {
+                                        popUpTo(0) { inclusive = true }
+                                    }
+                                }
+                            )
+                        }
+
+                        composable("create_ad") {
+                            CreateAdScreen(
+                                onBackClick = { navController.popBackStack() }
                             )
                         }
                     }

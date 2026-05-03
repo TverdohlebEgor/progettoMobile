@@ -21,7 +21,7 @@ fun PortfolioScreen(
     PortfolioView(
         isLoading = viewModel.isLoading,
         userToken = userToken,
-        totalDebts = 45.00,//viewModel.totalDebts,
+        totalDebts = 45.00,
         totalCredits = 50.00,
         activeFilter = "ALL",
         transactions = listOf(

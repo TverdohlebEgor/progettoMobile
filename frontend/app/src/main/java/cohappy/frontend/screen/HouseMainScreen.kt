@@ -22,21 +22,18 @@ import dev.chrisbanes.haze.haze
 
 @Composable
 fun HouseMainScreen(
-//    onLoginClick: (String, String) -> Unit,
-//    onRegisterClick: () -> Unit,
-//    onAnnuncioClick: (String) -> Unit,
-//    onProfiloAnnunciClick: () -> Unit,
-//    showError: Boolean,
-//    isLoggedIn: Boolean,
-//    onLogoutClick: () -> Unit = {},
-//    onCreateHouseClick :() -> Unit,
-//    onJoinConfirmClick: (String) -> Unit,
     onChatClick: (String) -> Unit,
+    onAnnuncioClick: (String) -> Unit,
+    onCreateAdClick: () -> Unit,
     onLogoutClick: () -> Unit,
     onLeaveHouseSuccess: () -> Unit,
-    userToken: String? = null
+    userToken: String? = null,
+    sharedPref: android.content.SharedPreferences? = null
 ) {
     var activeTab by remember { mutableStateOf("home") }
+    var currentHouseCode by remember { 
+        mutableStateOf(sharedPref?.getString("HOUSE_CODE", "") ?: "") 
+    }
     val isDark = isSystemInDarkTheme()
     val BgColor = if (isDark) Color.Black else Color.White
     val hazeState = remember { HazeState() }
@@ -64,10 +61,9 @@ fun HouseMainScreen(
                     Box(modifier = Modifier.fillMaxSize()) {
                         HouseDashboardScreen(
                             userToken = userToken ?: "",
-                            onChoreClick = { chore -> /**capire come collegare qui*/},
+                            onChoreClick = { activeTab = "chore" },
                             onWalletClick = { activeTab = "wallet" }
                         )
-
                     }
                 }
 
@@ -92,6 +88,15 @@ fun HouseMainScreen(
                     }
                 }
 
+                "annunci" -> {
+                    Box(modifier = Modifier.fillMaxSize()) {
+                        AdListScreen(
+                            innerPadding = paddingValues,
+                            onAdClick = onAnnuncioClick
+                        )
+                    }
+                }
+
                 "chore" ->{
                     Box(modifier = Modifier
                         .fillMaxSize()
@@ -108,12 +113,13 @@ fun HouseMainScreen(
                         .padding(top = 16.dp)) {
                         HouseProfileScreen(
                             userToken = userToken ?: "",
-                            houseCode = "",
+                            houseCode = currentHouseCode,
                             onLogoutClick = onLogoutClick,
                             onLeaveHouseSuccess = onLeaveHouseSuccess,
                             onRulesClick = {},
                             onPasswordChangeClick = {},
-                            onRoommatesClick = {}
+                            onRoommatesClick = {},
+                            onCreateAdClick = onCreateAdClick
                         )
 
                     }
@@ -128,6 +134,6 @@ fun MenuGestionaleUtente(currentTab: String, onTabSelected: (String) -> Unit){
     NavItem("home", Icons.Default.Home, "Home", currentTab, onTabSelected)
     NavItem("chat", Icons.Default.ChatBubble, "Chat", currentTab, onTabSelected)
     NavItem("wallet", Icons.Default.Wallet, "Wallet", currentTab, onTabSelected)
-    NavItem("chore", Icons.Default.WaterDrop, "Annunci", currentTab, onTabSelected)
+    NavItem("annunci", Icons.Default.WaterDrop, "Annunci", currentTab, onTabSelected)
     NavItem("profilo", Icons.Default.Person, "Profilo", currentTab, onTabSelected)
 }
