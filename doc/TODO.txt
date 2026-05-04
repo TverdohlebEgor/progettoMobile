@@ -1,0 +1,6 @@
+- il tasto + in chore non è collegato a nessuna view e viewmodel (potrebbe non essere necessario con popup)
+- il tasto + in portfolio non è collegato a nessuna view e viewmodel (potrebbe non essere necessario con popup)
+- manca la creazione di un annuncio quindi cliccando il pulsante per la creazione porta a una pagina vuota
+- se si vuole controlla lannuncio creato non è ancora possibile quindi se ha gia un annuncio bisogna visualizzare un tasto modifica annuncio che lo fa modificare o cancellare 
+- in caso si faccia il login non viene controllato se lutente ha gia una casa entrando automaticamente nel gestionale
+- le pagine chore, portfolio e homegestionale hanno tutto il necessario per collegarsi al db ma ancora visualizzano mockdata

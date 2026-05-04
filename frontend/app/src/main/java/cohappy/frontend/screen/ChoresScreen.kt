@@ -12,18 +12,18 @@ fun ChoresScreen(
     viewModel: ChoresViewModel = viewModel()
 ) {
     LaunchedEffect(userToken) {
-        viewModel.loadUserData(userToken)
+        if (userToken.isNotBlank()) {
+            viewModel.loadUserData(userToken)
+        }
     }
-
     ChoresView(
         nomeUtente = viewModel.nomeUtente,
         imageBytes = null,
         isLoading = viewModel.isLoading,
         userToken = userToken,
+        chores = viewModel.chores, // <-- ERA QUESTO CHE MANCAVA!
         onChoreToggle = { choreCode, assignedToUser, newStatus ->
             viewModel.toggleChoreCompletion(choreCode, assignedToUser, newStatus)
-        },
-        chores = viewModel.chores,
-
-        )
+        }
+    )
 }

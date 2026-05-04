@@ -25,12 +25,10 @@ fun HouseDashboardScreen(
         onAddClick = {
         },
         notifications = viewModel.notifications,
-//        nextChore = viewModel.nextChore,
-//        totalDebt = viewModel.totalDebt,
         userToken = userToken,
         nextChoreName = "Bagno",
         totalDebtAmount = "35",
-//        onChoreClick = onChoreClick,
-//        onWalletClick = onWalletClick
+        onChoreClick = { onChoreClick("") },
+        onWalletClick = { onWalletClick("") }
     )
 }

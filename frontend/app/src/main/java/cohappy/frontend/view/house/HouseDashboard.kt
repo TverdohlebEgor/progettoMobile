@@ -50,7 +50,9 @@ fun HouseDashboardView(
     onAddClick: () -> Unit,
     notifications: List<GetNotificationDTO>,
     nextChoreName: String,
-    totalDebtAmount: String
+    totalDebtAmount: String,
+    onChoreClick: () -> Unit = {},
+    onWalletClick: () -> Unit = {}
 ) {
     val isDark = isSystemInDarkTheme()
     val bgColor = if (isDark) Color.Black else Color.White
@@ -102,6 +104,8 @@ fun HouseDashboardView(
                     SummRow(
                         nextChoreName = nextChoreName,
                         totalDebtAmount = totalDebtAmount,
+                        onChoreClick = onChoreClick,
+                        onWalletClick = onWalletClick,
                         modifier = Modifier.padding(horizontal = 24.dp)
                     )
 
@@ -109,7 +113,6 @@ fun HouseDashboardView(
 
                     UltimoAggName(
                         modifier = Modifier.padding(horizontal = 24.dp),
-                        onClick = {}
                     )
 
                     LastMessView(
@@ -118,14 +121,6 @@ fun HouseDashboardView(
                         modifier = Modifier.weight(1f)
                     )
                 }
-
-                CustomIconButton(
-                    icon = Icons.Default.Add,
-                    onClick = onAddClick,
-                    modifier = Modifier
-                        .align(Alignment.BottomEnd)
-                        .padding(end = 24.dp, bottom = 120.dp)
-                )
             }
         }
     }
@@ -140,13 +135,14 @@ fun SummBox(
     iconLabel: String,
     icon: ImageVector,
     backgroundColor: Color,
+    onClick: () -> Unit = {},
     modifier: Modifier = Modifier
 ) {
     val isDark = isSystemInDarkTheme()
     val contentColor = if (isDark) Color.White else Color.Black
 
     Surface(
-        modifier = modifier,
+        modifier = modifier.clickable { onClick() },
         shape = RoundedCornerShape(24.dp),
         color = backgroundColor,
         shadowElevation = if (isDark) 0.dp else 10.dp,
@@ -187,7 +183,13 @@ fun SummBox(
 }
 
 @Composable
-fun SummRow(nextChoreName: String, totalDebtAmount: String, modifier: Modifier = Modifier) {
+fun SummRow(
+    nextChoreName: String,
+    totalDebtAmount: String,
+    onChoreClick: () -> Unit,
+    onWalletClick: () -> Unit,
+    modifier: Modifier = Modifier
+) {
     val isDark = isSystemInDarkTheme()
 
     val box1Bg = if (isDark) Color(0xFF1E1C22) else Color.White
@@ -210,6 +212,7 @@ fun SummRow(nextChoreName: String, totalDebtAmount: String, modifier: Modifier =
             backgroundColor = box1Bg,
             title = "Da dare",
             amount = totalDebtAmount,
+            onClick = onWalletClick,
             modifier = Modifier.weight(1f)
         )
         SummBox(
@@ -220,19 +223,19 @@ fun SummRow(nextChoreName: String, totalDebtAmount: String, modifier: Modifier =
             backgroundColor = box2Bg,
             title = "Tocca a te",
             amount = nextChoreName,
+            onClick = onChoreClick,
             modifier = Modifier.weight(1f)
         )
     }
 }
 
 @Composable
-fun UltimoAggName(modifier: Modifier = Modifier, onClick: () -> Unit = {}) {
+fun UltimoAggName(modifier: Modifier = Modifier) {
     val textColor = if (isSystemInDarkTheme()) Color.White else Color.Black
 
     Row(
         modifier = modifier
-            .fillMaxWidth()
-            .clickable(onClick = onClick),
+            .fillMaxWidth() ,
         horizontalArrangement = Arrangement.SpaceBetween,
         verticalAlignment = Alignment.CenterVertically
     ) {

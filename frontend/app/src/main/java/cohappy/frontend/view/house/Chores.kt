@@ -9,6 +9,7 @@ import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
@@ -27,9 +28,9 @@ import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import cohappy.frontend.components.CustomIconButton
 import cohappy.frontend.components.Titoli
 import cohappy.frontend.model.Chore
-import cohappy.frontend.model.Notification
 import java.util.Calendar
 import kotlin.collections.List
 
@@ -40,7 +41,8 @@ fun ChoresView(
     isLoading: Boolean,
     userToken: String,
     onChoreToggle: (String, String, Boolean) -> Unit = { _, _, _ -> },
-    chores : List<Chore>
+    chores : List<Chore>,
+    onAddClick: () -> Unit = {}
     ) {
     val isDark = isSystemInDarkTheme()
     val bgColor = if (isDark) Color.Black else Color.White
@@ -53,46 +55,62 @@ fun ChoresView(
                 CircularProgressIndicator(color = Color(0xFF6B53A4))
             }
         } else {
-            Column(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(horizontal = 24.dp)
-            ) {
-                Titoli(
-                    titolo1 = "Pulizie",
-                    color = contentColor,
-                    paddingTop = 48.dp,
-                    paddingBott = 16.dp
-                )
+            Box(modifier = Modifier.fillMaxSize()) {
+                Column(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(horizontal = 24.dp)
+                ) {
+                    Titoli(
+                        titolo1 = "Pulizie",
+                        color = contentColor,
+                        paddingTop = 48.dp,
+                        paddingBott = 16.dp
+                    )
 
-                Spacer(modifier = Modifier.height(8.dp))
+                    Spacer(modifier = Modifier.height(8.dp))
 
-                val calendar = Calendar.getInstance()
-                val dayOfWeek = (calendar.get(Calendar.DAY_OF_WEEK) + 5) % 7
+                    val calendar = Calendar.getInstance()
+                    val dayOfWeek = (calendar.get(Calendar.DAY_OF_WEEK) + 5) % 7
 
-                val faccendePerGiorno = listOf(1, 0, 2, 0, 1, 0, 3)
+                    val faccendePerGiorno = listOf(1, 0, 2, 0, 1, 0, 3)
 
-                WeekRow(
-                    activeDayIndex = dayOfWeek,
-                    choresPerDay = faccendePerGiorno
-                )
+                    WeekRow(
+                        activeDayIndex = dayOfWeek,
+                        choresPerDay = faccendePerGiorno
+                    )
 
-                Spacer(modifier = Modifier.height(32.dp))
+                    Spacer(modifier = Modifier.height(32.dp))
 
-                Text(
-                    text = "Turni",
-                    fontWeight = FontWeight.Bold,
-                    fontSize = 20.sp,
-                    color = contentColor
-                )
+                    Text(
+                        text = "Turni",
+                        fontWeight = FontWeight.Bold,
+                        fontSize = 20.sp,
+                        color = contentColor
+                    )
 
-                Spacer(modifier = Modifier.height(16.dp))
+                    Spacer(modifier = Modifier.height(16.dp))
 
-                    ChoreColumn(chores = chores, onChoreToggle = onChoreToggle, cleanToken = cleanToken)
+                    ChoreColumn(
+                        chores = chores,
+                        onChoreToggle = onChoreToggle,
+                        cleanToken = cleanToken
+                    )
+
                 }
+                CustomIconButton(
+                    icon = Icons.Default.Add,
+                    onClick = onAddClick,
+                    modifier = Modifier
+                        .align(Alignment.BottomEnd)
+                        .padding(end = 24.dp, bottom = 120.dp)
+                )
             }
+
+
         }
     }
+}
 
 
 @Composable

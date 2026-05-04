@@ -38,7 +38,8 @@ fun PortfolioScreen(
             PortfolioTransaction("11", false, "Pizza d'asporto", "18 Apr • Hai pagato tu", 15.00),
             PortfolioTransaction("12", true, "Carta Igienica", "15 Apr • Ha pagato Anna", 3.50)
         ),
-        onFilterChange = {}
+        onFilterChange = {},
+        onAddClick = { TODO() }
     )
 }
 

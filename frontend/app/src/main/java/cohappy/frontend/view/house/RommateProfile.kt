@@ -2,7 +2,6 @@ package cohappy.frontend.view.house
 
 import android.graphics.BitmapFactory
 import android.widget.Toast
-import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.isSystemInDarkTheme
@@ -17,6 +16,7 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.ArrowForwardIos
+import androidx.compose.material.icons.filled.Campaign
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.ContentCopy
@@ -56,7 +56,6 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import cohappy.frontend.components.LogoutTextButton
 import cohappy.frontend.components.ProfileAvatar
 import cohappy.frontend.components.Titoli
 import cohappy.frontend.model.RoommateItem
@@ -73,15 +72,11 @@ fun HouseProfileView(
     isUpdatingCode: Boolean = false,
     codeUpdateError: String? = null,
     onUpdateCodeClick: (String) -> Unit = {},
-    isUpdatingAddress: Boolean = false,
-    addressUpdateError: String? = null,
-    onUpdateAddressClick: (String) -> Unit = {},
     onEditPhotoClick: () -> Unit = {},
     onLeaveHouseClick: () -> Unit = {},
     onLogoutClick: () -> Unit = {},
     onRoommatesClick: () -> Unit = {},
     onCreateAdClick: () -> Unit = {},
-    onPasswordChangeClick: () -> Unit = {},
     showRoommatesPopup: Boolean = false,
     roommatesList: List<RoommateItem> = emptyList(),
     isCurrentUserAdmin: Boolean = false,
@@ -136,9 +131,6 @@ fun HouseProfileView(
                     isUpdatingCode = isUpdatingCode,
                     codeUpdateError = codeUpdateError,
                     onUpdateCodeClick = onUpdateCodeClick,
-                    //isUpdatingAddress = isUpdatingAddress,
-                    //addressUpdateError = addressUpdateError,
-                    //onUpdateAddressClick = onUpdateAddressClick,
                     onLeaveHouseClick = onLeaveHouseClick
                 )
 
@@ -173,29 +165,11 @@ fun HouseProfileView(
                         )
 
                         SettingItem(
-                            icon = Icons.Default.Add,
-                            title = "Crea annuncio",
+                            icon = Icons.Default.Campaign,
+                            title = "Crea annuncio casa",
                             onClick = onCreateAdClick
                         )
                     }
-                }
-
-                Spacer(modifier = Modifier.height(24.dp))
-
-                Column(modifier = Modifier.fillMaxWidth()) {
-                    Text(
-                        text = "Impostazioni Account",
-                        color = Color.Gray,
-                        fontWeight = FontWeight.Bold,
-                        fontSize = 14.sp,
-                        modifier = Modifier.padding(bottom = 8.dp)
-                    )
-
-                    SettingItem(
-                        icon = Icons.Default.Lock,
-                        title = "Modifica password",
-                        onClick = onPasswordChangeClick
-                    )
                 }
 
                 Spacer(modifier = Modifier.height(32.dp))
@@ -315,9 +289,6 @@ fun HouseInfoCard(
     isUpdatingCode: Boolean,
     codeUpdateError: String?,
     onUpdateCodeClick: (String) -> Unit,
-    //isUpdatingAddress: Boolean,
-    //addressUpdateError: String?,
-    //onUpdateAddressClick: (String) -> Unit,
     onLeaveHouseClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
@@ -330,7 +301,6 @@ fun HouseInfoCard(
     val btnBgColorActual = if (isDark) Color(0xFF2D2342) else Color(0xFFEBE5F7)
     val btnTextColor = if (isDark) Color(0xFFFF6961) else Color(0xFFD32F2F)
 
-    var editableAddress by remember(houseAddress) { mutableStateOf(houseAddress) }
     var editableCode by remember(houseCode) { mutableStateOf(houseCode) }
 
     Box(
@@ -348,83 +318,12 @@ fun HouseInfoCard(
             )
             Spacer(modifier = Modifier.height(4.dp))
 
-            Row(
-                verticalAlignment = Alignment.CenterVertically,
-                modifier = Modifier.fillMaxWidth()
-            ) {
-                Column(modifier = Modifier.weight(1f)) {
-                    BasicTextField(
-                        value = editableAddress,
-                        onValueChange = { editableAddress = it.replace("\n", "").replace("\r", "") },
-                        textStyle = TextStyle(
-                            color = Color.White,
-                            fontWeight = FontWeight.Bold,
-                            fontSize = 24.sp
-                        ),
-                        cursorBrush = Brush.verticalGradient(listOf(Color.White, Color.White)),
-                        singleLine = true,
-                        modifier = Modifier.fillMaxWidth(),
-                        decorationBox = { innerTextField ->
-                            Box {
-                                if (editableAddress.isEmpty()) {
-                                    Text(
-                                        text = houseAddress,
-                                        color = Color.White.copy(alpha = 0.4f),
-                                        fontWeight = FontWeight.Bold,
-                                        fontSize = 24.sp
-                                    )
-                                }
-                                innerTextField()
-                            }
-                        }
-                    )
-
-//                    if (addressUpdateError != null) {
-//                        Text(
-//                            text = addressUpdateError,
-//                            color = Color(0xFFFF6961),
-//                            fontWeight = FontWeight.Bold,
-//                            fontSize = 12.sp,
-//                            modifier = Modifier.padding(top = 4.dp)
-//                        )
-//                    }
-//                }
-
-//                if (editableAddress != houseAddress) {
-//                    Spacer(modifier = Modifier.width(16.dp))
-//                    Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-//                        Box(
-//                            modifier = Modifier
-//                                .size(40.dp)
-//                                .clip(CircleShape)
-//                                .background(Color(0xFFFF6961).copy(alpha = 0.2f))
-//                                .clickable { editableAddress = houseAddress },
-//                            contentAlignment = Alignment.Center
-//                        ) {
-//                            Icon(Icons.Default.Close, contentDescription = "Annulla", tint = Color(0xFFFF6961), modifier = Modifier.size(20.dp))
-//                        }
-//
-//                        Box(
-//                            modifier = Modifier
-//                                .size(40.dp)
-//                                .clip(CircleShape)
-//                                .background(Color(0xFF34D399).copy(alpha = 0.2f))
-//                                .clickable {
-//                                    if (editableAddress.isNotBlank() && !isUpdatingAddress) {
-//                                        onUpdateAddressClick(editableAddress)
-//                                    }
-//                                },
-//                            contentAlignment = Alignment.Center
-//                        ) {
-//                            if (isUpdatingAddress) {
-//                                CircularProgressIndicator(color = Color(0xFF34D399), modifier = Modifier.size(20.dp), strokeWidth = 2.dp)
-//                            } else {
-//                                Icon(Icons.Default.Check, contentDescription = "Salva", tint = Color(0xFF34D399), modifier = Modifier.size(20.dp))
-//                            }
-//                        }
-//                    }
-                }
-            }
+            Text(
+                text = houseAddress.ifBlank { "Indirizzo non disponibile" },
+                color = Color.White,
+                fontWeight = FontWeight.Bold,
+                fontSize = 24.sp
+            )
 
             Spacer(modifier = Modifier.height(24.dp))
 
@@ -451,12 +350,6 @@ fun HouseInfoCard(
                             color = if (isDark) Color.White else Color.Black,
                             fontWeight = FontWeight.Black,
                             fontSize = 18.sp
-                        ),
-                        cursorBrush = Brush.verticalGradient(
-                            listOf(
-                                if (isDark) Color.White else Color.Black,
-                                if (isDark) Color.White else Color.Black
-                            )
                         ),
                         singleLine = true,
                         modifier = Modifier.fillMaxWidth(),

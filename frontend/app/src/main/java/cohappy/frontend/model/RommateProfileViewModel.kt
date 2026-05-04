@@ -11,8 +11,9 @@ import cohappy.frontend.client.dto.request.AddAdminDTO
 import cohappy.frontend.client.dto.request.PatchUserDTO
 import cohappy.frontend.client.dto.request.ModifyHouseDTO
 import cohappy.frontend.client.dto.request.RemoveUserDTO
+import cohappy.frontend.client.dto.response.GetHouseDTO
+import cohappy.frontend.client.dto.response.UserAccountDTO
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
@@ -24,7 +25,7 @@ data class RoommateItem(
     val isMe: Boolean
 )
 
-class HouseProfileViewModel : ViewModel() {
+class RommateProfileViewModel : ViewModel() {
 
     var userName by mutableStateOf("Caricamento...")
         private set
@@ -50,6 +51,8 @@ class HouseProfileViewModel : ViewModel() {
         private set
     var codeUpdateError by mutableStateOf<String?>(null)
         private set
+    var currentHouseCode by mutableStateOf("")
+        private set
 
     var houseAddress by mutableStateOf("Caricamento...")
         private set
@@ -58,16 +61,18 @@ class HouseProfileViewModel : ViewModel() {
     var addressUpdateError by mutableStateOf<String?>(null)
         private set
 
+    private var myUserCode = ""
+
     fun loadProfile(userToken: String) {
+        myUserCode = userToken.replace("\"", "").trim()
         viewModelScope.launch {
             isLoading = true
             try {
-                val tokenPulito = userToken.replace("\"", "").trim()
                 val response = withContext(Dispatchers.IO) {
-                    ClientSingleton.userApi.getUserProfile(tokenPulito)
+                    ClientSingleton.userApi.getUserProfile(myUserCode)
                 }
                 if (response.isSuccessful && response.body() != null) {
-                    val data = response.body()!!
+                    val data: UserAccountDTO = response.body()!!
                     userName = data.name ?: "Utente"
                     userSurname = data.surname ?: ""
                     val imageByteArray = data.images?.firstOrNull()
@@ -85,25 +90,32 @@ class HouseProfileViewModel : ViewModel() {
         }
     }
 
-    fun loadHouseDetails(houseCode: String) {
+    // 💅 FIX: Passiamo subito il token in ingresso e controlliamo il VIP Pass!
+    fun loadHouseDetails(houseCode: String, userToken: String) {
         viewModelScope.launch {
             if (houseCode.isNotBlank()) {
+                if (currentHouseCode.isBlank()) currentHouseCode = houseCode
                 try {
+                    val tokenPulito = userToken.replace("\"", "").trim()
+                    if (myUserCode.isBlank()) myUserCode = tokenPulito
+
                     val response = withContext(Dispatchers.IO) {
-                        ClientSingleton.houseApi.getHouse(houseCode)
+                        ClientSingleton.houseApi.getHouse(currentHouseCode)
                     }
                     if (response.isSuccessful && response.body() != null) {
-                        val house = response.body()!!
+                        val house: GetHouseDTO = response.body()!!
+
+                        // 💅 MAGIA RIPRISTINATA: Ora sa se sei il boss fin da subito!
+                        isCurrentUserAdmin = house.admins?.contains(tokenPulito) == true
+
                         houseAddress = "${house.street ?: "Via Sconosciuta"} ${house.civicNumber ?: ""}".trim()
                     } else {
-                        houseAddress = "Via Roma, 10"
+                        houseAddress = "Indirizzo non trovato"
                     }
                 } catch (e: Exception) {
-                    Log.e("HouseProfileVM", "Errore caricamento casa", e)
-                    houseAddress = "Via Roma, 10"
+                    Log.e("RommateProfileVM", "Errore caricamento casa", e)
+                    houseAddress = "Offline"
                 }
-            } else {
-                houseAddress = "Via Roma, 10"
             }
         }
     }
@@ -124,12 +136,12 @@ class HouseProfileViewModel : ViewModel() {
                 }
 
                 if (response.isSuccessful) {
-                    Log.d("HouseProfileVM", "✅ Immagine salvata sul DB!")
+                    Log.d("RommateProfileVM", "✅ Immagine salvata sul DB!")
                 } else {
-                    Log.e("HouseProfileVM", "❌ Backend ha rifiutato: ${response.code()}")
+                    Log.e("RommateProfileVM", "❌ Backend ha rifiutato: ${response.code()}")
                 }
             } catch (e: Exception) {
-                Log.e("HouseProfileVM", "🚨 Errore di rete upload foto", e)
+                Log.e("RommateProfileVM", "🚨 Errore di rete upload foto", e)
             }
         }
     }
@@ -138,7 +150,8 @@ class HouseProfileViewModel : ViewModel() {
         viewModelScope.launch {
             try {
                 val tokenPulito = userToken.replace("\"", "").trim()
-                val dto = RemoveUserDTO(houseCode = houseCode, userCode = tokenPulito)
+                val activeCode = currentHouseCode.ifBlank { houseCode }
+                val dto = RemoveUserDTO(houseCode = activeCode, userCode = tokenPulito)
                 val response = withContext(Dispatchers.IO) {
                     ClientSingleton.houseApi.removeUser(dto)
                 }
@@ -159,7 +172,8 @@ class HouseProfileViewModel : ViewModel() {
     }
 
     fun loadRoommates(houseCode: String, userToken: String) {
-        if (houseCode.isBlank()) return
+        val activeCode = currentHouseCode.ifBlank { houseCode }
+        if (activeCode.isBlank()) return
 
         viewModelScope.launch {
             isRoommatesLoading = true
@@ -167,11 +181,11 @@ class HouseProfileViewModel : ViewModel() {
                 val tokenPulito = userToken.replace("\"", "").trim()
 
                 val houseResponse = withContext(Dispatchers.IO) {
-                    ClientSingleton.houseApi.getHouse(houseCode)
+                    ClientSingleton.houseApi.getHouse(activeCode)
                 }
 
                 if (houseResponse.isSuccessful && houseResponse.body() != null) {
-                    val house = houseResponse.body()!!
+                    val house: GetHouseDTO = houseResponse.body()!!
                     val admins = house.admins ?: emptyList()
                     val regularUsers = house.users ?: emptyList()
 
@@ -186,7 +200,7 @@ class HouseProfileViewModel : ViewModel() {
                                 ClientSingleton.userApi.getUserProfile(uCode)
                             }
                             if (userResponse.isSuccessful && userResponse.body() != null) {
-                                val uData = userResponse.body()!!
+                                val uData: UserAccountDTO = userResponse.body()!!
                                 items.add(
                                     RoommateItem(
                                         userCode = uCode,
@@ -198,13 +212,13 @@ class HouseProfileViewModel : ViewModel() {
                                 )
                             }
                         } catch (e: Exception) {
-                            Log.e("HouseProfileVM", "Errore caricamento profilo coinquilino $uCode", e)
+                            Log.e("RommateProfileVM", "Errore caricamento profilo coinquilino $uCode", e)
                         }
                     }
                     roommatesList = items.sortedByDescending { it.isAdmin }
                 }
             } catch (e: Exception) {
-                Log.e("HouseProfileVM", "Errore caricamento coinquilini", e)
+                Log.e("RommateProfileVM", "Errore caricamento coinquilini", e)
             } finally {
                 isRoommatesLoading = false
             }
@@ -214,19 +228,20 @@ class HouseProfileViewModel : ViewModel() {
     fun promoteToAdmin(houseCode: String, targetUserCode: String, userToken: String) {
         viewModelScope.launch {
             try {
-                val dto = AddAdminDTO(houseCode = houseCode, userCode = targetUserCode)
+                val activeCode = currentHouseCode.ifBlank { houseCode }
+                val dto = AddAdminDTO(houseCode = activeCode, userCode = targetUserCode)
                 val response = withContext(Dispatchers.IO) { ClientSingleton.houseApi.addAdmin(dto) }
 
                 if (response.isSuccessful) {
-                    Log.d("HouseProfileVM", "✅ Promosso ad Admin sul DB!")
+                    Log.d("RommateProfileVM", "✅ Promosso ad Admin sul DB!")
                     roommatesList = roommatesList.map {
                         if (it.userCode == targetUserCode) it.copy(isAdmin = true) else it
                     }.sortedByDescending { it.isAdmin }
                 } else {
-                    Log.e("HouseProfileVM", "❌ Egor ha rifiutato la promozione: ${response.code()}")
+                    Log.e("RommateProfileVM", "❌ Egor ha rifiutato la promozione: ${response.code()}")
                 }
             } catch (e: Exception) {
-                Log.e("HouseProfileVM", "🚨 Errore di rete", e)
+                Log.e("RommateProfileVM", "🚨 Errore di rete", e)
             }
         }
     }
@@ -234,16 +249,17 @@ class HouseProfileViewModel : ViewModel() {
     fun kickUser(houseCode: String, targetUserCode: String, userToken: String) {
         viewModelScope.launch {
             try {
-                val dto = RemoveUserDTO(houseCode = houseCode, userCode = targetUserCode)
+                val activeCode = currentHouseCode.ifBlank { houseCode }
+                val dto = RemoveUserDTO(houseCode = activeCode, userCode = targetUserCode)
                 val response = withContext(Dispatchers.IO) { ClientSingleton.houseApi.removeUser(dto) }
 
                 if (response.isSuccessful) {
                     roommatesList = roommatesList.filter { it.userCode != targetUserCode }
                 } else {
-                    Log.e("HouseProfileVM", "❌ Egor ha rifiutato il kick: ${response.code()}")
+                    Log.e("RommateProfileVM", "❌ Egor ha rifiutato il kick: ${response.code()}")
                 }
             } catch (e: Exception) {
-                Log.e("HouseProfileVM", "🚨 Errore di rete kick", e)
+                Log.e("RommateProfileVM", "🚨 Errore di rete kick", e)
             }
         }
     }
@@ -269,11 +285,12 @@ class HouseProfileViewModel : ViewModel() {
                 val response = withContext(Dispatchers.IO) { ClientSingleton.houseApi.modifyHouse(dto) }
 
                 if (response.isSuccessful) {
-                    Log.d("HouseProfileVM", "✅ Codice casa aggiornato con successo!")
+                    Log.d("RommateProfileVM", "✅ Codice casa aggiornato con successo!")
+                    currentHouseCode = newCodePulito
                 } else {
                     val errorBody = response.errorBody()?.string() ?: ""
-                    Log.e("HouseProfileVM", "❌ Errore 400/409 dal server: $errorBody")
-                    
+                    Log.e("RommateProfileVM", "❌ Errore 400/409 dal server: $errorBody")
+
                     if (response.code() == 409 || errorBody.contains("exists", ignoreCase = true)) {
                         codeUpdateError = "Codice già esistente!"
                     } else {
@@ -281,7 +298,7 @@ class HouseProfileViewModel : ViewModel() {
                     }
                 }
             } catch (e: Exception) {
-                Log.e("HouseProfileVM", "🚨 Errore di rete update codice", e)
+                Log.e("RommateProfileVM", "🚨 Errore di rete update codice", e)
                 codeUpdateError = "Errore di connessione"
             } finally {
                 isUpdatingCode = false
@@ -294,26 +311,27 @@ class HouseProfileViewModel : ViewModel() {
             isUpdatingAddress = true
             addressUpdateError = null
             try {
+                val parts = newAddress.split(" ")
+                val civicStr = parts.lastOrNull() ?: ""
+                val streetStr = parts.dropLast(1).joinToString(" ")
+                val civicInt = civicStr.toIntOrNull()
+
                 val dto = ModifyHouseDTO(
                     houseCode = houseCode,
-                    images = null,
-                    costPerMonth = null,
-                    country = null,
-                    region = null,
-                    street = newAddress,
-                    civicNumber = null
+                    street = if (streetStr.isNotBlank()) streetStr else newAddress,
+                    civicNumber = civicInt
                 )
 
                 val response = withContext(Dispatchers.IO) { ClientSingleton.houseApi.modifyHouse(dto) }
 
                 if (response.isSuccessful) {
-                    Log.d("HouseProfileVM", "✅ Indirizzo aggiornato con successo!")
+                    Log.d("RommateProfileVM", "✅ Indirizzo aggiornato con successo!")
                     houseAddress = newAddress
                 } else {
                     addressUpdateError = "Errore backend: ${response.code()}"
                 }
             } catch (e: Exception) {
-                Log.e("HouseProfileVM", "🚨 Errore di rete update indirizzo", e)
+                Log.e("RommateProfileVM", "🚨 Errore di rete update indirizzo", e)
                 addressUpdateError = "Errore di connessione"
             } finally {
                 isUpdatingAddress = false
