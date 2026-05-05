@@ -90,6 +90,8 @@ class RommateProfileViewModel : ViewModel() {
         }
     }
 
+
+
     // 💅 FIX: Passiamo subito il token in ingresso e controlliamo il VIP Pass!
     fun loadHouseDetails(houseCode: String, userToken: String) {
         viewModelScope.launch {

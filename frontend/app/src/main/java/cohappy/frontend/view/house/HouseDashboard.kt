@@ -46,6 +46,7 @@ fun HouseDashboardView(
     nomeUtente: String,
     imageBytes: ByteArray?,
     isLoading: Boolean,
+    houseAddress: String,
     userToken: String,
     onAddClick: () -> Unit,
     notifications: List<GetNotificationDTO>,

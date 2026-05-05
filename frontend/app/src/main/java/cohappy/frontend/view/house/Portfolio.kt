@@ -140,7 +140,7 @@ fun PortfolioView(
                         }
                     } else {
                         items(transactions) { tx ->
-                            Box(modifier = Modifier.padding(horizontal = 0.dp)) {
+                            Box(modifier = Modifier.padding(horizontal = 0 .dp)) {
                                 TransactionItem(transaction = tx)
                             }
                         }

@@ -2,6 +2,7 @@ package cohappy.frontend.repository
 
 import cohappy.frontend.client.ClientSingleton
 import cohappy.frontend.client.dto.response.GetChoreDTO
+import cohappy.frontend.client.dto.response.GetHouseDTO
 import cohappy.frontend.client.dto.response.GetNextChoreDTO
 import cohappy.frontend.client.dto.response.GetNotificationDTO
 import cohappy.frontend.client.dto.response.UserAccountDTO
@@ -24,5 +25,9 @@ class HouseDashboardRepository {
 
     suspend fun fetchTotalDebt(userCode: String): Response<Float> {
         return ClientSingleton.portfolioApi.getUserTotalDebt(userCode)
+    }
+
+    suspend fun fetchHouseDetails(houseCode: String): Response<GetHouseDTO> {
+        return ClientSingleton.houseApi.getHouse(houseCode)
     }
 }

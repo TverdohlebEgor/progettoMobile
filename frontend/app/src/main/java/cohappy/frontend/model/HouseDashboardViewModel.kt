@@ -32,6 +32,8 @@ class HouseDashboardViewModel : ViewModel() {
     var isLoading by mutableStateOf(true)
         private set
 
+    var houseAddress by mutableStateOf("Caricamento...")
+        private set
 
     var notifications by mutableStateOf<List<GetNotificationDTO>>(emptyList())
         private set
@@ -50,6 +52,7 @@ class HouseDashboardViewModel : ViewModel() {
             try {
                 val tokenPulito = userToken.replace("\"", "").trim()
                 val response = withContext(Dispatchers.IO) { repository.fetchUserProfile(tokenPulito) }
+                val userHouseCode: String? = null
 /*
                 notifications = listOf(
                     Notification(

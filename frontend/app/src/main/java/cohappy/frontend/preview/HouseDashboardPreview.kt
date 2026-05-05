@@ -37,7 +37,10 @@ fun HouseDashboardPreview() {
                 )
             ),
             nextChoreName = "Bagno",
-            totalDebtAmount = "15.50 €"
+            totalDebtAmount = "15.50 €",
+            houseAddress = "",
+            onChoreClick = { TODO() },
+            onWalletClick ={ TODO() }
         )
     }
 }

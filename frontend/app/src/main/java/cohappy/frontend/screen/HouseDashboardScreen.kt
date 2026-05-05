@@ -29,6 +29,7 @@ fun HouseDashboardScreen(
         nextChoreName = "Bagno",
         totalDebtAmount = "35",
         onChoreClick = { onChoreClick("") },
-        onWalletClick = { onWalletClick("") }
-    )
+        onWalletClick = { onWalletClick("") },
+        houseAddress = viewModel.houseAddress,
+        )
 }
