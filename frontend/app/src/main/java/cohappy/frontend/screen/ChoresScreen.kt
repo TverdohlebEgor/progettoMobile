@@ -3,13 +3,13 @@ package cohappy.frontend.screen
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.lifecycle.viewmodel.compose.viewModel
-import cohappy.frontend.model.ChoresViewModel
+import cohappy.frontend.model.ChoreViewModel
 import cohappy.frontend.view.house.ChoresView
 
 @Composable
 fun ChoresScreen(
     userToken: String,
-    viewModel: ChoresViewModel = viewModel()
+    viewModel: ChoreViewModel = viewModel()
 ) {
     LaunchedEffect(userToken) {
         if (userToken.isNotBlank()) {

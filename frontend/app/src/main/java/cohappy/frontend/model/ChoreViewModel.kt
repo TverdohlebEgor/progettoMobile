@@ -54,7 +54,11 @@ class ChoreViewModel : ViewModel() {
                     val userData = response.body()!!
                     nomeUtente = userData.name ?: "Utente"
 
-                    val houseCode = userData.
+                    /**
+                     * funziona con modifica API
+                     * */
+
+                    val houseCode = userData.houseCode
                     if (!houseCode.isNullOrBlank()) {
                         val choresResponse = withContext(Dispatchers.IO) {
                             repository.fetchUserChores(houseCode)
