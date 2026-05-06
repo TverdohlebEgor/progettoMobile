@@ -4,32 +4,32 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.lifecycle.viewmodel.compose.viewModel
 import cohappy.frontend.model.HouseDashboardViewModel
-
 import cohappy.frontend.view.house.HouseDashboardView
 
 @Composable
 fun HouseDashboardScreen(
-    userToken: String,
-    viewModel: HouseDashboardViewModel = viewModel(),
-    onChoreClick: (String) -> Unit,
-    onWalletClick: (String) -> Unit
+    userToken: String?,
+    houseCode: String,
+    viewModel: HouseDashboardViewModel = viewModel()
 ) {
-    LaunchedEffect(userToken) {
-        viewModel.loadDashboardData(userToken)
+    val cleanToken = userToken ?: ""
+
+    LaunchedEffect(cleanToken) {
+        if (cleanToken.isNotBlank()) {
+            viewModel.loadDashboardData(cleanToken, houseCode)
+        }
     }
 
     HouseDashboardView(
         nomeUtente = viewModel.nomeUtente,
         imageBytes = viewModel.profileImageBytes,
         isLoading = viewModel.isLoading,
-        onAddClick = {
-        },
-        notifications = viewModel.notifications,
-        userToken = userToken,
-        nextChoreName = "Bagno",
-        totalDebtAmount = "35",
-        onChoreClick = { onChoreClick("") },
-        onWalletClick = { onWalletClick("") },
+        userToken = cleanToken,
         houseAddress = viewModel.houseAddress,
-        )
+        notifications = viewModel.notifications,
+        nextChoreName = viewModel.nextChoreName,
+        nextChoreDeadline = viewModel.nextChoreDeadline,
+        totalDebtAmount = viewModel.totalDebtAmount,
+        onAddClick = { }
+    )
 }

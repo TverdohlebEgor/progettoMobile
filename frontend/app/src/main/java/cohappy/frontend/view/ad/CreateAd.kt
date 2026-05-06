@@ -80,7 +80,7 @@ fun CreateAdView(
 
                 Spacer(modifier = Modifier.height(24.dp))
 
-                // 💅 1. BOX PER AGGIUNGERE LE FOTO
+
                 Box(
                     modifier = Modifier
                         .fillMaxWidth()
@@ -119,7 +119,7 @@ fun CreateAdView(
 
                 Spacer(modifier = Modifier.height(24.dp))
 
-                // 💅 2. CAMPO PREZZO MENSILE
+
                 Text(
                     text = "Prezzo Mensile",
                     color = contentColor,
@@ -173,7 +173,7 @@ fun CreateAdView(
 
                 Spacer(modifier = Modifier.height(24.dp))
 
-                // 💅 3. CAMPO DESCRIZIONE (MULTILINEA!)
+
                 Text(
                     text = "Descrizione",
                     color = contentColor,
@@ -219,7 +219,7 @@ fun CreateAdView(
 
                 Spacer(modifier = Modifier.height(48.dp))
 
-                // 💅 4. BOTTONE PUBBLICA ENORME
+
                 Button(
                     onClick = onPublishClick,
                     modifier = Modifier

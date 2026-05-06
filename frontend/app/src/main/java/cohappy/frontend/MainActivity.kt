@@ -219,7 +219,10 @@ class MainActivity : ComponentActivity() {
 
                         composable("create_ad") {
                             CreateAdScreen(
-                                onBackClick = { navController.popBackStack() }
+                                onBackClick = { navController.popBackStack() },
+                                userToken = userToken ?: "",
+                                houseCode = sharedPref.getString("HOUSE_CODE", "") ?: "",
+                                onAdPublished = {},
                             )
                         }
                     }

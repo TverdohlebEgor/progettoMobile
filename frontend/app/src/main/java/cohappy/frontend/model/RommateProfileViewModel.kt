@@ -90,9 +90,6 @@ class RommateProfileViewModel : ViewModel() {
         }
     }
 
-
-
-    // 💅 FIX: Passiamo subito il token in ingresso e controlliamo il VIP Pass!
     fun loadHouseDetails(houseCode: String, userToken: String) {
         viewModelScope.launch {
             if (houseCode.isNotBlank()) {
@@ -107,7 +104,6 @@ class RommateProfileViewModel : ViewModel() {
                     if (response.isSuccessful && response.body() != null) {
                         val house: GetHouseDTO = response.body()!!
 
-                        // 💅 MAGIA RIPRISTINATA: Ora sa se sei il boss fin da subito!
                         isCurrentUserAdmin = house.admins?.contains(tokenPulito) == true
 
                         houseAddress = "${house.street ?: "Via Sconosciuta"} ${house.civicNumber ?: ""}".trim()

@@ -18,16 +18,16 @@ class HouseDashboardRepository {
     suspend fun fetchNotifications(userCode: String): Response<List<GetNotificationDTO>> {
         return ClientSingleton.notificationApi.getUserNotifications(userCode)
     }
-
-    suspend fun fetchNextChore(userCode: String): Response<List<GetNextChoreDTO>> {
-        return ClientSingleton.choreApi.getNextUserChore(userCode, LocalDate.now())
-    }
-
     suspend fun fetchTotalDebt(userCode: String): Response<Float> {
         return ClientSingleton.portfolioApi.getUserTotalDebt(userCode)
     }
 
     suspend fun fetchHouseDetails(houseCode: String): Response<GetHouseDTO> {
         return ClientSingleton.houseApi.getHouse(houseCode)
+    }
+
+    suspend fun fetchNextChore(userCode: String): Response<List<GetNextChoreDTO>> {
+        val oggi = LocalDate.now()
+        return ClientSingleton.choreApi.getNextUserChore(userCode, oggi)
     }
 }

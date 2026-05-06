@@ -53,7 +53,8 @@ fun HouseDashboardView(
     nextChoreName: String,
     totalDebtAmount: String,
     onChoreClick: () -> Unit = {},
-    onWalletClick: () -> Unit = {}
+    onWalletClick: () -> Unit = {},
+    nextChoreDeadline: String
 ) {
     val isDark = isSystemInDarkTheme()
     val bgColor = if (isDark) Color.Black else Color.White
@@ -105,8 +106,7 @@ fun HouseDashboardView(
                     SummRow(
                         nextChoreName = nextChoreName,
                         totalDebtAmount = totalDebtAmount,
-                        onChoreClick = onChoreClick,
-                        onWalletClick = onWalletClick,
+                        nextChoreDeadline = nextChoreDeadline,
                         modifier = Modifier.padding(horizontal = 24.dp)
                     )
 
@@ -186,45 +186,32 @@ fun SummBox(
 @Composable
 fun SummRow(
     nextChoreName: String,
+    nextChoreDeadline: String,
     totalDebtAmount: String,
-    onChoreClick: () -> Unit,
-    onWalletClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     val isDark = isSystemInDarkTheme()
-
     val box1Bg = if (isDark) Color(0xFF1E1C22) else Color.White
     val box1IconBg = if (isDark) Color(0xFF4A1C1C) else MaterialTheme.colorScheme.errorContainer
     val box1IconColor = if (isDark) Color(0xFFFF6961) else MaterialTheme.colorScheme.error
 
     val box2Bg = MaterialTheme.colorScheme.onPrimary
     val box2IconBg = MaterialTheme.colorScheme.primary
-    val box2IconColor = if (isDark) Color.Black else Color.White
+    val box2IconColor = if(isDark) Color.Black else Color.White
 
-    Row(
-        modifier = modifier.fillMaxWidth(),
-        horizontalArrangement = Arrangement.spacedBy(16.dp)
-    ) {
+    Row(modifier = modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(16.dp)){
         SummBox(
-            iconColor = box1IconColor,
-            iconBackColor = box1IconBg,
-            iconLabel = "wallet",
-            icon = Icons.Default.Wallet,
-            backgroundColor = box1Bg,
+            iconColor = box1IconColor, iconBackColor = box1IconBg, iconLabel = "wallet",
+            icon = Icons.Default.Wallet, backgroundColor = box1Bg,
             title = "Da dare",
             amount = totalDebtAmount,
-            onClick = onWalletClick,
             modifier = Modifier.weight(1f)
         )
         SummBox(
-            iconColor = box2IconColor,
-            iconBackColor = box2IconBg,
-            iconLabel = "chore",
-            icon = Icons.Default.WaterDrop,
-            backgroundColor = box2Bg,
-            title = "Tocca a te",
+            iconColor = box2IconColor, iconBackColor = box2IconBg, iconLabel = "chore",
+            icon = Icons.Default.WaterDrop, backgroundColor = box2Bg,
+            title = nextChoreDeadline,
             amount = nextChoreName,
-            onClick = onChoreClick,
             modifier = Modifier.weight(1f)
         )
     }

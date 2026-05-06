@@ -65,8 +65,7 @@ fun HouseMainScreen(
                     Box(modifier = Modifier.fillMaxSize()) {
                         HouseDashboardScreen(
                             userToken = userToken ?: "",
-                            onChoreClick = { activeTab = "chore" },
-                            onWalletClick = { activeTab = "wallet" }
+                            houseCode = sharedPref?.getString("HOUSE_CODE", "") ?: "",
                         )
                     }
                 }

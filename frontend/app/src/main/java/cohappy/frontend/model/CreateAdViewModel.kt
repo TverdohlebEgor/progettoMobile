@@ -33,7 +33,6 @@ class CreateAdViewModel : ViewModel() {
     fun updatePrice(newPrice: String) { price = newPrice }
     fun updateDescription(newDesc: String) { description = newDesc }
 
-    // 💅 Ora la funzione addImage c'è!
     fun addImage(image: ByteArray) {
         selectedImages = selectedImages + image
     }
@@ -52,13 +51,12 @@ class CreateAdViewModel : ViewModel() {
             try {
                 val tokenPulito = userToken.replace("\"", "").trim()
 
-                // 💅 AGGIORNATO CON I PARAMETRI DEL NUOVO DTO!
+
                 val dto = CreateHouseAdvertisementDTO(
                     houseCode = houseCode,
                     state = HouseStateEnum.PUBLIC,
-                    // Togliamo costPerMonth perché Egor lo ha tolto dal DTO degli annunci!
                     description = description,
-                    images = selectedImages.ifEmpty { emptyList() }, // 💅 List vuota invece di null
+                    //images = selectedImages.ifEmpty { emptyList() },
                     publishedBy = tokenPulito
                 )
 

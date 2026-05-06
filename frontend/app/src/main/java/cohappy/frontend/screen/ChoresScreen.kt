@@ -21,7 +21,7 @@ fun ChoresScreen(
         imageBytes = null,
         isLoading = viewModel.isLoading,
         userToken = userToken,
-        chores = viewModel.chores, // <-- ERA QUESTO CHE MANCAVA!
+        chores = viewModel.chores,
         onChoreToggle = { choreCode, assignedToUser, newStatus ->
             viewModel.toggleChoreCompletion(choreCode, assignedToUser, newStatus)
         }

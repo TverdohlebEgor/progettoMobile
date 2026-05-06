@@ -40,7 +40,8 @@ fun HouseDashboardPreview() {
             totalDebtAmount = "15.50 €",
             houseAddress = "",
             onChoreClick = { TODO() },
-            onWalletClick ={ TODO() }
+            onWalletClick = { TODO() },
+            nextChoreDeadline = "22/10/2026"
         )
     }
 }

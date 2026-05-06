@@ -29,7 +29,7 @@ fun RommateProfileScreen(
     viewModel: RommateProfileViewModel = viewModel()
 ) {
     val context = LocalContext.current
-    val coroutineScope = rememberCoroutineScope() // 💅 CI SERVE PER LANCIARE L'USCITA!
+    val coroutineScope = rememberCoroutineScope()
 
     val photoPickerLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.PickVisualMedia()
@@ -53,7 +53,7 @@ fun RommateProfileScreen(
         viewModel.loadHouseDetails(houseCode, userToken)
     }
 
-    // Teniamo questo per sicurezza nel caso in cui il ViewModel si svegli
+
     LaunchedEffect(viewModel.hasLeftHouse) {
         if (viewModel.hasLeftHouse) {
             onLeaveHouseSuccess()
@@ -79,7 +79,6 @@ fun RommateProfileScreen(
             )
         },
         onLeaveHouseClick = {
-            // 💅 MAGIC BADDIE: Facciamo il tentativo di uscita direttamente da qui!
             coroutineScope.launch {
                 try {
                     val tokenPulito = userToken.replace("\"", "").trim()
@@ -90,11 +89,11 @@ fun RommateProfileScreen(
                         ClientSingleton.houseApi.removeUser(dto)
                     }
 
-                    // 🚀 SE VA: TI SPARIAMO IN ADS MAIN!
+
                     if (response.isSuccessful) {
                         onLeaveHouseSuccess()
                     } else {
-                        // 🛑 SE FALLISCE: TI AVVISIAMO DEL PERCHÉ!
+
                         Toast.makeText(context, "Impossibile uscire. Errore: ${response.code()}", Toast.LENGTH_SHORT).show()
                     }
                 } catch (e: Exception) {
