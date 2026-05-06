@@ -1,45 +1,155 @@
 package cohappy.frontend.screen
 
+import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.horizontalScroll
+import androidx.compose.foundation.isSystemInDarkTheme
+import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
-import cohappy.frontend.model.ChoresViewModel
-import cohappy.frontend.model.PortfolioTransaction
+import cohappy.frontend.client.dto.DebtType
+import cohappy.frontend.components.CustomButton
+import cohappy.frontend.components.CustomTextField
 import cohappy.frontend.model.PortfolioViewModel
-import cohappy.frontend.view.house.ChoresView
 import cohappy.frontend.view.house.PortfolioView
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun PortfolioScreen(
-    userToken: String,
+    userToken: String?,
     viewModel: PortfolioViewModel = viewModel()
 ) {
-    LaunchedEffect(userToken) {
-        viewModel.loadPortfolio(userToken)
+    val cleanToken = userToken ?: ""
+
+    LaunchedEffect(cleanToken) {
+        if (cleanToken.isNotBlank()) {
+            viewModel.loadPortfolio(cleanToken)
+        }
     }
 
-    PortfolioView(
-        isLoading = viewModel.isLoading,
-        userToken = userToken,
-        totalDebts = 45.00,
-        totalCredits = 50.00,
-        activeFilter = "ALL",
-        transactions = listOf(
-            PortfolioTransaction("1", false, "Spesa Esselunga", "Oggi • Hai pagato tu", 24.50),
-            PortfolioTransaction("2", true, "Bolletta Luce", "Ieri • Ha pagato Marco", 15.00),
-            PortfolioTransaction("3", true, "Sushi Delivery", "Ven 12 • Ha pagato Sofia", 22.00),
-            PortfolioTransaction("4", false, "Detersivi e Saponi", "Mer 10 • Hai pagato tu", 8.00),
-            PortfolioTransaction("5", true, "Abbonamento Netflix", "Lun 08 • Ha pagato Egor", 4.50),
-            PortfolioTransaction("6", true, "Affitto Maggio", "01 Mag • Ha pagato Anna", 350.00),
-            PortfolioTransaction("7", false, "Cocktail Bar", "30 Apr • Hai pagato tu", 18.00),
-            PortfolioTransaction("8", true, "Wi-Fi Casa", "28 Apr • Ha pagato Marco", 12.50),
-            PortfolioTransaction("9", false, "Spesa Conad", "25 Apr • Hai pagato tu", 45.20),
-            PortfolioTransaction("10", true, "Idraulico", "20 Apr • Ha pagato Sofia", 50.00),
-            PortfolioTransaction("11", false, "Pizza d'asporto", "18 Apr • Hai pagato tu", 15.00),
-            PortfolioTransaction("12", true, "Carta Igienica", "15 Apr • Ha pagato Anna", 3.50)
-        ),
-        onFilterChange = {},
-        onAddClick = { TODO() }
-    )
-}
+    Box(modifier = Modifier.fillMaxSize()) {
+        PortfolioView(
+            userToken = cleanToken,
+            isLoading = viewModel.isLoading,
+            totalDebts = viewModel.totalDebts,
+            totalCredits = viewModel.totalCredits,
+            activeFilter = viewModel.activeFilter,
+            transactions = viewModel.getFilteredTransactions(),
+            onFilterChange = { viewModel.setFilter(it) },
+            onAddClick = { viewModel.openAddDebtSheet() }
+        )
 
+        if (viewModel.showAddDebtSheet) {
+            val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
+            val isDark = isSystemInDarkTheme()
+            val sheetBgColor = if (isDark) Color(0xFF1E1C22) else Color.White
+            val contentColor = if (isDark) Color.White else Color.Black
+
+            ModalBottomSheet(
+                onDismissRequest = { viewModel.closeAddDebtSheet() },
+                sheetState = sheetState,
+                containerColor = sheetBgColor,
+                dragHandle = {
+                    Box(modifier = Modifier.padding(top = 16.dp).width(40.dp).height(4.dp).background(Color.Gray.copy(alpha = 0.5f), CircleShape))
+                }
+            ) {
+                Column(
+                    modifier = Modifier.fillMaxWidth().padding(horizontal = 24.dp, vertical = 16.dp)
+                ) {
+                    Text(
+                        text = "Aggiungi Spesa",
+                        fontWeight = FontWeight.Black,
+                        fontSize = 24.sp,
+                        color = contentColor
+                    )
+                    Spacer(modifier = Modifier.height(24.dp))
+
+                    CustomTextField(
+                        value = viewModel.newDebtTitle,
+                        onValueChange = { viewModel.updateNewDebtTitle(it) },
+                        placeholder = "Motivo spesa (es. Spesa Conad)",
+                        customFontSize = 16
+                    )
+                    Spacer(modifier = Modifier.height(16.dp))
+
+                    TextField(
+                        value = viewModel.newDebtAmount,
+                        onValueChange = { viewModel.updateNewDebtAmount(it) },
+                        placeholder = { Text("Importo €", fontWeight = FontWeight.Bold) },
+                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
+                        singleLine = true,
+                        colors = TextFieldDefaults.colors(
+                            focusedContainerColor = MaterialTheme.colorScheme.secondary.copy(alpha = 0.15f),
+                            unfocusedContainerColor = MaterialTheme.colorScheme.secondary.copy(alpha = 0.15f),
+                            focusedIndicatorColor = Color.Transparent,
+                            unfocusedIndicatorColor = Color.Transparent,
+                        ),
+                        modifier = Modifier.fillMaxWidth().clip(RoundedCornerShape(16.dp))
+                    )
+                    Spacer(modifier = Modifier.height(16.dp))
+
+                    CustomTextField(
+                        value = viewModel.newDebtReceiver,
+                        onValueChange = { viewModel.updateNewDebtReceiver(it) },
+                        placeholder = "Codice Coinquilino debitore",
+                        customFontSize = 16
+                    )
+                    Spacer(modifier = Modifier.height(24.dp))
+
+                    Text("Categoria", fontWeight = FontWeight.Bold, color = Color.Gray, fontSize = 14.sp)
+                    Spacer(modifier = Modifier.height(8.dp))
+
+                    Row(
+                        modifier = Modifier.fillMaxWidth().horizontalScroll(rememberScrollState()),
+                        horizontalArrangement = Arrangement.spacedBy(8.dp)
+                    ) {
+                        DebtType.values().forEach { categoria ->
+                            val isSelected = viewModel.newDebtCategory == categoria
+                            val pillBg = if (isSelected) MaterialTheme.colorScheme.primary else Color.Transparent
+                            val pillText = if (isSelected) MaterialTheme.colorScheme.onPrimary else Color.Gray
+
+                            Box(
+                                modifier = Modifier
+                                    .clip(RoundedCornerShape(16.dp))
+                                    .background(pillBg)
+                                    .clickable { viewModel.updateNewDebtCategory(categoria) }
+                                    .padding(horizontal = 16.dp, vertical = 8.dp)
+                            ) {
+                                Text(text = categoria.name.replace("_", " ").lowercase().replaceFirstChar { it.uppercase() }, color = pillText, fontWeight = FontWeight.Bold, fontSize = 12.sp)
+                            }
+                        }
+                    }
+
+                    Spacer(modifier = Modifier.height(32.dp))
+
+                    if (viewModel.isAddingDebt) {
+                        Box(modifier = Modifier.fillMaxWidth(), contentAlignment = Alignment.Center) {
+                            CircularProgressIndicator(color = MaterialTheme.colorScheme.primary)
+                        }
+                    } else {
+                        CustomButton(
+                            text = "Aggiungi",
+                            onClick = { viewModel.createDebt(cleanToken) }
+                        )
+                    }
+
+                    Spacer(modifier = Modifier.height(32.dp))
+                }
+            }
+        }
+    }
+}

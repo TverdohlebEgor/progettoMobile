@@ -1,6 +1,5 @@
 package cohappy.frontend.model
 
-import android.util.Log
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -8,12 +7,12 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import cohappy.frontend.client.ClientSingleton
 import cohappy.frontend.client.dto.request.PatchChoreDTO
-import cohappy.frontend.repository.ChoresRepository
+import cohappy.frontend.repository.ChoreRepository
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
-data class Chore(
+data class ChoreItem(
     val choreCode: String,
     val title: String,
     val description: String,
@@ -23,8 +22,8 @@ data class Chore(
     val dayLabel: String
 )
 
-class ChoresViewModel : ViewModel() {
-    private val repository = ChoresRepository()
+class ChoreViewModel : ViewModel() {
+    private val repository = ChoreRepository()
 
     var isLoading by mutableStateOf(false)
         private set
@@ -32,57 +31,67 @@ class ChoresViewModel : ViewModel() {
     var nomeUtente by mutableStateOf("Caricamento...")
         private set
 
-    var chores by mutableStateOf<List<Chore>>(emptyList())
+    var chores by mutableStateOf<List<ChoreItem>>(emptyList())
         private set
 
     fun loadUserData(userToken: String) {
         viewModelScope.launch {
+            isLoading = true
             try {
                 val cleanToken = userToken.replace("\"", "").trim()
 
-
-                chores = listOf(
-                    Chore(
-                        choreCode = "CHORE_001",
-                        title = "Pulizia bagno",
-                        description = "Sanitari, doccia e lavandino",
-                        assignedToCode = cleanToken,
-                        assigneeName = "Te",
-                        isCompleted = false,
-                        dayLabel = "Oggi"
-                    ),
-                    Chore(
-                        choreCode = "CHORE_002",
-                        title = "Pulizia cucina",
-                        description = "Fornelli, piatti e spazzatura",
-                        assignedToCode = "user_marco_123",
-                        assigneeName = "Marco",
-                        isCompleted = true,
-                        dayLabel = "Martedì"
-                    ),
-                    Chore(
-                        choreCode = "CHORE_003",
-                        title = "Passare l'aspirapolvere",
-                        description = "Salotto, corridoio e camere",
-                        assignedToCode = "user_sofia_123", // Estraneo
-                        assigneeName = "Sofia",
-                        isCompleted = false,
-                        dayLabel = "Giovedì"
-                    )
-                )
+                if (cleanToken.isBlank()) {
+                    nomeUtente = "Ospite"
+                    isLoading = false
+                    return@launch
+                }
 
                 val response = withContext(Dispatchers.IO) {
                     ClientSingleton.userApi.getUserProfile(cleanToken)
                 }
 
                 if (response.isSuccessful && response.body() != null) {
-                    nomeUtente = response.body()?.name ?: "Utente"
+                    val userData = response.body()!!
+                    nomeUtente = userData.name ?: "Utente"
+
+                    val houseCode = userData.
+                    if (!houseCode.isNullOrBlank()) {
+                        val choresResponse = withContext(Dispatchers.IO) {
+                            repository.fetchUserChores(houseCode)
+                        }
+
+                        if (choresResponse.isSuccessful && choresResponse.body() != null) {
+                            val rawChores = choresResponse.body()!!
+                            val mappedChores = mutableListOf<ChoreItem>()
+
+                            for (dto in rawChores) {
+                                val assigneeName = dto.assignedToName ?: if (dto.assignedTo == cleanToken) "Te" else "Coinquilino"
+                                mappedChores.add(
+                                    ChoreItem(
+                                        choreCode = dto.choreCode ?: "",
+                                        title = dto.name ?: "",
+                                        description = dto.description ?: "",
+                                        assignedToCode = dto.assignedTo ?: "",
+                                        assigneeName = assigneeName,
+                                        isCompleted = dto.completed,
+                                        dayLabel = "Task"
+                                    )
+                                )
+                            }
+                            chores = mappedChores
+                        } else {
+                            chores = emptyList()
+                        }
+                    } else {
+                        chores = emptyList()
+                    }
                 } else {
                     nomeUtente = "Errore API"
                 }
             } catch (e: Exception) {
-                Log.e("ChoresVM", "Errore caricamento dati utente", e)
                 nomeUtente = "Offline"
+            } finally {
+                isLoading = false
             }
         }
     }
@@ -101,28 +110,17 @@ class ChoresViewModel : ViewModel() {
                     description = null
                 )
 
-                Log.d("ChoresVM", "📤 Spedisco aggiornamento: Faccenda $choreCode -> Completata: $newStatus")
-
                 val response = withContext(Dispatchers.IO) {
                     repository.updateChoreStatus(patchData)
                 }
 
                 if (response.isSuccessful) {
-                    Log.d("ChoresVM", "✅ Faccenda aggiornata con successo sul server!")
-
                     chores = chores.map { faccenda ->
-                        if (faccenda.choreCode == choreCode) {
-                            faccenda.copy(isCompleted = newStatus)
-                        } else {
-                            faccenda
-                        }
+                        if (faccenda.choreCode == choreCode) faccenda.copy(isCompleted = newStatus)
+                        else faccenda
                     }
-                } else {
-                    Log.e("ChoresVM", "❌ Egor ha rifiutato la patch: Errore ${response.code()}")
                 }
-
             } catch (e: Exception) {
-                Log.e("ChoresVM", "🚨 Errore di rete o crash improvviso", e)
             } finally {
                 isLoading = false
             }

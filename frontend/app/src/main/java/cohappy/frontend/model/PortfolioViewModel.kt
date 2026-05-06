@@ -5,61 +5,102 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import kotlinx.coroutines.delay
+import cohappy.frontend.client.ClientSingleton
+import cohappy.frontend.client.dto.DebtType
+import cohappy.frontend.client.dto.request.CreateDebtDTO
+import cohappy.frontend.client.dto.response.DebtDTO
+import cohappy.frontend.repository.PortfolioRepository
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
+import java.util.UUID
 
 data class PortfolioTransaction(
     val id: String,
     val isDebt: Boolean,
     val title: String,
     val subtitle: String,
-    val amount: Double
+    val amount: Double,
+    val category: DebtType?
 )
 
 class PortfolioViewModel : ViewModel() {
+    private val repository = PortfolioRepository()
 
     var isLoading by mutableStateOf(true)
         private set
-
     var totalDebts by mutableStateOf(0.0)
         private set
-
     var totalCredits by mutableStateOf(0.0)
         private set
-
     var activeFilter by mutableStateOf("ALL")
         private set
-
     var transactions by mutableStateOf<List<PortfolioTransaction>>(emptyList())
+        private set
+    var isAddingDebt by mutableStateOf(false)
+        private set
+    var showAddDebtSheet by mutableStateOf(false)
+        private set
+    var newDebtTitle by mutableStateOf("")
+        private set
+    var newDebtAmount by mutableStateOf("")
+        private set
+    var newDebtCategory by mutableStateOf<DebtType>(DebtType.OTHER)
+        private set
+    var newDebtReceiver by mutableStateOf("")
         private set
 
     fun loadPortfolio(userToken: String) {
         viewModelScope.launch {
             isLoading = true
             try {
-                delay(1000)
+                val tokenPulito = userToken.replace("\"", "").trim()
 
-                totalDebts = -15.50
-                totalCredits = 24.50
+                try {
+                    val responseDebt = withContext(Dispatchers.IO) { repository.fetchTotalDebt(tokenPulito) }
+                    totalDebts = if (responseDebt.isSuccessful && responseDebt.body() != null) responseDebt.body()!!.toDouble() else 0.0
+                } catch(e: Exception) { totalDebts = 0.0 }
 
-                transactions = listOf(
-                    PortfolioTransaction("1", false, "Spesa Esselunga", "Oggi • Hai pagato tu", 24.50),
-                    PortfolioTransaction("2", true, "Bolletta Luce", "Ieri • Ha pagato Marco", 15.00),
-                    PortfolioTransaction("3", true, "Sushi Delivery", "Ven 12 • Ha pagato Sofia", 22.00),
-                    PortfolioTransaction("4", false, "Detersivi e Saponi", "Mer 10 • Hai pagato tu", 8.00),
-                    PortfolioTransaction("5", true, "Abbonamento Netflix", "Lun 08 • Ha pagato Egor", 4.50),
-                    PortfolioTransaction("6", true, "Affitto Maggio", "01 Mag • Ha pagato Anna", 350.00),
-                    PortfolioTransaction("7", false, "Cocktail Bar", "30 Apr • Hai pagato tu", 18.00),
-                    PortfolioTransaction("8", true, "Wi-Fi Casa", "28 Apr • Ha pagato Marco", 12.50),
-                    PortfolioTransaction("9", false, "Spesa Conad", "25 Apr • Hai pagato tu", 45.20),
-                    PortfolioTransaction("10", true, "Idraulico", "20 Apr • Ha pagato Sofia", 50.00),
-                    PortfolioTransaction("11", false, "Pizza d'asporto", "18 Apr • Hai pagato tu", 15.00),
-                    PortfolioTransaction("12", true, "Carta Igienica", "15 Apr • Ha pagato Anna", 3.50)
-                )
+                try {
+                    val responseCredits = withContext(Dispatchers.IO) { repository.fetchTotalCredits(tokenPulito) }
+                    totalCredits = if (responseCredits.isSuccessful && responseCredits.body() != null) responseCredits.body()!!.toDouble() else 0.0
+                } catch(e: Exception) { totalCredits = 0.0 }
+
+                try {
+                    val responsePortfolio = withContext(Dispatchers.IO) { repository.fetchUserPortfolio(tokenPulito) }
+                    if (responsePortfolio.isSuccessful && responsePortfolio.body() != null) {
+                        val portfolio = responsePortfolio.body()!!
+                        val rawTransactions: List<DebtDTO> = portfolio.debts ?: emptyList()
+                        val mappedList = mutableListOf<PortfolioTransaction>()
+
+                        for (debt in rawTransactions) {
+                            val isMyDebt = debt.debtorUserCode == tokenPulito
+                            val isMyCredit = debt.beneficiaryUserCode == tokenPulito
+
+                            if (isMyDebt || isMyCredit) {
+                                val amount = debt.amount?.toDouble() ?: 0.0
+                                val subtitleStr = if (isMyDebt) "Devi saldare la tua quota" else "In attesa di ricezione"
+                                mappedList.add(
+                                    PortfolioTransaction(
+                                        id = debt.debtId ?: UUID.randomUUID().toString(),
+                                        isDebt = isMyDebt,
+                                        title = debt.description ?: "Spesa senza nome",
+                                        subtitle = subtitleStr,
+                                        amount = amount,
+                                        category = debt.debtType
+                                    )
+                                )
+                            }
+                        }
+                        transactions = mappedList.reversed()
+                    } else {
+                        transactions = emptyList()
+                    }
+                } catch(e: Exception) {
+                    transactions = emptyList()
+                }
+
             } catch (e: Exception) {
-                totalDebts = 0.0
-                totalCredits = 0.0
-                transactions = emptyList()
             } finally {
                 isLoading = false
             }
@@ -75,6 +116,51 @@ class PortfolioViewModel : ViewModel() {
             "DEBTS" -> transactions.filter { it.isDebt }
             "CREDITS" -> transactions.filter { !it.isDebt }
             else -> transactions
+        }
+    }
+
+    fun updateNewDebtTitle(valore: String) { newDebtTitle = valore }
+    fun updateNewDebtAmount(valore: String) { newDebtAmount = valore }
+    fun updateNewDebtCategory(valore: DebtType) { newDebtCategory = valore }
+    fun updateNewDebtReceiver(valore: String) { newDebtReceiver = valore }
+
+    fun openAddDebtSheet() {
+        newDebtTitle = ""
+        newDebtAmount = ""
+        newDebtCategory = DebtType.OTHER
+        newDebtReceiver = ""
+        showAddDebtSheet = true
+    }
+
+    fun closeAddDebtSheet() {
+        showAddDebtSheet = false
+    }
+
+    fun createDebt(userToken: String) {
+        val importoDouble = newDebtAmount.replace(",", ".").toDoubleOrNull()
+        if (importoDouble == null || newDebtTitle.isBlank() || newDebtReceiver.isBlank()) return
+
+        viewModelScope.launch {
+            isAddingDebt = true
+            try {
+                val tokenPulito = userToken.replace("\"", "").trim()
+                val requestDto = CreateDebtDTO(
+                    senderUserCode = tokenPulito,
+                    receiverUserCode = newDebtReceiver,
+                    amount = importoDouble.toFloat(),
+                    description = newDebtTitle,
+                    debtType = newDebtCategory
+                )
+
+                val response = withContext(Dispatchers.IO) { ClientSingleton.portfolioApi.createDebt(requestDto) }
+                if (response.isSuccessful) {
+                    closeAddDebtSheet()
+                    loadPortfolio(userToken)
+                }
+            } catch (e: Exception) {
+            } finally {
+                isAddingDebt = false
+            }
         }
     }
 }

@@ -19,14 +19,18 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.ArrowDownward
 import androidx.compose.material.icons.filled.ArrowUpward
+import androidx.compose.material.icons.filled.AttachMoney
+import androidx.compose.material.icons.filled.Build
 import androidx.compose.material.icons.filled.FlashOn
+import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.LocalPizza
+import androidx.compose.material.icons.filled.PlayArrow
 import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material.icons.filled.ShoppingCart
+import androidx.compose.material.icons.filled.Star
 import androidx.compose.material.icons.filled.WaterDrop
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -42,26 +46,26 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import cohappy.frontend.client.dto.DebtType
+import cohappy.frontend.components.CustomIconButton
 import cohappy.frontend.components.Titoli
 import cohappy.frontend.model.PortfolioTransaction
 import java.util.Locale
 import androidx.compose.ui.platform.LocalLocale
-import cohappy.frontend.components.CustomIconButton
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun PortfolioView(
+    userToken: String = "",
     isLoading: Boolean,
     totalDebts: Double,
     totalCredits: Double,
     activeFilter: String,
     transactions: List<PortfolioTransaction>,
     onFilterChange: (String) -> Unit,
-    userToken: String,
-    onAddClick: () -> Unit
+    onAddClick: () -> Unit = {}
 ) {
     val isDark = isSystemInDarkTheme()
     val bgColor = if (isDark) Color.Black else Color.White
@@ -73,14 +77,14 @@ fun PortfolioView(
                 CircularProgressIndicator(color = Color(0xFF6B53A4))
             }
         } else {
-            Box(modifier = Modifier.fillMaxSize().padding(horizontal = 24.dp)) {
+            Box(modifier = Modifier.fillMaxSize()) {
                 LazyColumn(
                     modifier = Modifier.fillMaxSize(),
                     contentPadding = PaddingValues(bottom = 120.dp),
                     verticalArrangement = Arrangement.spacedBy(12.dp)
                 ) {
                     item {
-                        Column(modifier = Modifier.padding(horizontal = 0.dp)) {
+                        Column(modifier = Modifier.padding(horizontal = 24.dp)) {
                             Titoli(
                                 titolo1 = "Spese",
                                 color = contentColor
@@ -106,7 +110,7 @@ fun PortfolioView(
                                 modifier = Modifier
                                     .fillMaxWidth()
                                     .horizontalScroll(rememberScrollState())
-                                    .padding(horizontal = 0.dp, vertical = 8.dp),
+                                    .padding(horizontal = 24.dp, vertical = 8.dp),
                                 horizontalArrangement = Arrangement.spacedBy(8.dp)
                             ) {
                                 FilterPill(
@@ -140,7 +144,7 @@ fun PortfolioView(
                         }
                     } else {
                         items(transactions) { tx ->
-                            Box(modifier = Modifier.padding(horizontal = 0 .dp)) {
+                            Box(modifier = Modifier.padding(horizontal = 24.dp)) {
                                 TransactionItem(transaction = tx)
                             }
                         }
@@ -152,12 +156,13 @@ fun PortfolioView(
                     onClick = onAddClick,
                     modifier = Modifier
                         .align(Alignment.BottomEnd)
-                        .padding(start = 24.dp, bottom = 120.dp)
+                        .padding(start = 24.dp, bottom = 120.dp, end=24.dp)
                 )
             }
         }
     }
 }
+
 @Composable
 fun FilterPill(
     text: String,
@@ -214,11 +219,16 @@ fun TransactionItem(transaction: PortfolioTransaction) {
     val sign = if (transaction.isDebt) "-" else "+"
     val amountFormatted = String.format(LocalLocale.current.platformLocale, "%.2f", transaction.amount).replace(".", ",")
 
-    val iconObj = when {
-        transaction.title.contains("Luce", ignoreCase = true) -> Icons.Default.FlashOn
-        transaction.title.contains("Sushi", ignoreCase = true) -> Icons.Default.LocalPizza
-        transaction.title.contains("Detersivi", ignoreCase = true) -> Icons.Default.WaterDrop
-        else -> Icons.Default.ShoppingCart
+    val iconObj = when (transaction.category) {
+        DebtType.GROCERIE -> Icons.Default.ShoppingCart
+        DebtType.BILL -> Icons.Default.FlashOn
+        DebtType.RENT -> Icons.Default.Home
+        DebtType.SUBSCRIPTION -> Icons.Default.PlayArrow
+        DebtType.DELIVERY_AND_EATING_OUT -> Icons.Default.LocalPizza
+        DebtType.MAINTENANCE -> Icons.Default.Build
+        DebtType.ENTERTAINMENT -> Icons.Default.Star
+        DebtType.OTHER -> Icons.Default.AttachMoney
+        else -> Icons.Default.AttachMoney
     }
 
     val iconBg = if (transaction.isDebt) {
@@ -410,4 +420,3 @@ fun BalanceCardFace(
         }
     }
 }
-
