@@ -21,4 +21,5 @@ public class UserAccountDTO{
     private String phoneNumber;
     private String password;
     private PortfolioDTO portfolio;
+    private String houseCode;
 }

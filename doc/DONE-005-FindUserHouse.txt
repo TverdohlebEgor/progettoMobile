@@ -10,3 +10,6 @@ Se l'utente fa parte di una casa, il campo conterrà l'ID della casa. Se l'utent
 
 Opzione 2:(alternativa)
 Creare un nuovo endpoint dedicato, ad esempio GET /api/user/{userCode}/house, che prenda in ingresso l'ID utente e restituisca unicamente la stringa del houseCode (oppure restituisca un HTTP 204 No Content / null se l'utente è senza casa).
+
+----
+Implementata opzione 1

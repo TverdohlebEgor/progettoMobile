@@ -6,6 +6,7 @@ import cohappy.backend.model.UserAccount;
 import cohappy.backend.model.dto.request.LoginDTO;
 import cohappy.backend.model.dto.request.PatchUserDTO;
 import cohappy.backend.model.dto.request.RegisterDTO;
+import cohappy.backend.repositories.HouseRepository;
 import cohappy.backend.repositories.UserRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -34,11 +35,15 @@ public class UserControllerIT extends BaseIT{
     private UserRepository userRepository;
 
     @Autowired
+    private HouseRepository houseRepository;
+
+    @Autowired
     private ObjectMapper objectMapper;
 
     @BeforeEach
     void setUp() {
         userRepository.deleteAll();
+        houseRepository.deleteAll();
     }
 
     @Test
@@ -215,6 +220,12 @@ public class UserControllerIT extends BaseIT{
         assertThat(findedUserAccount.get().getPassword()).isEqualTo(newUser.getPassword());
         assertThat(findedUserAccount.get().getPortfolio().getAmount()).isZero();
         assertThat(findedUserAccount.get().getPortfolio().getDebts().size()).isZero();
+
+        String houseCode = houseRepository.houseOf(userCode.get())
+                .map(house -> house.getHouseCode())
+                .orElse(null);
+
+        assertThat(houseCode).isNull();
     }
 
     @Test

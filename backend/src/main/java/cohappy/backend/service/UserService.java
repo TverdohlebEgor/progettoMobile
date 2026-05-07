@@ -3,13 +3,14 @@ package cohappy.backend.service;
 import cohappy.backend.exceptions.IllegalInputException;
 import cohappy.backend.exceptions.NoPatchException;
 import cohappy.backend.exceptions.NotFoundException;
-import cohappy.backend.exceptions.NotImplementedException;
 import cohappy.backend.mappers.UserMapper;
+import cohappy.backend.model.House;
 import cohappy.backend.model.UserAccount;
 import cohappy.backend.model.dto.request.LoginDTO;
 import cohappy.backend.model.dto.request.PatchUserDTO;
 import cohappy.backend.model.dto.request.RegisterDTO;
 import cohappy.backend.model.dto.response.UserAccountDTO;
+import cohappy.backend.repositories.HouseRepository;
 import cohappy.backend.repositories.UserRepository;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -26,13 +27,17 @@ import static cohappy.backend.util.StringCheckUtil.isEmptyString;
 public class UserService {
 
     private final UserRepository userRepository;
+    private final HouseRepository houseRepository;
     private final UserMapper userMapper = new UserMapper();
 
     public UserAccountDTO getUserProfile(String userCode) {
-        Optional<UserAccount> account = userRepository.findByUserCode(userCode);
-        return userMapper.userAcountToDTO(account.orElseThrow(
-                () -> new NotFoundException("user with code %s not found".formatted(userCode))
-        ));
+        UserAccount account = userRepository.findByUserCode(userCode).orElseThrow(
+            () -> new NotFoundException("user with code %s not found".formatted(userCode))
+        );
+
+        String houseCode = houseRepository.houseOf(userCode).map(House::getHouseCode).orElse(null);
+
+        return userMapper.userAcountToDTO(account, houseCode);
     }
 
     public boolean deleteProfile(String userCode) {
@@ -41,7 +46,7 @@ public class UserService {
 
     public void patchProfile(PatchUserDTO patchUserDTO) {
         String userCode = patchUserDTO.getUserCode();
-        validateInput(userCode,"user code");
+        validateInput(userCode, "user code");
         UserAccount account = userRepository.findByUserCode(userCode)
                 .orElseThrow(() -> new NotFoundException(USER_NOT_FOUND));
 
@@ -56,7 +61,7 @@ public class UserService {
         changed |= patchField(patchUserDTO.getPhoneNumber(), account.getPhoneNumber(), account::setPhoneNumber);
         changed |= patchField(patchUserDTO.getPassword(), account.getPassword(), account::setPassword);
 
-        if(!changed){
+        if (!changed) {
             throw new NoPatchException(NO_PATCH.formatted("UserAccount"));
         }
 

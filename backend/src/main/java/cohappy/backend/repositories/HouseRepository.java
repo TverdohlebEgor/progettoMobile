@@ -10,5 +10,11 @@ import java.util.Optional;
 public interface HouseRepository extends MongoRepository<House, String> {
     Optional<House> findByHouseCode(String houseCode);
 
+    Optional<House> findFirstByAdminsContainsOrUsersContains(String userCode, String userCodeAgain);
+
+    default Optional<House> houseOf(String userCode){
+        return findFirstByAdminsContainsOrUsersContains(userCode,userCode);
+    }
+
     long deleteByHouseCode(String houseCode);
 }

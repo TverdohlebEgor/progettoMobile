@@ -14,5 +14,6 @@ data class UserAccountDTO(
     var email: String? = null,
     var phoneNumber: String? = null,
     var password: String? = null,
-    var portfolio: PortfolioDTO? = null
+    var portfolio: PortfolioDTO? = null,
+    var houseCode : String? = null
 )

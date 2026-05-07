@@ -37,7 +37,7 @@ public class UserMapper {
         return result;
     }
 
-    public UserAccountDTO userAcountToDTO(UserAccount userAccount){
+    public UserAccountDTO userAcountToDTO(UserAccount userAccount, String houseCode){
         return new UserAccountDTO(
                 userAccount.getName(),
                 userAccount.getSurname(),
@@ -48,7 +48,8 @@ public class UserMapper {
                 userAccount.getEmail(),
                 userAccount.getPhoneNumber(),
                 userAccount.getPassword(),
-                portafolioMapper.portfolioToDTO(userAccount.getPortfolio())
+                portafolioMapper.portfolioToDTO(userAccount.getPortfolio()),
+                houseCode
         );
     }
 }
