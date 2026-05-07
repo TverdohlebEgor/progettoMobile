@@ -4,8 +4,8 @@ import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.lifecycle.viewmodel.compose.viewModel
-import cohappy.frontend.model.AdListViewModel
 import cohappy.frontend.view.ad.AdListView
+import cohappy.frontend.viewmodel.AdListViewModel
 
 @Composable
 fun AdListScreen(

@@ -5,7 +5,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.lifecycle.viewmodel.compose.viewModel
 import cohappy.frontend.view.ad.SingleAdView
-import cohappy.frontend.model.SingleAdViewModel
+import cohappy.frontend.viewmodel.SingleAdViewModel
 
 
 

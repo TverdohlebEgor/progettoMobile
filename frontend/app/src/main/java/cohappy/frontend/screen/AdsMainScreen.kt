@@ -20,7 +20,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import cohappy.frontend.components.FloatingBottomBar
 import cohappy.frontend.components.NavItem
-import cohappy.frontend.view.auth.LoginView
 import dev.chrisbanes.haze.HazeState
 import dev.chrisbanes.haze.haze
 

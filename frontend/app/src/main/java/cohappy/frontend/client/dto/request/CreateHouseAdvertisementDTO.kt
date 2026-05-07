@@ -1,6 +1,6 @@
 package cohappy.frontend.client.dto.request
 
-import cohappy.frontend.client.dto.HouseStateEnum
+import cohappy.frontend.client.dto.enum.HouseStateEnum
 import com.squareup.moshi.JsonClass
 
 @JsonClass(generateAdapter = true)

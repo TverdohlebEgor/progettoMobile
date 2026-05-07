@@ -12,8 +12,8 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.lifecycle.viewmodel.compose.viewModel
 import cohappy.frontend.client.ClientSingleton
 import cohappy.frontend.client.dto.request.RemoveUserDTO
-import cohappy.frontend.model.RommateProfileViewModel
 import cohappy.frontend.view.house.HouseProfileView
+import cohappy.frontend.viewmodel.RommateProfileViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext

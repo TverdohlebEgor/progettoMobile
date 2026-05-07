@@ -9,8 +9,8 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.platform.LocalContext
 import androidx.lifecycle.viewmodel.compose.viewModel
-import cohappy.frontend.model.UserProfileViewModel
 import cohappy.frontend.view.ad.UserProfileView
+import cohappy.frontend.viewmodel.UserProfileViewModel
 
 @Composable
 fun UserProfileScreen(

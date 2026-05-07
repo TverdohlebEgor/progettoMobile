@@ -16,6 +16,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.CalendarMonth
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.DatePicker
 import androidx.compose.material3.DatePickerDialog
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -54,7 +55,9 @@ import java.time.format.DateTimeFormatter
 fun RegistrationView(
     onRegisterClick: (String, String, String, String, String, String) -> Unit,
     onLoginClick: () -> Unit,
+    isLoading: Boolean = false,
     showBackendError: Boolean = false,
+    errorMessage: String? = null,
     nameError: Boolean = false,
     surnameError: Boolean = false,
     dateError: Boolean = false,
@@ -167,7 +170,9 @@ fun RegistrationView(
                     emailError = emailError,
                     phoneError = phoneError,
                     passwordError = passwordError,
-                    onDateClick = { showDatePicker = true }
+                    onDateClick = { showDatePicker = true },
+                    errorMessage = errorMessage,
+                    isLoading = isLoading
                 )
 
                 Spacer(modifier = Modifier.height(32.dp))
@@ -197,6 +202,7 @@ fun RegistrationView(
                         }
                     },
                     onLoginClick = onLoginClick,
+                    isLoading = isLoading
                 )
             }
             Spacer(modifier = Modifier.weight(1f))
@@ -226,12 +232,14 @@ fun Registration(
     passwordError: Boolean,
     modifier: Modifier = Modifier,
     customFontSize: Int = 18,
-    onDateClick: () -> Unit = {}
+    errorMessage: String?,
+    onDateClick: () -> Unit = {},
+    isLoading: Boolean = false
 ) {
     Column(modifier = modifier, verticalArrangement = Arrangement.spacedBy(12.dp)) {
         if (showBackendError) {
             Text(
-                text = "Email o telefono già registrati, vai al login",
+                text = errorMessage ?: "Si è verificato un errore interno, ci scusiamo per il disagio",
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(bottom = 8.dp),
@@ -242,15 +250,15 @@ fun Registration(
         }
 
         val fields = listOf(
-            RegistrationField(name, onNameChange, "nome", nameError, "Il nome deve avere almeno 2 caratteri"),
-            RegistrationField(cognome, onCognomeChange, "cognome", surnameError, "Il cognome deve avere almeno 2 caratteri"),
-            RegistrationField(email, onEmailChange, "email", emailError, "Email non valida"),
-            RegistrationField(telefono, onTelefonoChange, "telefono", phoneError, "Telefono non valido"),
-            RegistrationField(password, onPasswordChange, "password", passwordError, "La password deve avere minimo 6 caratteri")
+            RegistrationField(name, onNameChange, "nome", nameError, "Il nome deve avere almeno 2 caratteri", !isLoading),
+            RegistrationField(cognome, onCognomeChange, "cognome", surnameError, "Il cognome deve avere almeno 2 caratteri", !isLoading),
+            RegistrationField(email, onEmailChange, "email", emailError, "Email non valida", !isLoading),
+            RegistrationField(telefono, onTelefonoChange, "telefono", phoneError, "Telefono non valido", !isLoading),
+            RegistrationField(password, onPasswordChange, "password", passwordError, "La password deve avere minimo 6 caratteri", !isLoading)
         )
 
         fields.take(2).forEach { RegistrationTextField(it, customFontSize) }
-        DatePicker(dateError, customFontSize, onDateClick, annoNascita)
+        DatePicker(dateError, customFontSize, onDateClick, annoNascita, !isLoading)
         fields.drop(2).forEach { RegistrationTextField(it, customFontSize) }
     }
 }
@@ -260,7 +268,8 @@ private data class RegistrationField(
     val onValueChange: (String) -> Unit,
     val placeholder: String,
     val isError: Boolean,
-    val errorMessage: String
+    val errorMessage: String,
+    val enabled: Boolean = true
 )
 
 @Composable
@@ -272,6 +281,7 @@ private fun RegistrationTextField(field: RegistrationField, fontSize: Int) {
             onValueChange = field.onValueChange,
             placeholder = field.placeholder,
             customFontSize = fontSize,
+            enabled = field.enabled,
             modifier = Modifier.then(
                 if (field.isError) Modifier.border(1.5.dp, errorColor, RoundedCornerShape(16.dp))
                 else Modifier
@@ -285,7 +295,8 @@ fun DatePicker(
     dateError: Boolean,
     customFontSize: Int = 18,
     onDateClick: () -> Unit = {},
-    annoNascita: String
+    annoNascita: String,
+    enabled: Boolean = true
 ) {
     val errorColor = MaterialTheme.colorScheme.error
     FieldWrapper(dateError, "Data obbligatoria") {
@@ -293,14 +304,14 @@ fun DatePicker(
             modifier = Modifier
                 .fillMaxWidth()
                 .background(
-                    color = MaterialTheme.colorScheme.secondary.copy(alpha = 0.15f),
+                    color = MaterialTheme.colorScheme.secondary.copy(alpha = if (enabled) 0.15f else 0.05f),
                     shape = RoundedCornerShape(16.dp)
                 )
                 .then(
                     if (dateError) Modifier.border(1.5.dp, errorColor, RoundedCornerShape(16.dp))
                     else Modifier
                 )
-                .clickable { onDateClick() }
+                .clickable(enabled = enabled) { onDateClick() }
                 .padding(horizontal = 20.dp, vertical = 18.dp)
         ) {
             Row(
@@ -313,12 +324,12 @@ fun DatePicker(
                     fontSize = customFontSize.sp,
                     fontWeight = FontWeight.Bold,
                     color = if (annoNascita.isEmpty()) MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f)
-                    else MaterialTheme.colorScheme.onSurface
+                    else MaterialTheme.colorScheme.onSurface.copy(alpha = if (enabled) 1f else 0.5f)
                 )
                 Icon(
                     imageVector = Icons.Default.CalendarMonth,
                     contentDescription = null,
-                    tint = MaterialTheme.colorScheme.primary
+                    tint = MaterialTheme.colorScheme.primary.copy(alpha = if (enabled) 1f else 0.5f)
                 )
             }
         }
@@ -345,48 +356,21 @@ private fun FieldWrapper(
 }
 
 @Composable
-fun RegisterButton(onRegisterClick: () -> Unit, onLoginClick: () -> Unit) {
-    CustomButton(text = "Registrati", onClick = onRegisterClick, isPrimary = true, shape = "large")
-    CustomTextButtom(text = "Hai già un account? Accedi", onClick = onLoginClick)
-}
-
-@Preview(showBackground = true, name = "Registration - Standard")
-@Composable
-fun PreviewRegistrationView() {
-    MaterialTheme {
-        RegistrationView(
-            onRegisterClick = { _, _, _, _, _, _ -> },
-            onLoginClick = { },
-            showBackendError = false
+fun RegisterButton(
+    onRegisterClick: () -> Unit,
+    onLoginClick: () -> Unit,
+    isLoading: Boolean = false
+) {
+    if (isLoading) {
+        CircularProgressIndicator(
+            modifier = Modifier.padding(vertical = 8.dp),
+            color = MaterialTheme.colorScheme.primary
         )
-    }
-}
-
-@Preview(showBackground = true, name = "Registration - Backend Error")
-@Composable
-fun PreviewRegistrationViewError() {
-    MaterialTheme {
-        RegistrationView(
-            onRegisterClick = { _, _, _, _, _, _ -> },
-            onLoginClick = { },
-            showBackendError = true
+        Text(
+            text = "Registrazione in corso ..."
         )
-    }
-}
-
-@Preview(showBackground = true, name = "Registration - Validation Errors")
-@Composable
-fun PreviewRegistrationViewValidation() {
-    MaterialTheme {
-        RegistrationView(
-            onRegisterClick = { _, _, _, _, _, _ -> },
-            onLoginClick = { },
-            nameError = true,
-            surnameError = true,
-            dateError = true,
-            emailError = true,
-            phoneError = true,
-            passwordError = true
-        )
+    } else {
+        CustomButton(text = "Registrati", onClick = onRegisterClick, isPrimary = true, shape = "large")
+        CustomTextButtom(text = "Hai già un account? Accedi", onClick = onLoginClick)
     }
 }

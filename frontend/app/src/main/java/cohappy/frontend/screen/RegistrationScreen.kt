@@ -1,7 +1,9 @@
 package cohappy.frontend.screen
 
 import androidx.compose.foundation.isSystemInDarkTheme
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -10,9 +12,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
-import cohappy.frontend.model.RegistrationViewModel
-import cohappy.frontend.model.RegistrationViewModelFactory
 import cohappy.frontend.view.auth.RegistrationView
+import cohappy.frontend.viewmodel.RegistrationViewModel
+import cohappy.frontend.viewmodel.RegistrationViewModelFactory
 
 @Composable
 fun RegistrationScreen(
@@ -40,13 +42,15 @@ fun RegistrationScreen(
                     viewModel.register(nome, cognome, dataNascita, email, telefono, password)
                 },
                 onLoginClick = onNavigateToLogin,
-                showBackendError = uiState.backendError,
+                showBackendError = uiState.showError,
+                errorMessage = uiState.errorMessage,
                 nameError = uiState.nameError,
                 surnameError = uiState.surnameError,
                 dateError = uiState.dateError,
                 emailError = uiState.emailError,
                 phoneError = uiState.phoneError,
-                passwordError = uiState.passwordError
+                passwordError = uiState.passwordError,
+                isLoading = uiState.isLoading
             )
         }
     }

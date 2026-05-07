@@ -5,5 +5,5 @@ import com.squareup.moshi.JsonClass
 data class CreateChatDTO(
     val participating: List<String>,
     val name: String,
-    var immage: ByteArray? = null
+    var image: ByteArray? = null
 )

@@ -9,8 +9,8 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.platform.LocalContext
 import androidx.lifecycle.viewmodel.compose.viewModel
-import cohappy.frontend.model.CreateAdViewModel
 import cohappy.frontend.view.ad.CreateAdView
+import cohappy.frontend.viewmodel.CreateAdViewModel
 
 @Composable
 fun CreateAdScreen(

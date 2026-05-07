@@ -15,7 +15,6 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -47,12 +46,11 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import cohappy.frontend.R
 import cohappy.frontend.client.dto.response.ChatMessageDTO
-import cohappy.frontend.model.ChatUiState
+import cohappy.frontend.viewmodel.ChatUiState
 
 @Composable
 fun SingleChatView(
@@ -98,7 +96,7 @@ private fun MessageList(messages: List<ChatMessageDTO>, myUserCode: String?) {
             MessageBubble(
                 textMessage = msg.message ?: "",
                 isMe = msg.userCode == myUserCode,
-                msg.messageImmage
+                image = msg.messageImage
             )
         }
     }
@@ -241,7 +239,7 @@ private fun ProfileImage(bitmap: ImageBitmap?, name: String) {
 fun MessageBubble(
     textMessage: String,
     isMe: Boolean,
-    immage: ByteArray? = null
+    image: ByteArray? = null
 ) {
     val isDark = isSystemInDarkTheme()
 
@@ -257,8 +255,8 @@ fun MessageBubble(
         if (isDark) Color.White else Color.Black
     }
 
-    val imageBitmap = remember(immage) {
-        immage?.let {
+    val imageBitmap = remember(image) {
+        image?.let {
             try {
                 BitmapFactory.decodeByteArray(it, 0, it.size)?.asImageBitmap()
             } catch (e: Exception) {

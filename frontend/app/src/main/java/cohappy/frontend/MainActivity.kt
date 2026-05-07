@@ -17,19 +17,16 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
-
-import cohappy.frontend.ui.theme.ProgettoMobileTheme
-import cohappy.frontend.view.PaginaIniziale
-
 import cohappy.frontend.screen.AdsMainScreen
+import cohappy.frontend.screen.CreateAdScreen
 import cohappy.frontend.screen.CreateHouseScreen
+import cohappy.frontend.screen.HouseMainScreen
 import cohappy.frontend.screen.LoginScreen
 import cohappy.frontend.screen.RegistrationScreen
 import cohappy.frontend.screen.SingleAdScreen
 import cohappy.frontend.screen.SingleChatScreen
-import cohappy.frontend.screen.CreateAdScreen
-import cohappy.frontend.screen.HouseDashboardScreen
-import cohappy.frontend.screen.HouseMainScreen
+import cohappy.frontend.ui.theme.ProgettoMobileTheme
+import cohappy.frontend.view.PaginaIniziale
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {

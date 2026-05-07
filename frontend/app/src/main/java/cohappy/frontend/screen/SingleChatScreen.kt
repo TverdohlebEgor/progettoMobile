@@ -5,9 +5,9 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
-import cohappy.frontend.model.SingleChatViewModel
-import cohappy.frontend.model.SingleChatViewModelFactory
 import cohappy.frontend.view.chat.SingleChatView
+import cohappy.frontend.viewmodel.SingleChatViewModel
+import cohappy.frontend.viewmodel.SingleChatViewModelFactory
 
 @Composable
 fun SingleChatScreen(
@@ -33,6 +33,6 @@ fun SingleChatScreen(
                 onNavigateToAnnuncio(uiState.resolvedAnnuncioId)
             }
         },
-        onPhotoClick = { TODO() }
+        onPhotoClick = { }
     )
 }

@@ -5,6 +5,6 @@ import com.squareup.moshi.JsonClass
 data class AddMessageDTO(
     val chatCode: String,
     val message: String,
-    var messageImmage: ByteArray? = null,
+    var messageImage: ByteArray? = null,
     val userCode: String
 )

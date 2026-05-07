@@ -1,6 +1,6 @@
 package cohappy.frontend.client.dto.request
 
-import cohappy.frontend.client.dto.MoveMoneyOperationEnum
+import cohappy.frontend.client.dto.enum.MoveMoneyOperationEnum
 import com.squareup.moshi.JsonClass
 
 @JsonClass(generateAdapter = true)

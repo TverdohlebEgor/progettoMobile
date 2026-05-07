@@ -1,6 +1,6 @@
 package cohappy.frontend.client
 
-import cohappy.frontend.client.dto.NotificationTypeEnum
+import cohappy.frontend.client.dto.enum.NotificationTypeEnum
 import cohappy.frontend.client.dto.response.GetNotificationDTO
 import retrofit2.Response
 import retrofit2.http.DELETE

@@ -1,0 +1,11 @@
+all'interno della CreateChoreDTO la variabile day sarebbe meglio modificarla con un nome come Deadline per indicare la scadenza della chore e nell assignedTo mettere il codice utente a chi è riferita la chore (ipotesi per rendermi piu chiaro l'API)
+all'interno di GetChore va aggiunta la variabile Deadline 
+
+Tipo di dato richiesto:
+Il formato lato JSON è una String in formato standard ISO 8601 (YYYY-MM-DD), ad esempio "2025-10-24".
+
+---
+
+Il nome lo cambio in deadline
+In GetChoreDTO la deadline sarebbe ridondante, se vuoi lo metto uguale ma gia passi la deadline alla request quindi il dato ce l'hai
+Per l'assigneTo non ho capito la richiesta, puoi riformulare?

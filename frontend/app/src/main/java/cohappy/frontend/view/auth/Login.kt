@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -20,7 +21,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import cohappy.frontend.components.CustomButton
 import cohappy.frontend.components.CustomTextButtom
@@ -31,7 +31,9 @@ import cohappy.frontend.components.Titoli
 fun LoginView(
     onLoginClick: (String, String) -> Unit,
     onRegisterClick: () -> Unit,
-    showError: Boolean
+    showError: Boolean,
+    errorMessage: String? = null,
+    isLoading: Boolean = false
 ) {
     val isDark = isSystemInDarkTheme()
     val BgColor = if (isDark) Color.Black else Color.White
@@ -68,6 +70,7 @@ fun LoginView(
                     onPasswordChange = { nuovaPassword -> password = nuovaPassword },
                     email = email,
                     password = password,
+                    errorMessage = errorMessage,
                     showError = showError
                 )
 
@@ -76,6 +79,7 @@ fun LoginView(
                 LoginRegisterButtonForLogin(
                     onLoginClick = { onLoginClick(email, password) },
                     onRegisterClick = onRegisterClick,
+                    isLoading = isLoading
                 )
             }
 
@@ -88,25 +92,36 @@ fun LoginView(
 fun LoginRegisterButtonForLogin(
     onLoginClick: () -> Unit,
     onRegisterClick: () -> Unit,
-    modifier: Modifier = Modifier
+    isLoading: Boolean = false
 ) {
-    CustomButton(
-        text = "Accedi",
-        onClick = onLoginClick,
-        isPrimary = true,
-        shape = "large"
-    )
+    if (isLoading) {
+        CircularProgressIndicator(
+            modifier = Modifier.padding(vertical = 8.dp),
+            color = MaterialTheme.colorScheme.primary
+        )
+        Text(
+            text = "Accesso in corso ..."
+        )
+    } else {
+        CustomButton(
+            text = "Accedi",
+            onClick = onLoginClick,
+            isPrimary = true,
+            shape = "large"
+        )
 
-    CustomTextButtom(
-        text = "Non hai ancora un account? Registrati",
-        onClick = onRegisterClick,
-    )
+        CustomTextButtom(
+            text = "Non hai ancora un account? Registrati",
+            onClick = onRegisterClick,
+        )
+    }
 }
 
 
 @Composable
 fun LoginRegistration(
     showError: Boolean,
+    errorMessage: String?,
     onEmailChange: (String) -> Unit,
     onPasswordChange: (String) -> Unit,
     modifier: Modifier = Modifier,
@@ -117,10 +132,9 @@ fun LoginRegistration(
     Column(modifier = modifier) {
         if (showError) {
             Text(
-                text = "email, telefono o password non corretti",
+                text = errorMessage ?: "Si è verificato un errore interno, ci scusiamo per il disagio",
                 modifier = Modifier.fillMaxWidth(),
                 color = MaterialTheme.colorScheme.error,
-                //fontWeight = TODO(),
                 textAlign = TextAlign.Center,
             )
         } else {
@@ -149,25 +163,4 @@ fun LoginRegistration(
             customFontSize = customFontSize
         )
     }
-}
-
-
-@Preview(showBackground = true, name = "Login - Standard")
-@Composable
-fun PreviewPaginaLoginStandard() {
-    LoginView(
-        onLoginClick = { _, _ -> },
-        onRegisterClick = { },
-        showError = false
-    )
-}
-
-@Preview(showBackground = true, name = "Login - With Error")
-@Composable
-fun PreviewPaginaLoginWithError() {
-    LoginView(
-        onLoginClick = { _, _ -> },
-        onRegisterClick = { },
-        showError = true
-    )
 }

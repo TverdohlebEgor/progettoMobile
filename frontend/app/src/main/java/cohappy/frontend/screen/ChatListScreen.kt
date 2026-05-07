@@ -3,8 +3,8 @@ package cohappy.frontend.screen
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.lifecycle.viewmodel.compose.viewModel
-import cohappy.frontend.model.ChatListViewModel
 import cohappy.frontend.view.chat.ChatListView
+import cohappy.frontend.viewmodel.ChatListViewModel
 
 @Composable
 fun ChatListScreen(

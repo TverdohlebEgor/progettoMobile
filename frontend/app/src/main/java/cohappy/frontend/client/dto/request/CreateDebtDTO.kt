@@ -1,5 +1,5 @@
 package cohappy.frontend.client.dto.request
-import cohappy.frontend.client.dto.DebtType
+import cohappy.frontend.client.dto.enum.DebtType
 import com.squareup.moshi.JsonClass
 
 @JsonClass(generateAdapter = true)

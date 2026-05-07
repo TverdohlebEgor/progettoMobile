@@ -5,5 +5,5 @@ import com.squareup.moshi.JsonClass
 data class PatchChatDTO(
     val chatCode: String,
     val name: String,
-    var immage: ByteArray? = null
+    var image: ByteArray? = null
 )

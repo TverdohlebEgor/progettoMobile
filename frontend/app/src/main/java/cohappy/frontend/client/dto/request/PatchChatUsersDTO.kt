@@ -1,6 +1,6 @@
 package cohappy.frontend.client.dto.request
 
-import cohappy.frontend.client.dto.PatchChatUsersOperationEnum
+import cohappy.frontend.client.dto.enum.PatchChatUsersOperationEnum
 import com.squareup.moshi.JsonClass
 
 @JsonClass(generateAdapter = true)

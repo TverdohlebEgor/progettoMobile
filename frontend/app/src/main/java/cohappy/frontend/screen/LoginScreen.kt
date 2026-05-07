@@ -1,7 +1,9 @@
 package cohappy.frontend.screen
 import android.content.SharedPreferences
 import androidx.compose.foundation.isSystemInDarkTheme
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -10,9 +12,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
-import cohappy.frontend.model.LoginViewModel
-import cohappy.frontend.model.LoginViewModelFactory
 import cohappy.frontend.view.auth.LoginView
+import cohappy.frontend.viewmodel.LoginViewModel
+import cohappy.frontend.viewmodel.LoginViewModelFactory
 
 @Composable
 fun LoginScreen(
@@ -26,8 +28,8 @@ fun LoginScreen(
     val bgColor = if (isDark) Color.Black else Color.White
 
     LaunchedEffect(uiState.isLoginSuccessful) {
-        if (uiState.isLoginSuccessful && uiState.token != null) {
-            onNavigateToAnnunci(uiState.token!!)
+        if (uiState.isLoginSuccessful && uiState.userCode != null) {
+            onNavigateToAnnunci(uiState.userCode!!)
         }
     }
 
@@ -42,7 +44,8 @@ fun LoginScreen(
                     viewModel.login(email, password)
                 },
                 onRegisterClick = onNavigateToRegistration,
-                showError = uiState.showError
+                showError = uiState.showError,
+                errorMessage = uiState.errorMessage
             )
         }
     }

@@ -3,8 +3,8 @@ package cohappy.frontend.screen
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.lifecycle.viewmodel.compose.viewModel
-import cohappy.frontend.model.CreateHouseViewModel
 import cohappy.frontend.view.ad.CreateHouseView
+import cohappy.frontend.viewmodel.CreateHouseViewModel
 
 @Composable
 fun CreateHouseScreen(

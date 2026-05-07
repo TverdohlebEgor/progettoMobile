@@ -1,7 +1,6 @@
 package cohappy.frontend.repository
 
 import cohappy.frontend.client.ClientSingleton
-import cohappy.frontend.client.dto.response.GetChoreDTO
 import cohappy.frontend.client.dto.response.GetHouseDTO
 import cohappy.frontend.client.dto.response.GetNextChoreDTO
 import cohappy.frontend.client.dto.response.GetNotificationDTO
