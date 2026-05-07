@@ -483,7 +483,6 @@ public class ChoreControllerIT extends BaseIT {
         house.setHouseCode("houseCode");
         house.setAdmins(new ArrayList<>());
         house.setUsers(new ArrayList<>());
-        house.setImages(new ArrayList<>());
         house.setCostPerMonth(100);
         house.setChores(new ArrayList<>());
 

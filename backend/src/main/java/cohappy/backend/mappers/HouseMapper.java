@@ -17,7 +17,6 @@ public class HouseMapper {
         result.setHouseCode(house.getHouseCode());
         result.setAdmins(house.getAdmins());
         result.setUsers(house.getUsers());
-        result.setImages(house.getImages());
         result.setCostPerMonth(house.getCostPerMonth());
         result.setCountry(house.getLocation().getCountry());
         result.setRegion(house.getLocation().getRegion());
@@ -37,10 +36,6 @@ public class HouseMapper {
         result.setHouseCode(houseCode);
         result.setAdmins(List.of(createHouseDTO.getUserCode()));
         result.setUsers(new ArrayList<>());
-        result.setImages(createHouseDTO.getImages());
-        if(result.getImages() == null){
-            result.setImages(new ArrayList<>());
-        }
         result.setCostPerMonth(createHouseDTO.getCostPerMonth());
         result.setChores(new ArrayList<>());
 

@@ -9,6 +9,7 @@ import java.util.List;
 public class HouseAdvertisement {
    @Id
    private String houseCode;
+   private List<byte[]> immages;
    private HouseState state;
    private String publishedBy;
    private String description;

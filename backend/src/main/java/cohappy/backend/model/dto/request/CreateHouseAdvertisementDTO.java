@@ -1,10 +1,12 @@
 package cohappy.backend.model.dto.request;
 
-import cohappy.backend.model.HouseState;
 import lombok.Data;
+
+import java.util.List;
 
 @Data
 public class CreateHouseAdvertisementDTO {
+    private List<byte[]> images;
     private String houseCode;
     private HouseStateDTO state;
     private String publishedBy;

@@ -11,7 +11,6 @@ public class House {
    private String houseCode;
    private List<String> admins;
    private List<String> users;
-   private List<byte[]> images;
    private int costPerMonth;
    private List<HouseChore> chores;
    private Location location;
@@ -21,7 +20,6 @@ public class House {
       result.setHouseCode(houseCode);
       result.setAdmins(admins);
       result.setUsers(users);
-      result.setImages(images);
       result.setCostPerMonth(costPerMonth);
       result.setChores(chores);
       result.setLocation(location);
@@ -29,11 +27,6 @@ public class House {
    }
 
    public boolean isEqualTo(House house){
-      for(byte[] image : images){
-         if(!house.getImages().contains(image)){
-            return false;
-         }
-      }
       return houseCode.equals(house.getHouseCode()) &&
               costPerMonth == house.getCostPerMonth() &&
               location.getCountry().equals(house.getLocation().getCountry()) &&

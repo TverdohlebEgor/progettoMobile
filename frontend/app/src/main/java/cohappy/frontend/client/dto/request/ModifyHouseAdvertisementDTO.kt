@@ -7,5 +7,6 @@ import com.squareup.moshi.JsonClass
 data class ModifyHouseAdvertisementDTO(
     val houseCode: String,
     val state: HouseStateEnum,
-    var description: String? = null
+    var description: String? = null,
+    val immages: List<ByteArray>? = null
 )

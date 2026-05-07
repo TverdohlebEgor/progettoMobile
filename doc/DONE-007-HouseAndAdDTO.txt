@@ -1,0 +1,5 @@
+Nel CreateHouseDTO è presente un campo immagine che non è necessario, è necessario invece nel createAdDTO dove non è presente
+
+---
+
+Fatto, spostato le image nell adv non nella casa

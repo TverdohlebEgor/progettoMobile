@@ -13,11 +13,13 @@ import org.springframework.http.MediaType;
 import tools.jackson.databind.ObjectMapper;
 
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicReference;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
+import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -73,7 +75,6 @@ public class HouseControllerIT extends BaseIT{
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.houseCode").value("houseCode"))
-                .andExpect(jsonPath("$.images").isArray())
                 .andExpect(jsonPath("$.country").value("Italy"))
                 .andExpect(jsonPath("$.region").value("RA"))
                 .andExpect(jsonPath("$.street").value("Via dal pozzo"))
@@ -83,7 +84,8 @@ public class HouseControllerIT extends BaseIT{
                 .andExpect(jsonPath("$.publishedByImages").isArray())
                 .andExpect(jsonPath("$.publishedByEmail").value("test@cohappy.it"))
                 .andExpect(jsonPath("$.publishedByPhoneNumber").value("123"))
-                .andExpect(jsonPath("$.description").value("desc"));
+                .andExpect(jsonPath("$.description").value("desc"))
+                .andExpect(jsonPath("$.images").isArray());
     }
 
     @Test
@@ -103,7 +105,6 @@ public class HouseControllerIT extends BaseIT{
                 .andExpect(jsonPath("$.houseCode").value("houseCode"))
                 .andExpect(jsonPath("$.admins").isArray())
                 .andExpect(jsonPath("$.users").isArray())
-                .andExpect(jsonPath("$.images").isArray())
                 .andExpect(jsonPath("$.costPerMonth").value(100))
                 .andExpect(jsonPath("$.country").value("Italy"))
                 .andExpect(jsonPath("$.region").value("RA"))
@@ -172,6 +173,7 @@ public class HouseControllerIT extends BaseIT{
         saveDefaultHouseAdvertismente();
 
         ModifyHouseAdvertisementDTO request = new ModifyHouseAdvertisementDTO();
+        request.setImmages(List.of("test".getBytes()));
         request.setHouseCode("houseCode");
         request.setState(HouseStateDTO.PRIVATE);
         request.setDescription("desc2");
@@ -189,6 +191,8 @@ public class HouseControllerIT extends BaseIT{
                 .orElseThrow(() -> new AssertionError("House advertisement not found"));
         assertThat(houseAdvertisement.getState()).isEqualTo(HouseState.PRIVATE);
         assertThat(houseAdvertisement.getDescription()).isEqualTo("desc2");
+        assertThat(houseAdvertisement.getImmages().size()).isEqualTo(1);
+        assertThat(houseAdvertisement.getImmages().getFirst()).isEqualTo("test".getBytes());
     }
 
     @Test
@@ -273,7 +277,6 @@ public class HouseControllerIT extends BaseIT{
         assertThat(house.getLocation().getCivicNumber()).isEqualTo(40);
         assertThat(house.getLocation().getStreet()).isEqualTo("street");
         assertThat(house.getLocation().getCountry()).isEqualTo("country");
-        assertThat(house.getImages().size()).isZero();
         assertThat(house.getCostPerMonth()).isEqualTo(123);
     }
 
@@ -340,6 +343,7 @@ public class HouseControllerIT extends BaseIT{
         request.setHouseCode("houseCode");
         request.setPublishedBy("USR-999");
         request.setState(HouseStateDTO.PUBLIC);
+        request.setImages(List.of("img".getBytes()));
 
         mockMvc.perform(post(path("/advertisement/create"))
                         .contentType(MediaType.APPLICATION_JSON)
@@ -350,6 +354,8 @@ public class HouseControllerIT extends BaseIT{
                 .orElseThrow(() -> new AssertionError("House advertismente not created"));
         assertThat(houseAdvertisement.getState()).isEqualTo(HouseState.PUBLIC);
         assertThat(houseAdvertisement.getPublishedBy()).isEqualTo("USR-999");
+        assertThat(houseAdvertisement.getImmages().size()).isEqualTo(1);
+        assertThat(houseAdvertisement.getImmages().getFirst()).isEqualTo("img".getBytes());
     }
 
     @Test
@@ -441,7 +447,6 @@ public class HouseControllerIT extends BaseIT{
         request.setRegion("RA");
         request.setCountry("Italy");
         request.setCivicNumber(37);
-        request.setImages(new ArrayList<>());
         request.setUserCode("USR-999");
         request.setCostPerMonth(100);
 
@@ -459,7 +464,6 @@ public class HouseControllerIT extends BaseIT{
         assertThat(house.getLocation().getRegion()).isEqualTo("RA");
         assertThat(house.getLocation().getCountry()).isEqualTo("Italy");
         assertThat(house.getLocation().getCivicNumber()).isEqualTo(37);
-        assertThat(house.getImages().size()).isZero();
         assertThat(house.getAdmins().getFirst()).isEqualTo("USR-999");
         assertThat(house.getUsers().size()).isZero();
     }
@@ -473,7 +477,6 @@ public class HouseControllerIT extends BaseIT{
         request.setRegion("RA");
         request.setCountry("Italy");
         request.setCivicNumber(37);
-        request.setImages(new ArrayList<>());
         request.setUserCode("NOTEXISTING");
         request.setCostPerMonth(100);
 
@@ -492,7 +495,6 @@ public class HouseControllerIT extends BaseIT{
         request.setRegion("RA");
         request.setCountry("Italy");
         request.setCivicNumber(37);
-        request.setImages(new ArrayList<>());
         request.setUserCode(null);
         request.setCostPerMonth(100);
 
@@ -511,7 +513,6 @@ public class HouseControllerIT extends BaseIT{
         request.setRegion("RA");
         request.setCountry("Italy");
         request.setCivicNumber(37);
-        request.setImages(new ArrayList<>());
         request.setUserCode("USR-999");
         request.setCostPerMonth(100);
 
@@ -530,7 +531,6 @@ public class HouseControllerIT extends BaseIT{
         request.setRegion("  ");
         request.setCountry("Italy");
         request.setCivicNumber(37);
-        request.setImages(new ArrayList<>());
         request.setUserCode("USR-999");
         request.setCostPerMonth(100);
 
@@ -549,7 +549,6 @@ public class HouseControllerIT extends BaseIT{
         request.setRegion("RA");
         request.setCountry(" ");
         request.setCivicNumber(37);
-        request.setImages(new ArrayList<>());
         request.setUserCode("USR-999");
         request.setCostPerMonth(100);
 
@@ -568,7 +567,6 @@ public class HouseControllerIT extends BaseIT{
         request.setRegion("RA");
         request.setCountry("Italy");
         request.setCivicNumber(null);
-        request.setImages(new ArrayList<>());
         request.setUserCode("USR-999");
         request.setCostPerMonth(100);
 
@@ -587,7 +585,6 @@ public class HouseControllerIT extends BaseIT{
         request.setRegion("RA");
         request.setCountry("Italy");
         request.setCivicNumber(10);
-        request.setImages(new ArrayList<>());
         request.setUserCode("USR-999");
         request.setCostPerMonth(null);
 
@@ -1258,7 +1255,6 @@ public class HouseControllerIT extends BaseIT{
         house.setHouseCode("houseCode");
         house.setAdmins(new ArrayList<>());
         house.setUsers(new ArrayList<>());
-        house.setImages(new ArrayList<>());
         house.setCostPerMonth(100);
         house.setChores(new ArrayList<>());
         Location location = new Location();
@@ -1299,6 +1295,7 @@ public class HouseControllerIT extends BaseIT{
         houseAdvertisement.setState(HouseState.PUBLIC);
         houseAdvertisement.setPublishedBy("USR-999");
         houseAdvertisement.setDescription("desc");
+        houseAdvertisement.setImmages(new ArrayList<>());
         return houseAdvertisement;
     }
 

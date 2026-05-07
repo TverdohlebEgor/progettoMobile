@@ -52,9 +52,6 @@ public class HouseService {
 
         House newHouse = house.copy();
 
-        if (modifyHouseDTO.getImages() != null) {
-            newHouse.setImages(modifyHouseDTO.getImages());
-        }
         if (modifyHouseDTO.getCostPerMonth() != null) {
             newHouse.setCostPerMonth(modifyHouseDTO.getCostPerMonth());
         }

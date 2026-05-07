@@ -19,7 +19,7 @@ public class HouseAdvertisementMapper {
         GetHouseAdvertesimentDTO result = new GetHouseAdvertesimentDTO();
 
         result.setHouseCode(houseAdvertisement.getHouseCode());
-        result.setImages(house.getImages());
+        result.setImages(houseAdvertisement.getImmages());
         if(result.getImages() == null){
             result.setImages(new ArrayList<>());
         }
