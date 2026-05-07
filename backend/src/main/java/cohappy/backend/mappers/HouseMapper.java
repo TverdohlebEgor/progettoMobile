@@ -4,6 +4,7 @@ import cohappy.backend.model.House;
 import cohappy.backend.model.Location;
 import cohappy.backend.model.dto.request.CreateHouseDTO;
 import cohappy.backend.model.dto.response.GetHouseDTO;
+import com.aventrix.jnanoid.jnanoid.NanoIdUtils;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -28,7 +29,12 @@ public class HouseMapper {
 
     public House CreateDTOToHouse(CreateHouseDTO createHouseDTO){
         House result = new House();
-        result.setHouseCode(UUID.randomUUID().toString());
+        String houseCode = NanoIdUtils.randomNanoId(
+                NanoIdUtils.DEFAULT_NUMBER_GENERATOR,
+                NanoIdUtils.DEFAULT_ALPHABET,
+                8
+        );
+        result.setHouseCode(houseCode);
         result.setAdmins(List.of(createHouseDTO.getUserCode()));
         result.setUsers(new ArrayList<>());
         result.setImages(createHouseDTO.getImages());

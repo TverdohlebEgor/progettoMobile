@@ -1,0 +1,6 @@
+Se e possibile impostare l'house code in maniera che sia piu corto e piu semplice da modificare ad esempio un formati da 7/8 caratteri
+
+---
+
+Messo a 8 caratteri. Mi racommando cancella tutto il db locale e ricrea i dati altrimenti ti si rompe tutto
+Per farlo cerca come "cancellare i volumi" di docker, questo di elimina tutti i dati del db
