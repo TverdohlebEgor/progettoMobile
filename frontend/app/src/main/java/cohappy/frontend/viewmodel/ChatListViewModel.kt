@@ -36,12 +36,12 @@ class ChatListViewModel : ViewModel() {
                     return@launch
                 }
 
-                val response = withContext(Dispatchers.IO) {
+                val result = withContext(Dispatchers.IO) {
                     repository.getUserChats(cleanToken)
                 }
 
-                if (response.isSuccessful && response.body() != null) {
-                    chatsList = response.body()!!.map { dto ->
+                if (result.isSuccess) {
+                    chatsList = result.getOrNull()?.map { dto ->
                         ChatListItem(
                             id = dto.chatCode ?: "",
                             name = dto.name ?: "Chat",
@@ -49,7 +49,7 @@ class ChatListViewModel : ViewModel() {
                             time = "",
                             image = dto.image
                         )
-                    }
+                    } ?: emptyList()
                 } else {
                     chatsList = emptyList()
                 }

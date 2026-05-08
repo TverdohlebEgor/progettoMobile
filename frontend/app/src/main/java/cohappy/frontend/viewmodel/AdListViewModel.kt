@@ -34,14 +34,13 @@ class AdListViewModel : ViewModel() {
 
             while (attempt <= maxRetries && !success) {
                 try {
-                    val response = withContext(Dispatchers.IO) { repository.fetchAds() }
-                    if (response.isSuccessful && response.body() != null) {
-                        adsList = response.body()!!
+                    val result = withContext(Dispatchers.IO) { repository.fetchAds() }
+                    if (result.isSuccess) {
+                        adsList = result.getOrNull() ?: emptyList()
                         Log.d("AdListVM", "✅ Caricati ${adsList.size} annunci")
                         success = true
                     } else {
-                        val errorBody = response.errorBody()?.string()
-                        Log.e("AdListVM", "❌ Errore Backend (${response.code()}): $errorBody")
+                        Log.e("AdListVM", "❌ Errore Backend: ${result.exceptionOrNull()?.message}")
                         break
                     }
                 } catch (e: Exception) {

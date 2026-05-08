@@ -53,9 +53,9 @@ class SingleChatViewModel(
             var otherUserCodeForSearch = chatCode
 
             try {
-                val profileResp = userRepository.fetchUserProfile(chatCode)
-                if (profileResp.isSuccessful && profileResp.body() != null) {
-                    val user = profileResp.body()!!
+                val profileResult = userRepository.fetchUserProfile(chatCode)
+                if (profileResult.isSuccess) {
+                    val user = profileResult.getOrNull()!!
                     val fullName = "${user.name ?: ""} ${user.surname ?: ""}".trim()
                     if (fullName.isNotBlank()) nomeConversazione = fullName
                 }
@@ -65,8 +65,8 @@ class SingleChatViewModel(
             }
 
             try {
-                val chatsResp = chatListRepository.getUserChats(mioUserCode)
-                val mieChats = chatsResp.body() ?: emptyList()
+                val chatsResult = chatListRepository.getUserChats(mioUserCode)
+                val mieChats = chatsResult.getOrNull() ?: emptyList()
                 val chatTrovata = mieChats.find {
                     it.chatCode == chatCode ||
                             (it.participating != null && it.participating!!.contains(mioUserCode) && it.participating!!.contains(
@@ -87,9 +87,9 @@ class SingleChatViewModel(
                         name = if (nomeConversazione == "Sconosciuto") "Nuova Chat" else nomeConversazione,
                         image = null
                     )
-                    val createResp = chatListRepository.createChat(createDto)
-                    if (createResp.isSuccessful && createResp.body() != null) {
-                        idChatDaUsare = createResp.body()!!.replace("\"", "").trim()
+                    val createResult = chatListRepository.createChat(createDto)
+                    if (createResult.isSuccess) {
+                        idChatDaUsare = createResult.getOrNull()?.replace("\"", "")?.trim() ?: ""
                     }
                 }
             } catch (e: Exception) {
@@ -99,9 +99,9 @@ class SingleChatViewModel(
 
             var annuncioTrovato = ""
             try {
-                val adsResp = houseAdvRepository.fetchAds()
-                if (adsResp.isSuccessful && adsResp.body() != null) {
-                    adsResp.body()!!.find { it.publishedByCode == otherUserCodeForSearch }?.let {
+                val adsResult = houseAdvRepository.fetchAds()
+                if (adsResult.isSuccess) {
+                    adsResult.getOrNull()?.find { it.publishedByCode == otherUserCodeForSearch }?.let {
                         annuncioTrovato = it.houseCode ?: ""
                     }
                 }
@@ -127,9 +127,9 @@ class SingleChatViewModel(
         pollingJob = viewModelScope.launch {
             while (isActive) {
                 try {
-                    val response = singleChatRepository.getMessages(chatId)
-                    if (response.isSuccessful && response.body() != null) {
-                        val newMessages = response.body()!!
+                    val result = singleChatRepository.getMessages(chatId)
+                    if (result.isSuccess) {
+                        val newMessages = result.getOrNull() ?: emptyList()
                         if (newMessages != _uiState.value.messaggi) {
                             _uiState.value = _uiState.value.copy(messaggi = newMessages)
                         }

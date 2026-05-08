@@ -24,8 +24,9 @@ data class PortfolioTransaction(
     val category: DebtType?
 )
 
-class PortfolioViewModel : ViewModel() {
-    private val repository = PortfolioRepository()
+class PortfolioViewModel(
+    private val repository: PortfolioRepository = PortfolioRepository()
+) : ViewModel() {
 
     var isLoading by mutableStateOf(true)
         private set
@@ -57,21 +58,21 @@ class PortfolioViewModel : ViewModel() {
                 val tokenPulito = userToken.replace("\"", "").trim()
 
                 try {
-                    val responseDebt = withContext(Dispatchers.IO) {
+                    val resultDebt = withContext(Dispatchers.IO) {
                         repository.fetchTotalDebt(tokenPulito)
                     }
-                    totalDebts = if (responseDebt.isSuccessful && responseDebt.body() != null) responseDebt.body()!!.toDouble() else 0.0
+                    totalDebts = resultDebt.getOrNull()?.toDouble() ?: 0.0
                 } catch(e: Exception) { totalDebts = 0.0 }
 
                 try {
-                    val responseCredits = withContext(Dispatchers.IO) { repository.fetchTotalCredits(tokenPulito) }
-                    totalCredits = if (responseCredits.isSuccessful && responseCredits.body() != null) responseCredits.body()!!.toDouble() else 0.0
+                    val resultCredits = withContext(Dispatchers.IO) { repository.fetchTotalCredits(tokenPulito) }
+                    totalCredits = resultCredits.getOrNull()?.toDouble() ?: 0.0
                 } catch(e: Exception) { totalCredits = 0.0 }
 
                 try {
-                    val responsePortfolio = withContext(Dispatchers.IO) { repository.fetchUserPortfolio(tokenPulito) }
-                    if (responsePortfolio.isSuccessful && responsePortfolio.body() != null) {
-                        val portfolio = responsePortfolio.body()!!
+                    val resultPortfolio = withContext(Dispatchers.IO) { repository.fetchUserPortfolio(tokenPulito) }
+                    if (resultPortfolio.isSuccess) {
+                        val portfolio = resultPortfolio.getOrNull()!!
                         val rawTransactions: List<DebtDTO> = portfolio.debts ?: emptyList()
                         val mappedList = mutableListOf<PortfolioTransaction>()
 

@@ -34,10 +34,10 @@ class UserProfileViewModel : ViewModel() {
             isLoading = true
             try {
                 val tokenPulito = userToken.replace("\"", "").trim()
-                val response = withContext(Dispatchers.IO) { repository.fetchUserProfile(tokenPulito) }
+                val result = withContext(Dispatchers.IO) { repository.fetchUserProfile(tokenPulito) }
 
-                if (response.isSuccessful && response.body() != null) {
-                    val data = response.body()!!
+                if (result.isSuccess) {
+                    val data = result.getOrNull()!!
                     userName = data.name ?: "Utente"
                     userSurname = data.surname ?: ""
 
@@ -46,8 +46,8 @@ class UserProfileViewModel : ViewModel() {
                         profileImageBytes = imageByteArray
                     }
                 } else {
-                    userName = "Errore API:"
-                    userSurname = "Codice ${response.code()}"
+                    userName = "Errore API"
+                    userSurname = ""
                 }
             } catch (e: Exception) {
                 Log.e("UserProfileVM", "Errore caricamento profilo", e)
@@ -66,14 +66,14 @@ class UserProfileViewModel : ViewModel() {
 
                 val tokenPulito = userToken.replace("\"", "").trim()
 
-                val response = withContext(Dispatchers.IO) {
+                val result = withContext(Dispatchers.IO) {
                     repository.updateUserImage(tokenPulito, imageBytes)
                 }
 
-                if (response.isSuccessful) {
+                if (result.isSuccess) {
                     Log.d("UserProfileVM", "✅ Immagine salvata sul DB con successo!")
                 } else {
-                    Log.e("UserProfileVM", "❌ Backend ha rifiutato l'immagine: ${response.code()}")
+                    Log.e("UserProfileVM", "❌ Backend ha rifiutato l'immagine")
                 }
             } catch (e: Exception) {
                 Log.e("UserProfileVM", "🚨 Errore di rete upload foto", e)
@@ -93,19 +93,13 @@ class UserProfileViewModel : ViewModel() {
         viewModelScope.launch {
             try {
                 val tokenPulito = userToken.replace("\"", "").trim()
-                val response = withContext(Dispatchers.IO) { repository.joinHouse(codicePulito, tokenPulito) }
+                val result = withContext(Dispatchers.IO) { repository.joinHouse(codicePulito, tokenPulito) }
 
-                if (response.isSuccessful) {
+                if (result.isSuccess) {
                     joinedHouseCode = codicePulito
                     navigateToHouse = true
                 } else {
-                    if (response.code() == 404) {
-                        houseJoinError = "La casa non esiste"
-                    } else if (response.code() == 409) {
-                        houseJoinError = "Sei già in questa casa"
-                    } else {
-                        houseJoinError = "Errore dal server: ${response.code()}"
-                    }
+                    houseJoinError = "Errore durante l'aggiunta alla casa"
                 }
             } catch (e: Exception) {
                 Log.e("UserProfileVM", "Errore Join House", e)
