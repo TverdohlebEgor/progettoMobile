@@ -8,7 +8,6 @@ import cohappy.frontend.expections.ErrorMessages.USER_NOT_FOUND_CREATE_CHAT
 import cohappy.frontend.expections.ErrorMessages.USER_NOT_FOUND_GET_CHATS
 import cohappy.frontend.expections.NotFoundException
 import cohappy.frontend.expections.ServerErrorException
-import retrofit2.Response
 
 class ChatListRepository {
     suspend fun createChat(dto: CreateChatDTO): Result<String> {

@@ -7,7 +7,6 @@ import cohappy.frontend.expections.ErrorMessages.SERVER_ERROR
 import cohappy.frontend.expections.ErrorMessages.USER_NOT_FOUND_PORTFOLIO
 import cohappy.frontend.expections.NotFoundException
 import cohappy.frontend.expections.ServerErrorException
-import retrofit2.Response
 
 class PortfolioRepository {
 

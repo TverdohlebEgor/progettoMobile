@@ -10,9 +10,7 @@ import cohappy.frontend.client.dto.enum.DebtType
 import cohappy.frontend.client.dto.request.CreateDebtDTO
 import cohappy.frontend.client.dto.response.DebtDTO
 import cohappy.frontend.repository.PortfolioRepository
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 import java.util.UUID
 
 data class PortfolioTransaction(

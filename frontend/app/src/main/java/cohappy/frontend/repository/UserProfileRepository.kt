@@ -6,7 +6,6 @@ import cohappy.frontend.client.dto.request.PatchUserDTO
 import cohappy.frontend.client.dto.response.UserAccountDTO
 import cohappy.frontend.expections.ErrorMessages.SERVER_ERROR
 import cohappy.frontend.expections.ServerErrorException
-import retrofit2.Response
 
 class UserProfileRepository {
 

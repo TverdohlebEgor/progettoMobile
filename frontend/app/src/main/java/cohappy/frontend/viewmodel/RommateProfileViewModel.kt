@@ -13,9 +13,7 @@ import cohappy.frontend.client.dto.request.PatchUserDTO
 import cohappy.frontend.client.dto.request.RemoveUserDTO
 import cohappy.frontend.client.dto.response.GetHouseDTO
 import cohappy.frontend.client.dto.response.UserAccountDTO
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 
 data class RoommateItem(
     val userCode: String,

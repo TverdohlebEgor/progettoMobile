@@ -9,9 +9,7 @@ import cohappy.frontend.client.ClientSingleton
 import cohappy.frontend.client.dto.request.PatchChoreDTO
 import cohappy.frontend.model.Chore
 import cohappy.frontend.repository.ChoreRepository
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 
 class ChoreViewModel : ViewModel() {
     private val repository = ChoreRepository()

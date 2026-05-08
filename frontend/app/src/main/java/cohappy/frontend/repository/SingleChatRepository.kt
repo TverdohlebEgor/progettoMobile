@@ -2,7 +2,6 @@ package cohappy.frontend.repository;
 
 import cohappy.frontend.client.ClientSingleton
 import cohappy.frontend.client.dto.request.AddMessageDTO
-import cohappy.frontend.client.dto.request.CreateChatDTO
 import cohappy.frontend.client.dto.response.ChatMessageDTO
 import cohappy.frontend.expections.ErrorMessages.SERVER_ERROR
 import cohappy.frontend.expections.ServerErrorException

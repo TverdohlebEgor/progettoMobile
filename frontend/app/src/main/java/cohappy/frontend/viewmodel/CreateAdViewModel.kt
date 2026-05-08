@@ -9,9 +9,7 @@ import androidx.lifecycle.viewModelScope
 import cohappy.frontend.client.dto.enum.HouseStateEnum
 import cohappy.frontend.client.dto.request.CreateHouseAdvertisementDTO
 import cohappy.frontend.repository.CreateAdRepository
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 
 class CreateAdViewModel : ViewModel() {
     private val repository = CreateAdRepository()

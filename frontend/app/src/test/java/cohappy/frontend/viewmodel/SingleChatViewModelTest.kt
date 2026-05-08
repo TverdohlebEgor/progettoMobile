@@ -28,7 +28,6 @@ import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Before
 import org.junit.Test
-import retrofit2.Response
 
 @OptIn(ExperimentalCoroutinesApi::class)
 class SingleChatViewModelTest {
@@ -60,7 +59,7 @@ class SingleChatViewModelTest {
             userRepository,
             houseAdvRepository,
             chatListRepository
-            )
+        )
     }
 
     @After

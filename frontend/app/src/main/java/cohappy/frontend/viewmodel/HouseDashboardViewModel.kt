@@ -10,9 +10,7 @@ import cohappy.frontend.client.ClientSingleton
 import cohappy.frontend.client.dto.response.GetNextChoreDTO
 import cohappy.frontend.client.dto.response.GetNotificationDTO
 import cohappy.frontend.repository.HouseDashboardRepository
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 import java.time.temporal.ChronoUnit

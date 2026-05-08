@@ -8,10 +8,8 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import cohappy.frontend.client.dto.response.GetHouseAdvertesimentDTO
 import cohappy.frontend.repository.AdListRepository
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 
 class AdListViewModel : ViewModel() {
     private val repository = AdListRepository()

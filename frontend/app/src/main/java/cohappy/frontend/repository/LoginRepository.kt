@@ -1,7 +1,6 @@
 package cohappy.frontend.repository
 
 import android.content.SharedPreferences
-import android.content.res.Resources
 import androidx.core.content.edit
 import cohappy.frontend.client.ClientSingleton
 import cohappy.frontend.client.dto.request.LoginDTO

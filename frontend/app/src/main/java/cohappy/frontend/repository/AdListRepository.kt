@@ -4,7 +4,6 @@ import cohappy.frontend.client.ClientSingleton
 import cohappy.frontend.client.dto.response.GetHouseAdvertesimentDTO
 import cohappy.frontend.expections.ErrorMessages.SERVER_ERROR
 import cohappy.frontend.expections.ServerErrorException
-import retrofit2.Response
 
 class AdListRepository {
     suspend fun fetchAds(): Result<List<GetHouseAdvertesimentDTO>> {

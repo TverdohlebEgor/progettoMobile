@@ -1,7 +1,6 @@
 package cohappy.frontend.viewmodel
 
 import android.content.SharedPreferences
-import android.content.res.Resources
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
@@ -10,6 +9,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
+
 data class LoginUiState(
     val isLoading: Boolean = false,
     val showError: Boolean = false,

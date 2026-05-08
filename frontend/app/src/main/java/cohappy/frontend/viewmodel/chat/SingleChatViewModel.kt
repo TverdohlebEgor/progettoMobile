@@ -9,7 +9,6 @@ import cohappy.frontend.client.dto.request.CreateChatDTO
 import cohappy.frontend.client.dto.response.ChatMessageDTO
 import cohappy.frontend.repository.AdListRepository
 import cohappy.frontend.repository.ChatListRepository
-import cohappy.frontend.repository.HouseDashboardRepository
 import cohappy.frontend.repository.SingleChatRepository
 import cohappy.frontend.repository.UserProfileRepository
 import kotlinx.coroutines.CancellationException
