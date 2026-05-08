@@ -18,8 +18,22 @@ fun PreviewPortfolioInDebt() {
             totalCredits = 24.50,
             activeFilter = "ALL",
             transactions = listOf(
-                PortfolioTransaction("1", false, "Spesa Esselunga", "Oggi • Hai pagato tu", 24.50, category = DebtType.GROCERIE),
-                PortfolioTransaction("2", true, "Bolletta Luce", "Ieri • Ha pagato Marco", 15.00, category = DebtType.BILL),
+                PortfolioTransaction(
+                    "1",
+                    false,
+                    "Spesa Esselunga",
+                    "Oggi • Hai pagato tu",
+                    24.50,
+                    category = DebtType.GROCERIE
+                ),
+                PortfolioTransaction(
+                    "2",
+                    true,
+                    "Bolletta Luce",
+                    "Ieri • Ha pagato Marco",
+                    15.00,
+                    category = DebtType.BILL
+                ),
                 PortfolioTransaction(
                     "3",
                     true,
@@ -55,8 +69,22 @@ fun PreviewPortfolioInCredit() {
             totalCredits = 24.50,
             activeFilter = "ALL",
             transactions = listOf(
-                PortfolioTransaction("1", false, "Spesa Esselunga", "Oggi • Hai pagato tu", 24.50, category = DebtType.GROCERIE),
-                PortfolioTransaction("2", true, "Bolletta Luce", "Ieri • Ha pagato Marco", 15.00, category = DebtType.BILL),
+                PortfolioTransaction(
+                    "1",
+                    false,
+                    "Spesa Esselunga",
+                    "Oggi • Hai pagato tu",
+                    24.50,
+                    category = DebtType.GROCERIE
+                ),
+                PortfolioTransaction(
+                    "2",
+                    true,
+                    "Bolletta Luce",
+                    "Ieri • Ha pagato Marco",
+                    15.00,
+                    category = DebtType.BILL
+                ),
                 PortfolioTransaction(
                     "3",
                     true,
@@ -74,6 +102,23 @@ fun PreviewPortfolioInCredit() {
                     category = DebtType.GROCERIE
                 )
             ),
+            onFilterChange = {},
+            userToken = "",
+            onAddClick = { TODO() }
+        )
+    }
+}
+
+@Preview(showBackground = true)
+@Composable
+fun PreviewPortfolioInCreditEmptyList() {
+    MaterialTheme {
+        PortfolioView(
+            isLoading = false,
+            totalDebts = 0.0,
+            totalCredits = 24.50,
+            activeFilter = "ALL",
+            transactions = listOf(),
             onFilterChange = {},
             userToken = "",
             onAddClick = { TODO() }

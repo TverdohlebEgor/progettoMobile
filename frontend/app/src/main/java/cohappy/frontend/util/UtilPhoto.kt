@@ -1,11 +1,16 @@
 package cohappy.frontend.util
 
 import android.content.Context
-import cohappy.frontend.R
+import android.view.View
 
 fun randomPhoto(context: Context): ByteArray {
+    val isPreview = View(context).isInEditMode
+
     return try {
-        context.resources.openRawResource(R.drawable.casa1).use { it.readBytes() }
+        val resId = context.resources.getIdentifier("casa1", "drawable", context.packageName)
+        if (resId == 0) return byteArrayOf() // Not found
+
+        context.resources.openRawResource(resId).use { it.readBytes() }
     } catch (e: Exception) {
         byteArrayOf()
     }

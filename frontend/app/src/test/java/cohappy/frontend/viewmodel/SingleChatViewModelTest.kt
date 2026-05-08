@@ -5,8 +5,10 @@ import cohappy.frontend.client.dto.response.ChatMessageDTO
 import cohappy.frontend.client.dto.response.GetHouseAdvertesimentDTO
 import cohappy.frontend.client.dto.response.UserAccountDTO
 import cohappy.frontend.client.dto.response.UserChatDTO
+import cohappy.frontend.repository.AdListRepository
+import cohappy.frontend.repository.ChatListRepository
 import cohappy.frontend.repository.SingleChatRepository
-import cohappy.frontend.viewmodel.SingleChatViewModel
+import cohappy.frontend.repository.UserProfileRepository
 import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.every
@@ -31,7 +33,10 @@ import retrofit2.Response
 @OptIn(ExperimentalCoroutinesApi::class)
 class SingleChatViewModelTest {
 
-    private val repository = mockk<SingleChatRepository>()
+    private val singleChatRepository = mockk<SingleChatRepository>()
+    private val userRepository= mockk<UserProfileRepository>()
+    private val houseAdvRepository= mockk<AdListRepository>()
+    private val chatListRepository = mockk<ChatListRepository>()
     private lateinit var viewModel: SingleChatViewModel
     private val testDispatcher = StandardTestDispatcher()
 
@@ -44,13 +49,18 @@ class SingleChatViewModelTest {
         
         // Define ALL behavior for the strict mock before initializing the ViewModel
         // if the ViewModel starts work immediately.
-        coEvery { repository.getUserProfile(any()) } returns Response.success(null)
-        coEvery { repository.getUserChats(any()) } returns Response.success(emptyList())
-        coEvery { repository.getHouseAdvertisements() } returns Response.success(emptyList())
-        coEvery { repository.getMessages(any()) } returns Response.success(emptyList())
-        coEvery { repository.createChat(any()) } returns Response.success("\"id\"")
+        coEvery { userRepository.fetchUserProfile(any()) } returns Response.success(null)
+        coEvery { chatListRepository.getUserChats(any()) } returns Response.success(emptyList())
+        coEvery { houseAdvRepository.fetchAds() } returns Response.success(emptyList())
+        coEvery { singleChatRepository.getMessages(any()) } returns Response.success(emptyList())
+        coEvery { chatListRepository.createChat(any()) } returns Response.success("\"id\"")
         
-        viewModel = SingleChatViewModel(repository)
+        viewModel = SingleChatViewModel(
+            singleChatRepository,
+            userRepository,
+            houseAdvRepository,
+            chatListRepository
+            )
     }
 
     @After
@@ -68,13 +78,13 @@ class SingleChatViewModelTest {
         val mioUserCode = "ME"
         val chatId = "CHAT_123"
         val userProfile = UserAccountDTO(name = "Mario", surname = "Rossi")
-        coEvery { repository.getUserProfile(chatCode) } returns Response.success(userProfile)
+        coEvery { userRepository.fetchUserProfile(chatCode) } returns Response.success(userProfile)
         val userChat = UserChatDTO(chatCode = chatId, participating = listOf(mioUserCode, chatCode), name = "Mario Rossi")
-        coEvery { repository.getUserChats(mioUserCode) } returns Response.success(listOf(userChat))
+        coEvery { chatListRepository.getUserChats(mioUserCode) } returns Response.success(listOf(userChat))
         val ads = listOf(GetHouseAdvertesimentDTO(houseCode = "HOUSE_1", publishedByCode = chatCode))
-        coEvery { repository.getHouseAdvertisements() } returns Response.success(ads)
+        coEvery { houseAdvRepository.fetchAds() } returns Response.success(ads)
         val messages = listOf(ChatMessageDTO(message = "Hello", userCode = chatCode))
-        coEvery { repository.getMessages(chatId) } returns Response.success(messages)
+        coEvery { singleChatRepository.getMessages(chatId) } returns Response.success(messages)
         
         viewModel.initChat(chatCode, mioUserCode)
         
@@ -91,7 +101,7 @@ class SingleChatViewModelTest {
         // The first fetch is triggered by the start of the polling loop
         // It runs immediately (at time 0 in virtual time) when initChat completes
         // and startPolling is called.
-        
+
         assertEquals(1, viewModel.uiState.value.messaggi.size)
         assertEquals("Hello", viewModel.uiState.value.messaggi[0].message)
         
@@ -103,10 +113,10 @@ class SingleChatViewModelTest {
         val chatCode = "NEW_USER"
         val mioUserCode = "ME"
         val newChatId = "NEW_CHAT_ID"
-        coEvery { repository.getUserProfile(chatCode) } returns Response.success(UserAccountDTO(name = "New", surname = "User"))
-        coEvery { repository.getUserChats(mioUserCode) } returns Response.success(emptyList())
-        coEvery { repository.createChat(any()) } returns Response.success("\"$newChatId\"")
-        coEvery { repository.getHouseAdvertisements() } returns Response.success(emptyList())
+        coEvery { userRepository.fetchUserProfile(chatCode) } returns Response.success(UserAccountDTO(name = "New", surname = "User"))
+        coEvery { chatListRepository.getUserChats(mioUserCode) } returns Response.success(emptyList())
+        coEvery { chatListRepository.createChat(any()) } returns Response.success("\"$newChatId\"")
+        coEvery { houseAdvRepository.fetchAds() } returns Response.success(emptyList())
         
         viewModel.initChat(chatCode, mioUserCode)
         advanceTimeBy(500)
@@ -115,7 +125,7 @@ class SingleChatViewModelTest {
         val state = viewModel.uiState.value
         assertEquals("New User", state.nomeChat)
         assertEquals(newChatId, state.resolvedChatCode)
-        coVerify { repository.createChat(match { it.participating.containsAll(listOf(mioUserCode, chatCode)) }) }
+        coVerify { chatListRepository.createChat(match { it.participating.containsAll(listOf(mioUserCode, chatCode)) }) }
         
         viewModel.stopPolling()
     }
@@ -125,17 +135,17 @@ class SingleChatViewModelTest {
         val chatCode = "OTHER"
         val mioUserCode = "ME"
         val chatId = "CHAT_ID"
-        coEvery { repository.getUserProfile(any()) } returns Response.success(null)
-        coEvery { repository.getUserChats(any()) } returns Response.success(listOf(UserChatDTO(chatCode = chatId, participating = listOf(mioUserCode, chatCode))))
-        coEvery { repository.getHouseAdvertisements() } returns Response.success(emptyList())
-        coEvery { repository.getMessages(any()) } returns Response.success(emptyList())
+        coEvery { userRepository.fetchUserProfile(any()) } returns Response.success(null)
+        coEvery { chatListRepository.getUserChats(any()) } returns Response.success(listOf(UserChatDTO(chatCode = chatId, participating = listOf(mioUserCode, chatCode))))
+        coEvery { houseAdvRepository.fetchAds() } returns Response.success(emptyList())
+        coEvery { singleChatRepository.getMessages(any()) } returns Response.success(emptyList())
         
         viewModel.initChat(chatCode, mioUserCode)
         advanceTimeBy(500)
         runCurrent()
         
         val messageText = "Test message"
-        coEvery { repository.sendMessage(any()) } returns Result.success(Unit)
+        coEvery { singleChatRepository.sendMessage(any()) } returns Result.success(Unit)
         
         viewModel.sendMessage(messageText)
         assertEquals(1, viewModel.uiState.value.messaggi.size)
@@ -145,7 +155,7 @@ class SingleChatViewModelTest {
         runCurrent()
         
         coVerify {
-            repository.sendMessage(match { 
+            singleChatRepository.sendMessage(match {
                 it.message == messageText && it.chatCode == chatId && it.userCode == mioUserCode 
             }) 
         }
@@ -158,13 +168,13 @@ class SingleChatViewModelTest {
         val chatCode = "OTHER"
         val mioUserCode = "ME"
         val chatId = "CHAT_ID"
-        coEvery { repository.getUserProfile(any()) } returns Response.success(null)
-        coEvery { repository.getUserChats(any()) } returns Response.success(listOf(UserChatDTO(chatCode = chatId, participating = listOf(mioUserCode, chatCode))))
-        coEvery { repository.getHouseAdvertisements() } returns Response.success(emptyList())
+        coEvery { userRepository.fetchUserProfile(any()) } returns Response.success(null)
+        coEvery { chatListRepository.getUserChats(any()) } returns Response.success(listOf(UserChatDTO(chatCode = chatId, participating = listOf(mioUserCode, chatCode))))
+        coEvery { houseAdvRepository.fetchAds() } returns Response.success(emptyList())
         val initialMessages = emptyList<ChatMessageDTO>()
         val newMessages = listOf(ChatMessageDTO(message = "New message", userCode = chatCode))
         
-        coEvery { repository.getMessages(chatId) } returnsMany listOf(
+        coEvery { singleChatRepository.getMessages(chatId) } returnsMany listOf(
             Response.success(initialMessages),
             Response.success(newMessages)
         )
@@ -183,7 +193,7 @@ class SingleChatViewModelTest {
 
         assertEquals(1, viewModel.uiState.value.messaggi.size)
         assertEquals("New message", viewModel.uiState.value.messaggi[0].message)
-        coVerify(exactly = 2) { repository.getMessages(chatId) }
+        coVerify(exactly = 2) { singleChatRepository.getMessages(chatId) }
         
         viewModel.stopPolling()
     }

@@ -7,7 +7,11 @@ import androidx.lifecycle.viewModelScope
 import cohappy.frontend.client.dto.request.AddMessageDTO
 import cohappy.frontend.client.dto.request.CreateChatDTO
 import cohappy.frontend.client.dto.response.ChatMessageDTO
+import cohappy.frontend.repository.AdListRepository
+import cohappy.frontend.repository.ChatListRepository
+import cohappy.frontend.repository.HouseDashboardRepository
 import cohappy.frontend.repository.SingleChatRepository
+import cohappy.frontend.repository.UserProfileRepository
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
@@ -28,7 +32,10 @@ data class ChatUiState(
 )
 
 class SingleChatViewModel(
-    private val repository: SingleChatRepository
+    private val singleChatRepository: SingleChatRepository,
+    private val userRepository: UserProfileRepository,
+    private val houseAdvRepository: AdListRepository,
+    private val chatListRepository: ChatListRepository,
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(ChatUiState())
@@ -46,7 +53,7 @@ class SingleChatViewModel(
             var otherUserCodeForSearch = chatCode
 
             try {
-                val profileResp = repository.getUserProfile(chatCode)
+                val profileResp = userRepository.fetchUserProfile(chatCode)
                 if (profileResp.isSuccessful && profileResp.body() != null) {
                     val user = profileResp.body()!!
                     val fullName = "${user.name ?: ""} ${user.surname ?: ""}".trim()
@@ -58,7 +65,7 @@ class SingleChatViewModel(
             }
 
             try {
-                val chatsResp = repository.getUserChats(mioUserCode)
+                val chatsResp = chatListRepository.getUserChats(mioUserCode)
                 val mieChats = chatsResp.body() ?: emptyList()
                 val chatTrovata = mieChats.find {
                     it.chatCode == chatCode ||
@@ -70,17 +77,17 @@ class SingleChatViewModel(
                 if (chatTrovata != null) {
                     idChatDaUsare = chatTrovata.chatCode ?: ""
                     if (nomeConversazione == "Sconosciuto" && !chatTrovata.name.isNullOrBlank()) {
-                        nomeConversazione  = chatTrovata.name!!
+                        nomeConversazione = chatTrovata.name!!
                     }
                     chatTrovata.participating?.find { it != mioUserCode }
                         ?.let { otherUserCodeForSearch = it }
                 } else {
                     val createDto = CreateChatDTO(
                         participating = listOf(mioUserCode, chatCode),
-                        name = if (nomeConversazione  == "Sconosciuto") "Nuova Chat" else nomeConversazione,
+                        name = if (nomeConversazione == "Sconosciuto") "Nuova Chat" else nomeConversazione,
                         image = null
                     )
-                    val createResp = repository.createChat(createDto)
+                    val createResp = chatListRepository.createChat(createDto)
                     if (createResp.isSuccessful && createResp.body() != null) {
                         idChatDaUsare = createResp.body()!!.replace("\"", "").trim()
                     }
@@ -92,7 +99,7 @@ class SingleChatViewModel(
 
             var annuncioTrovato = ""
             try {
-                val adsResp = repository.getHouseAdvertisements()
+                val adsResp = houseAdvRepository.fetchAds()
                 if (adsResp.isSuccessful && adsResp.body() != null) {
                     adsResp.body()!!.find { it.publishedByCode == otherUserCodeForSearch }?.let {
                         annuncioTrovato = it.houseCode ?: ""
@@ -120,7 +127,7 @@ class SingleChatViewModel(
         pollingJob = viewModelScope.launch {
             while (isActive) {
                 try {
-                    val response = repository.getMessages(chatId)
+                    val response = singleChatRepository.getMessages(chatId)
                     if (response.isSuccessful && response.body() != null) {
                         val newMessages = response.body()!!
                         if (newMessages != _uiState.value.messaggi) {
@@ -163,7 +170,7 @@ class SingleChatViewModel(
                 userCode = currentState.mioUserCode,
                 chatCode = currentState.resolvedChatCode
             )
-            repository.sendMessage(dto).onFailure { Log.e("TAG_CHAT", "Errore invio") }
+            singleChatRepository.sendMessage(dto).onFailure { Log.e("TAG_CHAT", "Errore invio") }
         }
     }
 }
@@ -172,7 +179,12 @@ class SingleChatViewModelFactory : ViewModelProvider.Factory {
     override fun <T : ViewModel> create(modelClass: Class<T>): T {
         if (modelClass.isAssignableFrom(SingleChatViewModel::class.java)) {
             @Suppress("UNCHECKED_CAST")
-            return SingleChatViewModel(SingleChatRepository()) as T
+            return SingleChatViewModel(
+                SingleChatRepository(),
+                UserProfileRepository(),
+                AdListRepository(),
+                ChatListRepository()
+                ) as T
         }
         throw IllegalArgumentException("Unknown ViewModel class")
     }

@@ -5,19 +5,6 @@ import cohappy.frontend.client.dto.request.AddMessageDTO
 import cohappy.frontend.client.dto.request.CreateChatDTO
 
 class SingleChatRepository {
-
-    suspend fun getUserProfile(userId: String) =
-        ClientSingleton.userApi.getUserProfile(userId)
-
-    suspend fun getUserChats(userId: String) =
-        ClientSingleton.chatApi.getUserChats(userId)
-
-    suspend fun createChat(dto: CreateChatDTO) =
-        ClientSingleton.chatApi.createChat(dto)
-
-    suspend fun getHouseAdvertisements() =
-        ClientSingleton.houseApi.getAllHouseAdvertisements()
-
     suspend fun getMessages(chatId: String) =
         ClientSingleton.chatApi.getMessages(chatId)
 

@@ -14,21 +14,18 @@ data class ChatListItem(
     val id: String,
     val name: String,
     val lastMessage: String,
-    val time: String
+    val time: String,
+    val image: ByteArray?
 )
 
 class ChatListViewModel : ViewModel() {
     private val repository = ChatListRepository()
-
     var chatsList by mutableStateOf<List<ChatListItem>>(emptyList())
         private set
-
     var isLoading by mutableStateOf(true)
         private set
-
     var searchQuery by mutableStateOf("")
         private set
-
     fun loadChats(userToken: String?) {
         viewModelScope.launch {
             isLoading = true
@@ -39,7 +36,9 @@ class ChatListViewModel : ViewModel() {
                     return@launch
                 }
 
-                val response = withContext(Dispatchers.IO) { repository.fetchUserChats(cleanToken) }
+                val response = withContext(Dispatchers.IO) {
+                    repository.getUserChats(cleanToken)
+                }
 
                 if (response.isSuccessful && response.body() != null) {
                     chatsList = response.body()!!.map { dto ->
@@ -47,13 +46,14 @@ class ChatListViewModel : ViewModel() {
                             id = dto.chatCode ?: "",
                             name = dto.name ?: "Chat",
                             lastMessage = "Tocca per aprire...",
-                            time = ""
+                            time = "",
+                            image = dto.image
                         )
                     }
                 } else {
                     chatsList = emptyList()
                 }
-            } catch (e: Exception) {
+            } catch (_: Exception) {
                 chatsList = emptyList()
             } finally {
                 isLoading = false

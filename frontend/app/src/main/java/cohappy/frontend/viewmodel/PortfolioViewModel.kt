@@ -57,7 +57,9 @@ class PortfolioViewModel : ViewModel() {
                 val tokenPulito = userToken.replace("\"", "").trim()
 
                 try {
-                    val responseDebt = withContext(Dispatchers.IO) { repository.fetchTotalDebt(tokenPulito) }
+                    val responseDebt = withContext(Dispatchers.IO) {
+                        repository.fetchTotalDebt(tokenPulito)
+                    }
                     totalDebts = if (responseDebt.isSuccessful && responseDebt.body() != null) responseDebt.body()!!.toDouble() else 0.0
                 } catch(e: Exception) { totalDebts = 0.0 }
 

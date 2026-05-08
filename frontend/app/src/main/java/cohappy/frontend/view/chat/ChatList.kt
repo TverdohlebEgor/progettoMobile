@@ -1,5 +1,7 @@
 package cohappy.frontend.view.chat
 
+import android.graphics.BitmapFactory
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.isSystemInDarkTheme
@@ -25,47 +27,19 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import cohappy.frontend.components.ResearchBar
 import cohappy.frontend.components.Titoli
 import cohappy.frontend.viewmodel.ChatListItem
-
-@Composable
-fun ChatListItemRow(chat: ChatListItem, onClick: () -> Unit) {
-    Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .clickable { onClick() }
-            .padding(horizontal = 24.dp, vertical = 16.dp),
-        verticalAlignment = Alignment.CenterVertically
-    ) {
-        Box(
-            modifier = Modifier
-                .size(50.dp)
-                .clip(CircleShape)
-                .background(MaterialTheme.colorScheme.surfaceVariant),
-            contentAlignment = Alignment.Center
-        ) {
-            Icon(Icons.Default.Person, contentDescription = null, tint = MaterialTheme.colorScheme.onSurfaceVariant)
-        }
-
-        Spacer(modifier = Modifier.width(16.dp))
-
-        Column(modifier = Modifier.weight(1f)) {
-            Text(text = chat.name, fontWeight = FontWeight.Bold, fontSize = 16.sp, color = MaterialTheme.colorScheme.onSurface)
-            Text(text = chat.lastMessage, color = Color.Gray, fontSize = 14.sp, maxLines = 1)
-        }
-
-        Text(text = chat.time, color = Color.Gray, fontSize = 12.sp)
-    }
-}
-
 @Composable
 fun ChatListView(
     isLoading: Boolean,
@@ -93,17 +67,7 @@ fun ChatListView(
                 }
             }
 
-            stickyHeader {
-                Surface(color = bgColor, modifier = Modifier.fillMaxWidth()) {
-                    Column(modifier = Modifier.padding(horizontal = 24.dp).padding(top = 8.dp, bottom = 16.dp)) {
-                        ResearchBar(
-                            query = searchQuery,
-                            onQueryChange = onSearchChange,
-                            placeholder = "Cerca nelle chat..."
-                        )
-                    }
-                }
-            }
+
 
             if (isLoading) {
                 item {
@@ -123,6 +87,17 @@ fun ChatListView(
                     }
                 }
             } else {
+                stickyHeader {
+                    Surface(color = bgColor, modifier = Modifier.fillMaxWidth()) {
+                        Column(modifier = Modifier.padding(horizontal = 24.dp).padding(top = 8.dp, bottom = 16.dp)) {
+                            ResearchBar(
+                                query = searchQuery,
+                                onQueryChange = onSearchChange,
+                                placeholder = "Cerca nelle chat..."
+                            )
+                        }
+                    }
+                }
                 items(filteredChats) { chat ->
                     ChatListItemRow(
                         chat = chat,
@@ -132,5 +107,59 @@ fun ChatListView(
                 }
             }
         }
+    }
+}
+
+@Composable
+fun ChatListItemRow(chat: ChatListItem, onClick: () -> Unit) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .clickable { onClick() }
+            .padding(horizontal = 24.dp, vertical = 16.dp),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Box(
+            modifier = Modifier
+                .size(50.dp)
+                .clip(CircleShape)
+                .background(MaterialTheme.colorScheme.surfaceVariant),
+            contentAlignment = Alignment.Center
+        ) {
+            if (chat.image != null && chat.image.isNotEmpty()) {
+                val bitmap = remember(chat.image) {
+                    BitmapFactory.decodeByteArray(chat.image, 0, chat.image.size)
+                }
+                if (bitmap != null) {
+                    Image(
+                        bitmap = bitmap.asImageBitmap(),
+                        contentDescription = "Profilo ${chat.name}",
+                        modifier = Modifier.fillMaxSize(),
+                        contentScale = ContentScale.Crop
+                    )
+                } else {
+                    Icon(
+                        imageVector = Icons.Default.Person,
+                        contentDescription = null,
+                        tint = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                }
+            } else {
+                Icon(
+                    imageVector = Icons.Default.Person,
+                    contentDescription = null,
+                    tint = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+            }
+        }
+
+        Spacer(modifier = Modifier.width(16.dp))
+
+        Column(modifier = Modifier.weight(1f)) {
+            Text(text = chat.name, fontWeight = FontWeight.Bold, fontSize = 16.sp, color = MaterialTheme.colorScheme.onSurface)
+            Text(text = chat.lastMessage, color = Color.Gray, fontSize = 14.sp, maxLines = 1)
+        }
+
+        Text(text = chat.time, color = Color.Gray, fontSize = 12.sp)
     }
 }

@@ -58,3 +58,17 @@ fun PreviewChores() {
         )
     }
 }
+
+@Preview(showBackground = true, showSystemUi = true)
+@Composable
+fun PreviewChoresEmptyList() {
+    MaterialTheme {
+        ChoresView(
+            nomeUtente = "Ale",
+            imageBytes = null,
+            isLoading = false,
+            userToken = "test-token",
+            chores = listOf()
+        )
+    }
+}
