@@ -34,7 +34,7 @@ class UserProfileViewModel : ViewModel() {
             isLoading = true
             try {
                 val tokenPulito = userToken.replace("\"", "").trim()
-                val result = withContext(Dispatchers.IO) { repository.fetchUserProfile(tokenPulito) }
+                val result = repository.fetchUserProfile(tokenPulito)
 
                 if (result.isSuccess) {
                     val data = result.getOrNull()!!
@@ -66,9 +66,7 @@ class UserProfileViewModel : ViewModel() {
 
                 val tokenPulito = userToken.replace("\"", "").trim()
 
-                val result = withContext(Dispatchers.IO) {
-                    repository.updateUserImage(tokenPulito, imageBytes)
-                }
+                val result = repository.updateUserImage(tokenPulito, imageBytes)
 
                 if (result.isSuccess) {
                     Log.d("UserProfileVM", "✅ Immagine salvata sul DB con successo!")
@@ -93,7 +91,7 @@ class UserProfileViewModel : ViewModel() {
         viewModelScope.launch {
             try {
                 val tokenPulito = userToken.replace("\"", "").trim()
-                val result = withContext(Dispatchers.IO) { repository.joinHouse(codicePulito, tokenPulito) }
+                val result = repository.joinHouse(codicePulito, tokenPulito)
 
                 if (result.isSuccess) {
                     joinedHouseCode = codicePulito

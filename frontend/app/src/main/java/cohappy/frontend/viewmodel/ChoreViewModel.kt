@@ -37,9 +37,7 @@ class ChoreViewModel : ViewModel() {
                     return@launch
                 }
 
-                val response = withContext(Dispatchers.IO) {
-                    ClientSingleton.userApi.getUserProfile(cleanToken)
-                }
+                val response = ClientSingleton.userApi.getUserProfile(cleanToken)
 
                 if (response.isSuccessful && response.body() != null) {
                     val userData = response.body()!!
@@ -51,9 +49,7 @@ class ChoreViewModel : ViewModel() {
 
                     val houseCode = userData.houseCode
                     if (!houseCode.isNullOrBlank()) {
-                        val choresResponse = withContext(Dispatchers.IO) {
-                            repository.fetchUserChores(houseCode)
-                        }
+                        val choresResponse = repository.fetchUserChores(houseCode)
 
                         if (choresResponse.isSuccessful && choresResponse.body() != null) {
                             val rawChores = choresResponse.body()!!
@@ -105,9 +101,7 @@ class ChoreViewModel : ViewModel() {
                     description = null
                 )
 
-                val response = withContext(Dispatchers.IO) {
-                    repository.updateChoreStatus(patchData)
-                }
+                val response = repository.updateChoreStatus(patchData)
 
                 if (response.isSuccessful) {
                     chores = chores.map { faccenda ->

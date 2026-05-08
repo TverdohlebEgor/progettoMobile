@@ -60,9 +60,7 @@ class CreateAdViewModel : ViewModel() {
                     publishedBy = tokenPulito
                 )
 
-                val response = withContext(Dispatchers.IO) {
-                    repository.createAdvertisement(dto)
-                }
+                val response = repository.createAdvertisement(dto)
 
                 if (response.isSuccessful) {
                     isSuccess = true

@@ -48,7 +48,7 @@ class ChatListRepositoryTest {
         val result = repository.createChat(dto)
 
         assertTrue(result.isSuccess)
-        assertEquals(Unit, result.getOrNull())
+        assertEquals("CHAT_ID", result.getOrNull())
     }
 
     @Test

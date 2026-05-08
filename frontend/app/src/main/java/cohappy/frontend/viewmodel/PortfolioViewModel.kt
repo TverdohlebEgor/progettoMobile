@@ -58,19 +58,17 @@ class PortfolioViewModel(
                 val tokenPulito = userToken.replace("\"", "").trim()
 
                 try {
-                    val resultDebt = withContext(Dispatchers.IO) {
-                        repository.fetchTotalDebt(tokenPulito)
-                    }
+                    val resultDebt = repository.fetchTotalDebt(tokenPulito)
                     totalDebts = resultDebt.getOrNull()?.toDouble() ?: 0.0
                 } catch(e: Exception) { totalDebts = 0.0 }
 
                 try {
-                    val resultCredits = withContext(Dispatchers.IO) { repository.fetchTotalCredits(tokenPulito) }
+                    val resultCredits = repository.fetchTotalCredits(tokenPulito)
                     totalCredits = resultCredits.getOrNull()?.toDouble() ?: 0.0
                 } catch(e: Exception) { totalCredits = 0.0 }
 
                 try {
-                    val resultPortfolio = withContext(Dispatchers.IO) { repository.fetchUserPortfolio(tokenPulito) }
+                    val resultPortfolio = repository.fetchUserPortfolio(tokenPulito)
                     if (resultPortfolio.isSuccess) {
                         val portfolio = resultPortfolio.getOrNull()!!
                         val rawTransactions: List<DebtDTO> = portfolio.debts ?: emptyList()
@@ -155,7 +153,7 @@ class PortfolioViewModel(
                     debtType = newDebtCategory
                 )
 
-                val response = withContext(Dispatchers.IO) { ClientSingleton.portfolioApi.createDebt(requestDto) }
+                val response = ClientSingleton.portfolioApi.createDebt(requestDto)
                 if (response.isSuccessful) {
                     closeAddDebtSheet()
                     loadPortfolio(userToken)

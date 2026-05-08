@@ -19,8 +19,11 @@ fun ChatListScreen(
     ChatListView(
         isLoading = viewModel.isLoading,
         searchQuery = viewModel.searchQuery,
+        isError = viewModel.isError,
+        errorMessage = viewModel.errorMessage,
         filteredChats = viewModel.getFilteredChats(),
         onSearchChange = { nuovaQuery -> viewModel.updateSearchQuery(nuovaQuery) },
-        onChatClick = onChatClick
+        onChatClick = onChatClick,
+        onRetry = { viewModel.loadChats(userToken) }
     )
 }

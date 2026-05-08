@@ -34,7 +34,7 @@ class AdListViewModel : ViewModel() {
 
             while (attempt <= maxRetries && !success) {
                 try {
-                    val result = withContext(Dispatchers.IO) { repository.fetchAds() }
+                    val result = repository.fetchAds()
                     if (result.isSuccess) {
                         adsList = result.getOrNull() ?: emptyList()
                         Log.d("AdListVM", "✅ Caricati ${adsList.size} annunci")

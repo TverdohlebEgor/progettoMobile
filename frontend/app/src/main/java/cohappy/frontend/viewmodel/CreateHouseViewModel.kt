@@ -59,9 +59,7 @@ class CreateHouseViewModel : ViewModel() {
                     costPerMonth = 0      // Passiamo 0 invece di null
                 )
 
-                val response = withContext(Dispatchers.IO) {
-                    ClientSingleton.houseApi.createHouse(dto)
-                }
+                val response = ClientSingleton.houseApi.createHouse(dto)
 
                 if (response.isSuccessful) {
                     createdHouseCode = response.body() ?: ""

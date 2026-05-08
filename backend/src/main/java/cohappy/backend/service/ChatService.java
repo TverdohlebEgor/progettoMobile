@@ -42,11 +42,18 @@ public class ChatService {
         );
 
         for (Chat chat : chatRepository.findByParticipatingContains(userCode)) {
+            var messageResponse = getMessages(chat.getChatCode(), new GetMessagesDTO(null, null));
+            String lastMessage = Optional.ofNullable(messageResponse)
+                    .map(List::getLast)
+                    .map(ChatMessageDTO::getMessage)
+                    .orElse(null);
+
             userChats.add(new UserChatDTO(
                             chat.getChatCode(),
                             chat.getParticipating(),
                             chat.getName(),
-                            chat.getImmage()
+                            chat.getImmage(),
+                            lastMessage
                     )
             );
         }
@@ -60,7 +67,7 @@ public class ChatService {
         );
 
         return new GetChatDTO(
-               chat.getChatCode(),
+                chat.getChatCode(),
                 chat.getParticipating(),
                 chat.getName(),
                 chat.getImmage()
@@ -87,11 +94,11 @@ public class ChatService {
                 : Collections.emptyList();
     }
 
-    public String createChat(CreateChatDTO createChatDTO){
-        validateInput(createChatDTO,"createChatDTO");
-        validateInput(createChatDTO.getName(),"chatName");
-        validateInput(createChatDTO.getParticipating(),"Participating");
-        if(createChatDTO.getParticipating().isEmpty()){
+    public String createChat(CreateChatDTO createChatDTO) {
+        validateInput(createChatDTO, "createChatDTO");
+        validateInput(createChatDTO.getName(), "chatName");
+        validateInput(createChatDTO.getParticipating(), "Participating");
+        if (createChatDTO.getParticipating().isEmpty()) {
             throw new IllegalInputException("Chat participators can't be 0");
         }
 
@@ -107,51 +114,51 @@ public class ChatService {
         return newChat.getChatCode();
     }
 
-    public void patchChat(PatchChatDTO patchChatDTO){
+    public void patchChat(PatchChatDTO patchChatDTO) {
         boolean changedSomething = false;
-        validateInput(patchChatDTO,"patchChatDTO");
+        validateInput(patchChatDTO, "patchChatDTO");
 
         Chat chat = chatRepository.findByChatCode(patchChatDTO.getChatCode()).orElseThrow(
                 () -> new NotFoundException(CHAT_NOT_FOUND.formatted(patchChatDTO.getChatCode()))
         );
 
-        if(!Arrays.equals(patchChatDTO.getImmage(),chat.getImmage())){
+        if (!Arrays.equals(patchChatDTO.getImmage(), chat.getImmage())) {
             chat.setImmage(patchChatDTO.getImmage());
             changedSomething = true;
         }
 
-        if(!patchChatDTO.getName().equals(chat.getName())){
+        if (!patchChatDTO.getName().equals(chat.getName())) {
             chat.setName(patchChatDTO.getName());
             changedSomething = true;
         }
 
-        if(!changedSomething){
+        if (!changedSomething) {
             throw new NoPatchException(NO_PATCH.formatted(patchChatDTO.getChatCode()));
         }
 
         chatRepository.save(chat);
     }
 
-    public void patchChatUsers(PatchChatUsersDTO patchChatUsersDTO){
-        validateInput(patchChatUsersDTO,"patchChatUsersDTO");
+    public void patchChatUsers(PatchChatUsersDTO patchChatUsersDTO) {
+        validateInput(patchChatUsersDTO, "patchChatUsersDTO");
 
         Chat chat = chatRepository.findByChatCode(patchChatUsersDTO.getChatCode()).orElseThrow(
                 () -> new NotFoundException(CHAT_NOT_FOUND.formatted(patchChatUsersDTO.getChatCode()))
         );
 
-        for(String userCode : patchChatUsersDTO.getUsersCode()){
+        for (String userCode : patchChatUsersDTO.getUsersCode()) {
             userRepository.findByUserCode(userCode).orElseThrow(
                     () -> new NotFoundException(USER_NOT_FOUND.formatted(userCode))
             );
 
-            if(patchChatUsersDTO.getOperation() == PatchChatUsersOperationEnum.ADD){
+            if (patchChatUsersDTO.getOperation() == PatchChatUsersOperationEnum.ADD) {
                 chat.getParticipating().add(userCode);
             } else {
-                if(chat.getParticipating().size() <= 1){
-                   throw new IllegalInputException("Chat %s has only 1 member".formatted(userCode));
+                if (chat.getParticipating().size() <= 1) {
+                    throw new IllegalInputException("Chat %s has only 1 member".formatted(userCode));
                 }
-                if(!chat.getParticipating().contains(userCode)){
-                    throw new IllegalInputException("User %s is not in the chat %s".formatted(userCode,chat.getChatCode()));
+                if (!chat.getParticipating().contains(userCode)) {
+                    throw new IllegalInputException("User %s is not in the chat %s".formatted(userCode, chat.getChatCode()));
                 }
 
                 chat.getParticipating().remove(userCode);
@@ -161,10 +168,10 @@ public class ChatService {
         chatRepository.save(chat);
     }
 
-    public void addMessage(AddMessageDTO addMessageDTO){
-        validateInput(addMessageDTO,"addMessageDTO");
-        validateInput(addMessageDTO.getMessage(),"message");
-        validateInput(addMessageDTO.getUserCode(),"userCode");
+    public void addMessage(AddMessageDTO addMessageDTO) {
+        validateInput(addMessageDTO, "addMessageDTO");
+        validateInput(addMessageDTO.getMessage(), "message");
+        validateInput(addMessageDTO.getUserCode(), "userCode");
 
         Chat chat = chatRepository.findByChatCode(addMessageDTO.getChatCode()).orElseThrow(
                 () -> new NotFoundException(CHAT_NOT_FOUND.formatted(addMessageDTO.getChatCode()))
@@ -175,15 +182,15 @@ public class ChatService {
         );
 
         byte[] immage = null;
-        if(userAccount.getImages() != null && !userAccount.getImages().isEmpty()){
+        if (userAccount.getImages() != null && !userAccount.getImages().isEmpty()) {
             immage = userAccount.getImages().getFirst();
         }
         ChatMessage newMessage = new ChatMessage(
-           addMessageDTO.getMessage(),
-           addMessageDTO.getMessageImmage(),
-           userAccount.getUserCode(),
-           immage,
-           LocalDateTime.now()
+                addMessageDTO.getMessage(),
+                addMessageDTO.getMessageImmage(),
+                userAccount.getUserCode(),
+                immage,
+                LocalDateTime.now()
         );
 
         chat.getMessages().add(newMessage);
@@ -198,8 +205,8 @@ public class ChatService {
         );
     }
 
-    private void validateInput(Object value, String name){
-        if(value == null){
+    private void validateInput(Object value, String name) {
+        if (value == null) {
             throw new IllegalInputException(INVALID_INPUT.formatted(name));
         }
     }

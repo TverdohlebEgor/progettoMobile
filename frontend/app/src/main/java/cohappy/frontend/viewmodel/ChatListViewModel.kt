@@ -18,14 +18,20 @@ data class ChatListItem(
     val image: ByteArray?
 )
 
-class ChatListViewModel : ViewModel() {
-    private val repository = ChatListRepository()
+class ChatListViewModel(
+    private val repository: ChatListRepository = ChatListRepository()
+) : ViewModel() {
     var chatsList by mutableStateOf<List<ChatListItem>>(emptyList())
         private set
     var isLoading by mutableStateOf(true)
         private set
     var searchQuery by mutableStateOf("")
         private set
+
+    var isError by mutableStateOf(false)
+    var errorMessage by mutableStateOf("")
+        private set
+
     fun loadChats(userToken: String?) {
         viewModelScope.launch {
             isLoading = true
@@ -36,25 +42,27 @@ class ChatListViewModel : ViewModel() {
                     return@launch
                 }
 
-                val result = withContext(Dispatchers.IO) {
-                    repository.getUserChats(cleanToken)
-                }
+                val result = repository.getUserChats(cleanToken)
 
                 if (result.isSuccess) {
                     chatsList = result.getOrNull()?.map { dto ->
                         ChatListItem(
                             id = dto.chatCode ?: "",
                             name = dto.name ?: "Chat",
-                            lastMessage = "Tocca per aprire...",
+                            lastMessage = dto.lastMessage ?: "Tocca per aprire...",
                             time = "",
                             image = dto.image
                         )
                     } ?: emptyList()
                 } else {
                     chatsList = emptyList()
+                    errorMessage = result.exceptionOrNull()?.message ?: "Errore sconosciuto"
+                    isError = true
                 }
-            } catch (_: Exception) {
+            } catch (e: Exception) {
                 chatsList = emptyList()
+                errorMessage = e.message ?: "Errore sconosciuto"
+                isError = true
             } finally {
                 isLoading = false
             }
