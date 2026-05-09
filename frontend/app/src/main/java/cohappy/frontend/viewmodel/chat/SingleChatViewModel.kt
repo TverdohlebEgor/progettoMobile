@@ -1,5 +1,7 @@
 package cohappy.frontend.viewmodel
 
+import android.graphics.Bitmap
+import android.graphics.BitmapFactory
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
@@ -23,7 +25,9 @@ import java.time.LocalDateTime
 
 data class ChatUiState(
     val isLoading: Boolean = true,
+    val isSending: Boolean = false,
     val nomeChat: String = "Caricamento...",
+    val immagineChat: ByteArray? = null,
     val messaggi: List<ChatMessageDTO> = emptyList(),
     val resolvedChatCode: String = "",
     val resolvedAnnuncioId: String = "",
@@ -48,6 +52,7 @@ class SingleChatViewModel(
 
         viewModelScope.launch {
             var nomeConversazione = "Sconosciuto"
+            var immagineConversazione: ByteArray? = null
             var idChatDaUsare = ""
             var otherUserCodeForSearch = chatCode
 
@@ -57,6 +62,7 @@ class SingleChatViewModel(
                     val user = profileResult.getOrNull()!!
                     val fullName = "${user.name ?: ""} ${user.surname ?: ""}".trim()
                     if (fullName.isNotBlank()) nomeConversazione = fullName
+                    immagineConversazione = user.images?.get(0)
                 }
             } catch (e: Exception) {
                 if (e is CancellationException) throw e
@@ -112,6 +118,7 @@ class SingleChatViewModel(
             _uiState.value = _uiState.value.copy(
                 isLoading = false,
                 nomeChat = nomeConversazione,
+                immagineChat = immagineConversazione,
                 resolvedChatCode = idChatDaUsare,
                 resolvedAnnuncioId = annuncioTrovato
             )
@@ -127,7 +134,7 @@ class SingleChatViewModel(
             while (isActive) {
                 try {
                     val result = singleChatRepository.getMessages(chatId)
-                    if (result.isSuccess) {
+                    if (result.isSuccess && !_uiState.value.isSending) {
                         val newMessages = result.getOrNull() ?: emptyList()
                         if (newMessages != _uiState.value.messaggi) {
                             _uiState.value = _uiState.value.copy(messaggi = newMessages)
@@ -152,26 +159,48 @@ class SingleChatViewModel(
     }
 
     fun sendMessage(testo: String, immage: ByteArray? = null) {
+        val compressedImage = compressImage(immage)
+        Log.d("DEBUG_CHAT", "Sending message. Image size: ${compressedImage?.size ?: 0} bytes")
         val currentState = _uiState.value
-        if (testo.isBlank() || currentState.resolvedChatCode.isBlank()) return
+        if ((testo.isBlank() && compressedImage == null) || currentState.resolvedChatCode.isBlank()) return
 
         val newMessage = ChatMessageDTO(
             message = testo,
             userCode = currentState.mioUserCode,
-            messageImage = immage,
+            messageImage = compressedImage,
             timestamp = LocalDateTime.now(),
         )
-        _uiState.value = currentState.copy(messaggi = currentState.messaggi + newMessage)
+        _uiState.value = currentState.copy(
+            messaggi = currentState.messaggi + newMessage,
+            isSending = true
+        )
 
         viewModelScope.launch {
             val dto = AddMessageDTO(
                 message = testo,
                 userCode = currentState.mioUserCode,
-                chatCode = currentState.resolvedChatCode
+                chatCode = currentState.resolvedChatCode,
+                messageImage = compressedImage
             )
-            singleChatRepository.sendMessage(dto).onFailure { Log.e("TAG_CHAT", "Errore invio") }
+            singleChatRepository.sendMessage(dto)
+                .onSuccess {
+                    delay(500)
+                    _uiState.value = _uiState.value.copy(isSending = false)
+                }
+                .onFailure {
+                    Log.e("TAG_CHAT", "Errore invio")
+                    _uiState.value = _uiState.value.copy(isSending = false)
+                }
         }
     }
+}
+
+private fun compressImage(imageData: ByteArray?): ByteArray? {
+    if(imageData == null) return null
+    val bitmap = BitmapFactory.decodeByteArray(imageData, 0, imageData.size)
+    val outputStream = java.io.ByteArrayOutputStream()
+    bitmap.compress(Bitmap.CompressFormat.JPEG, 70, outputStream)
+    return outputStream.toByteArray()
 }
 
 class SingleChatViewModelFactory : ViewModelProvider.Factory {

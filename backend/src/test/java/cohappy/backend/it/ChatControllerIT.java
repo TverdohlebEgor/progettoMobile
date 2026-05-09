@@ -336,7 +336,7 @@ public class ChatControllerIT extends BaseIT {
         request.setChatCode("chatCode");
         request.setUserCode("USR-999");
         request.setMessage("New Message!");
-        request.setMessageImmage("msg_img.png".getBytes(StandardCharsets.UTF_8));
+        request.setMessageImage("msg_img.png".getBytes(StandardCharsets.UTF_8));
 
         mockMvc.perform(post(path("/message/add"))
                         .contentType(MediaType.APPLICATION_JSON)

@@ -10,6 +10,6 @@ import lombok.NoArgsConstructor;
 public class AddMessageDTO {
     private String chatCode;
     private String message;
-    private byte[] messageImmage;
+    private byte[] messageImage;
     private String userCode;
 }

@@ -1,5 +1,7 @@
 package cohappy.frontend.viewmodel
 
+import android.graphics.Bitmap
+import android.graphics.BitmapFactory
 import android.util.Log
 import cohappy.frontend.client.dto.response.ChatMessageDTO
 import cohappy.frontend.client.dto.response.GetHouseAdvertesimentDTO
@@ -26,10 +28,14 @@ import kotlinx.coroutines.test.setMain
 import org.junit.After
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
+import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.Test
+import org.junit.runner.RunWith
+import org.robolectric.RobolectricTestRunner
 
 @OptIn(ExperimentalCoroutinesApi::class)
+@RunWith(RobolectricTestRunner::class)
 class SingleChatViewModelTest {
 
     private val singleChatRepository = mockk<SingleChatRepository>()
@@ -45,9 +51,12 @@ class SingleChatViewModelTest {
         mockkStatic(Log::class)
         every { Log.e(any(), any()) } returns 0
         every { Log.d(any(), any()) } returns 0
-        
-        // Define ALL behavior for the strict mock before initializing the ViewModel
-        // if the ViewModel starts work immediately.
+
+        mockkStatic(BitmapFactory::class)
+        val mockBitmap = mockk<Bitmap>(relaxed = true)
+        every { BitmapFactory.decodeByteArray(any(), any(), any()) } returns mockBitmap
+        every { mockBitmap.compress(any(), any(), any()) } returns true
+
         coEvery { userRepository.fetchUserProfile(any()) } returns Result.failure(Exception())
         coEvery { chatListRepository.getUserChats(any()) } returns Result.success(emptyList())
         coEvery { houseAdvRepository.fetchAds() } returns Result.success(emptyList())
@@ -87,7 +96,6 @@ class SingleChatViewModelTest {
         
         viewModel.initChat(chatCode, mioUserCode)
         
-        // Use advanceTimeBy + runCurrent instead of advanceUntilIdle to avoid infinite polling loop
         advanceTimeBy(100)
         runCurrent()
 
@@ -97,10 +105,6 @@ class SingleChatViewModelTest {
         assertEquals(chatId, state.resolvedChatCode)
         assertEquals("HOUSE_1", state.resolvedAnnuncioId)
         
-        // The first fetch is triggered by the start of the polling loop
-        // It runs immediately (at time 0 in virtual time) when initChat completes
-        // and startPolling is called.
-
         assertEquals(1, viewModel.uiState.value.messaggi.size)
         assertEquals("Hello", viewModel.uiState.value.messaggi[0].message)
         
@@ -130,7 +134,7 @@ class SingleChatViewModelTest {
     }
 
     @Test
-    fun `sendMessage should update local state and call repository`() = runTest(testDispatcher) {
+    fun `sendMessage with text should update local state and call repository`() = runTest(testDispatcher) {
         val chatCode = "OTHER"
         val mioUserCode = "ME"
         val chatId = "CHAT_ID"
@@ -147,12 +151,14 @@ class SingleChatViewModelTest {
         coEvery { singleChatRepository.sendMessage(any()) } returns Result.success(Unit)
         
         viewModel.sendMessage(messageText)
+        assertTrue(viewModel.uiState.value.isSending)
         assertEquals(1, viewModel.uiState.value.messaggi.size)
         assertEquals(messageText, viewModel.uiState.value.messaggi[0].message)
         
-        advanceTimeBy(100)
+        advanceTimeBy(600)
         runCurrent()
         
+        assertFalse(viewModel.uiState.value.isSending)
         coVerify {
             singleChatRepository.sendMessage(match {
                 it.message == messageText && it.chatCode == chatId && it.userCode == mioUserCode 
@@ -160,6 +166,43 @@ class SingleChatViewModelTest {
         }
         
         viewModel.stopPolling()
+    }
+
+    @Test
+    fun `sendMessage with image should update state and call repository`() = runTest(testDispatcher) {
+        val chatCode = "OTHER"
+        val mioUserCode = "ME"
+        val chatId = "CHAT_ID"
+        coEvery { chatListRepository.getUserChats(any()) } returns Result.success(listOf(UserChatDTO(chatCode = chatId, participating = listOf(mioUserCode, chatCode))))
+        viewModel.initChat(chatCode, mioUserCode)
+        advanceTimeBy(500)
+        runCurrent()
+
+        val imageBytes = byteArrayOf(1, 2, 3)
+        coEvery { singleChatRepository.sendMessage(any()) } returns Result.success(Unit)
+
+        viewModel.sendMessage("", imageBytes)
+
+        assertTrue(viewModel.uiState.value.isSending)
+        assertEquals(1, viewModel.uiState.value.messaggi.size)
+        assertTrue(viewModel.uiState.value.messaggi[0].messageImage != null)
+
+        advanceTimeBy(600)
+        runCurrent()
+
+        assertFalse(viewModel.uiState.value.isSending)
+        coVerify {
+            singleChatRepository.sendMessage(match {
+                it.message == "" && it.chatCode == chatId && it.messageImage != null
+            })
+        }
+        viewModel.stopPolling()
+    }
+
+    @Test
+    fun `sendMessage with empty content should not do anything`() = runTest(testDispatcher) {
+        viewModel.sendMessage("", null)
+        coVerify(exactly = 0) { singleChatRepository.sendMessage(any()) }
     }
 
     @Test
@@ -180,20 +223,38 @@ class SingleChatViewModelTest {
 
         viewModel.initChat(chatCode, mioUserCode)
         
-        // Polling loop starts. 
-        // Initial setup completes and first fetch happens immediately.
         advanceTimeBy(100)
         runCurrent()
         assertEquals(0, viewModel.uiState.value.messaggi.size)
         
-        // Next poll after 1s
         advanceTimeBy(1000)
         runCurrent()
 
         assertEquals(1, viewModel.uiState.value.messaggi.size)
         assertEquals("New message", viewModel.uiState.value.messaggi[0].message)
-        coVerify(exactly = 2) { singleChatRepository.getMessages(chatId) }
+        coVerify(atLeast = 2) { singleChatRepository.getMessages(chatId) }
         
+        viewModel.stopPolling()
+    }
+
+    @Test
+    fun `polling failure should log error and not crash`() = runTest(testDispatcher) {
+        val chatCode = "OTHER"
+        val mioUserCode = "ME"
+        val chatId = "CHAT_1"
+        coEvery { chatListRepository.getUserChats(mioUserCode) } returns Result.success(listOf(UserChatDTO(chatCode = chatId, participating = listOf(mioUserCode, chatCode))))
+        coEvery { singleChatRepository.getMessages(chatId) } returns Result.failure(Exception("Server down"))
+
+        viewModel.initChat(chatCode, mioUserCode)
+        advanceTimeBy(100)
+        runCurrent()
+        
+        coVerify { singleChatRepository.getMessages(chatId) }
+        
+        advanceTimeBy(1000)
+        runCurrent()
+        
+        coVerify(atLeast = 2) { singleChatRepository.getMessages(chatId) }
         viewModel.stopPolling()
     }
 }

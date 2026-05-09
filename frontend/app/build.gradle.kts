@@ -58,6 +58,7 @@ dependencies {
     implementation("androidx.compose.material:material-icons-extended")
     implementation("dev.chrisbanes.haze:haze:0.6.2")
     implementation("androidx.navigation:navigation-compose:2.8.5")
+    testImplementation("org.robolectric:robolectric:4.10")
 
     implementation(libs.retrofit.core)
     implementation(libs.retrofit.converter.moshi)

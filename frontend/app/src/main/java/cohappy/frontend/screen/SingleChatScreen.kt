@@ -26,13 +26,12 @@ fun SingleChatScreen(
 
     SingleChatView(
         uiState = uiState,
-        onSendClick = { testo -> viewModel.sendMessage(testo) },
+        onSendClick = { testo, immagine -> viewModel.sendMessage(testo, immagine) },
         onBackClick = onBackClick,
         onHeaderClick = {
             if (uiState.resolvedAnnuncioId.isNotBlank()) {
                 onNavigateToAnnuncio(uiState.resolvedAnnuncioId)
             }
-        },
-        onPhotoClick = { }
+        }
     )
 }

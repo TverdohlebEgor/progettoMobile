@@ -8,4 +8,6 @@ object ErrorMessages {
     const val USER_NOT_FOUND_CREATE_CHAT= "Uno degli utenti passati come partecipanti non esiste"
     const val USER_NOT_FOUND_GET_CHATS= "Lo userCode passato non è connesso a nessun utente"
     const val USER_NOT_FOUND_PORTFOLIO = "Impossibile recuperare il portfolio: utente non trovato"
+    const val CHAT_NOT_FOUND = "La chat richiesta non esiste"
+    const val MESSAGE_EMPTY = "Il messaggio non può essere vuoto"
 }

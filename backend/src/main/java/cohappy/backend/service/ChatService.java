@@ -44,6 +44,7 @@ public class ChatService {
         for (Chat chat : chatRepository.findByParticipatingContains(userCode)) {
             var messageResponse = getMessages(chat.getChatCode(), new GetMessagesDTO(null, null));
             String lastMessage = Optional.ofNullable(messageResponse)
+                    .filter(list -> !list.isEmpty())
                     .map(List::getLast)
                     .map(ChatMessageDTO::getMessage)
                     .orElse(null);
@@ -187,7 +188,7 @@ public class ChatService {
         }
         ChatMessage newMessage = new ChatMessage(
                 addMessageDTO.getMessage(),
-                addMessageDTO.getMessageImmage(),
+                addMessageDTO.getMessageImage(),
                 userAccount.getUserCode(),
                 immage,
                 LocalDateTime.now()

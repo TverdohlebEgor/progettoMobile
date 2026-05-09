@@ -24,7 +24,6 @@ interface ChatApiClient {
     @GET("api/chat/messages/{chatCode}")
     suspend fun getMessages(
         @Path("chatCode") chatCode: String
-        //@QueryMap options: Map<String, String>? = null
     ): Response<List<ChatMessageDTO>>
     @POST("api/chat/create")
     suspend fun createChat(@Body request: CreateChatDTO): Response<String>

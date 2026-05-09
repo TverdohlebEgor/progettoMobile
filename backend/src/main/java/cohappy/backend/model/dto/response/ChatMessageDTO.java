@@ -9,7 +9,7 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 public class ChatMessageDTO {
     public String message;
-    public byte[] messageImmage;
+    public byte[] messageImage;
     private String userCode;
     private byte[] userImage;
     public LocalDateTime timestamp;
