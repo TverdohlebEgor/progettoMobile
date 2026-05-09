@@ -7,170 +7,92 @@ import cohappy.frontend.view.house.HouseProfileView
 import cohappy.frontend.viewmodel.RoommateItem
 
 private val mockRoommates = listOf(
-    RoommateItem("1", "Alessandro", "Bianchi", isAdmin = true, isMe = true),
-    RoommateItem("2", "Marco", "Rossi", isAdmin = false, isMe = false),
-    RoommateItem("3", "Sofia", "Verdi", isAdmin = false, isMe = false)
+    RoommateItem(userCode = "1", name = "Ale", surname = "Rossi", isAdmin = true, isMe = true),
+    RoommateItem(userCode = "2", name = "Sofia", surname = "Bianchi", isAdmin = false, isMe = false),
+    RoommateItem(userCode = "3", name = "Marco", surname = "Verdi", isAdmin = false, isMe = false)
 )
 
 @Preview(showBackground = true, name = "1. Loading State")
 @Composable
-fun RommateProfilePreviewLoading() {
+fun RoommateProfilePreviewLoading() {
     ProgettoMobileTheme {
         HouseProfileView(
-            userName = "Alessandro",
-            userSurname = "Bianchi",
+            userName = "Caricamento...",
+            userSurname = "",
             imageBytes = null,
             isLoading = true,
-            houseAddress = "Via Roma 123, Milano",
-            houseCode = "ABC123XYZ",
-            onUpdateCodeClick = {},
-            onEditPhotoClick = {},
-            onLeaveHouseClick = {},
-            onLogoutClick = {},
-            onRoommatesClick = {},
-            onCreateAdClick = {}
+            houseAddress = "",
+            houseCode = ""
         )
     }
 }
 
 @Preview(showBackground = true, name = "2. Normal User State")
 @Composable
-fun RommateProfilePreviewNormal() {
+fun RoommateProfilePreviewNormal() {
     ProgettoMobileTheme {
         HouseProfileView(
-            userName = "Alessandro",
-            userSurname = "Bianchi",
+            userName = "Ale",
+            userSurname = "Rossi",
             imageBytes = null,
             isLoading = false,
-            houseAddress = "Via Roma 123, Milano",
-            houseCode = "ABC123XYZ",
-            isCurrentUserAdmin = false,
-            onUpdateCodeClick = {},
-            onEditPhotoClick = {},
-            onLeaveHouseClick = {},
-            onLogoutClick = {},
-            onRoommatesClick = {},
-            onCreateAdClick = {}
+            houseAddress = "Via Garibaldi 12",
+            houseCode = "COH-1234",
+            isCurrentUserAdmin = false
         )
     }
 }
 
-@Preview(showBackground = true, name = "3. Admin User State")
+@Preview(showBackground = true, name = "3. Update Code Error")
 @Composable
-fun RommateProfilePreviewAdmin() {
+fun RoommateProfilePreviewCodeError() {
     ProgettoMobileTheme {
         HouseProfileView(
-            userName = "Alessandro",
-            userSurname = "Bianchi",
+            userName = "Ale",
+            userSurname = "Rossi",
             imageBytes = null,
             isLoading = false,
-            houseAddress = "Via Roma 123, Milano",
-            houseCode = "ABC123XYZ",
-            isCurrentUserAdmin = true,
-            onUpdateCodeClick = {},
-            onEditPhotoClick = {},
-            onLeaveHouseClick = {},
-            onLogoutClick = {},
-            onRoommatesClick = {},
-            onCreateAdClick = {}
+            houseAddress = "Via Garibaldi 12",
+            houseCode = "COH-1234",
+            codeUpdateError = "Questo codice è già in uso!"
         )
     }
 }
 
-@Preview(showBackground = true, name = "4. Code Updating State")
-@Composable
-fun RommateProfilePreviewUpdatingCode() {
-    ProgettoMobileTheme {
-        HouseProfileView(
-            userName = "Alessandro",
-            userSurname = "Bianchi",
-            imageBytes = null,
-            isLoading = false,
-            houseAddress = "Via Roma 123, Milano",
-            houseCode = "ABC123XYZ",
-            isUpdatingCode = true,
-            isCurrentUserAdmin = true,
-            onUpdateCodeClick = {},
-            onEditPhotoClick = {},
-            onLeaveHouseClick = {},
-            onLogoutClick = {},
-            onRoommatesClick = {},
-            onCreateAdClick = {}
-        )
-    }
-}
 
-@Preview(showBackground = true, name = "5. Code Update Error")
+@Preview(showBackground = true, name = "4. Roommates Loading Popup")
 @Composable
-fun RommateProfilePreviewError() {
+fun RoommateProfilePreviewRoommatesLoading() {
     ProgettoMobileTheme {
         HouseProfileView(
-            userName = "Alessandro",
-            userSurname = "Bianchi",
+            userName = "Ale",
+            userSurname = "Rossi",
             imageBytes = null,
             isLoading = false,
-            houseAddress = "Via Roma 123, Milano",
-            houseCode = "ABC123XYZ",
-            codeUpdateError = "Codice non valido o già esistente",
-            isCurrentUserAdmin = true,
-            onUpdateCodeClick = {},
-            onEditPhotoClick = {},
-            onLeaveHouseClick = {},
-            onLogoutClick = {},
-            onRoommatesClick = {},
-            onCreateAdClick = {}
-        )
-    }
-}
-
-@Preview(showBackground = true, name = "6. Roommates Popup Loading")
-@Composable
-fun RommateProfilePreviewPopupLoading() {
-    ProgettoMobileTheme {
-        HouseProfileView(
-            userName = "Alessandro",
-            userSurname = "Bianchi",
-            imageBytes = null,
-            isLoading = false,
-            houseAddress = "Via Roma 123, Milano",
-            houseCode = "ABC123XYZ",
+            houseAddress = "Via Garibaldi 12",
+            houseCode = "COH-1234",
             showRoommatesPopup = true,
-            isRoommatesLoading = true,
-            isCurrentUserAdmin = true,
-            onUpdateCodeClick = {},
-            onEditPhotoClick = {},
-            onLeaveHouseClick = {},
-            onLogoutClick = {},
-            onRoommatesClick = {},
-            onCreateAdClick = {},
-            onDismissRoommatesPopup = {}
+            isRoommatesLoading = true
         )
     }
 }
 
-@Preview(showBackground = true, name = "7. Roommates Popup Populated")
+
+@Preview(showBackground = true, name = "5. Roommates Loaded (Admin)")
 @Composable
-fun RommateProfilePreviewPopupPopulated() {
+fun RoommateProfilePreviewRoommatesLoaded() {
     ProgettoMobileTheme {
         HouseProfileView(
-            userName = "Alessandro",
-            userSurname = "Bianchi",
+            userName = "Ale",
+            userSurname = "Rossi",
             imageBytes = null,
             isLoading = false,
-            houseAddress = "Via Roma 123, Milano",
-            houseCode = "ABC123XYZ",
+            houseAddress = "Via Garibaldi 12",
+            houseCode = "COH-1234",
             showRoommatesPopup = true,
+            isRoommatesLoading = false,
             roommatesList = mockRoommates,
-            isCurrentUserAdmin = true,
-            onUpdateCodeClick = {},
-            onEditPhotoClick = {},
-            onLeaveHouseClick = {},
-            onLogoutClick = {},
-            onRoommatesClick = {},
-            onCreateAdClick = {},
-            onDismissRoommatesPopup = {},
-            onPromoteClick = {},
-            onKickClick = {}
+            isCurrentUserAdmin = true
         )
     }
 }

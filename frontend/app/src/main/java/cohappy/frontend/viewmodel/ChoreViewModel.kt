@@ -11,6 +11,16 @@ import cohappy.frontend.model.Chore
 import cohappy.frontend.repository.ChoreRepository
 import kotlinx.coroutines.launch
 
+data class ChoreItem(
+    val choreCode: String,
+    val title: String,
+    val description: String,
+    val assignedToCode: String,
+    val assigneeName: String,
+    val isCompleted: Boolean,
+    val dayLabel: String
+)
+
 class ChoreViewModel : ViewModel() {
     private val repository = ChoreRepository()
 

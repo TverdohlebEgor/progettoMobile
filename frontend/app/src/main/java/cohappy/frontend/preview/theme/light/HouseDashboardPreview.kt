@@ -6,43 +6,89 @@ import cohappy.frontend.client.dto.response.GetNotificationDTO
 import cohappy.frontend.ui.theme.ProgettoMobileTheme
 import cohappy.frontend.view.house.HouseDashboardView
 
-@Preview(showBackground = true)
+private val mockNotifications = listOf(
+    GetNotificationDTO(
+        eventId = "1",
+        eventType = "CHAT",
+        title = "Nuovo messaggio da Anna",
+        subtitle = "Certo, a che ora ci vediamo?",
+        timestamp = "10:30",
+        imageBytes = null,
+        userCode = "my_token"
+    ),
+    GetNotificationDTO(
+        eventId = "2",
+        eventType = "CHORE",
+        title = "Promemoria Faccende",
+        subtitle = "Ricordati di buttare l'umido oggi!",
+        timestamp = "09:00",
+        imageBytes = null,
+        userCode = "my_token"
+    ),
+    GetNotificationDTO(
+        eventId = "3",
+        eventType = "PORTFOLIO",
+        title = "Nuova Spesa Aggiunta",
+        subtitle = "Marco ha aggiunto: Spesa Conad",
+        timestamp = "Ieri",
+        imageBytes = null,
+        userCode = "my_token"
+    )
+)
+
+@Preview(showBackground = true, name = "1. Loading State")
 @Composable
-fun HouseDashboardPreview() {
+fun HouseDashboardPreviewLoading() {
+    ProgettoMobileTheme {
+        HouseDashboardView(
+            nomeUtente = "Ale",
+            imageBytes = null,
+            isLoading = true,
+            userToken = "my_token",
+            houseAddress = "Via Garibaldi 12",
+            onAddClick = {},
+            notifications = emptyList(),
+            nextChoreName = "...",
+            nextChoreDeadline = "...",
+            totalDebtAmount = "..."
+        )
+    }
+}
+
+@Preview(showBackground = true, name = "2. Empty State")
+@Composable
+fun HouseDashboardPreviewEmpty() {
     ProgettoMobileTheme {
         HouseDashboardView(
             nomeUtente = "Ale",
             imageBytes = null,
             isLoading = false,
-            userToken = "token_finto",
+            userToken = "my_token",
+            houseAddress = "Via Garibaldi 12",
             onAddClick = {},
-            notifications = listOf(
-                GetNotificationDTO(
-                    eventId = "1",
-                    eventType = "CHAT",
-                    title = "Marco",
-                    subtitle = "Ciao, usciamo?",
-                    timestamp = "2026-04-30T18:30:00",
-                    imageBytes = null,
-                    userCode = "token_finto"
-                ),
-                GetNotificationDTO(
-                    eventId = "2",
-                    eventType = "CHORE",
-                    title = "Pulizie",
-                    subtitle = "Tocca a te pulire il bagno",
-                    timestamp = "2026-04-30T18:30:00",
-                    imageBytes = null,
-                    userCode = "token_finto"
-                )
-            ),
-            nextChoreName = "Bagno",
-            totalDebtAmount = "15.50 €",
-            houseAddress = "",
-            onChoreClick = { TODO() },
-            onWalletClick = { TODO() },
-            nextChoreDeadline = "22/10/2026"
+            notifications = emptyList(),
+            nextChoreName = "Nessuna",
+            nextChoreDeadline = "",
+            totalDebtAmount = "0,00 €"
         )
     }
 }
 
+@Preview(showBackground = true, name = "3. Populated State")
+@Composable
+fun HouseDashboardPreviewPopulated() {
+    ProgettoMobileTheme {
+        HouseDashboardView(
+            nomeUtente = "Ale",
+            imageBytes = null,
+            isLoading = false,
+            userToken = "my_token",
+            houseAddress = "Via Garibaldi 12",
+            onAddClick = {},
+            notifications = mockNotifications,
+            nextChoreName = "Bagno",
+            nextChoreDeadline = "Oggi",
+            totalDebtAmount = "15,50 €"
+        )
+    }
+}

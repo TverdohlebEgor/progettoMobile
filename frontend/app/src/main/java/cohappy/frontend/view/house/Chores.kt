@@ -47,7 +47,7 @@ fun ChoresView(
     isLoading: Boolean,
     userToken: String,
     onChoreToggle: (String, String, Boolean) -> Unit = { _, _, _ -> },
-    chores : List<Chore>,
+    chores: List<Chore>,
     onAddClick: () -> Unit = {}
     ) {
     val isDark = isSystemInDarkTheme()
