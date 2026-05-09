@@ -5,6 +5,7 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.isSystemInDarkTheme
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -21,6 +22,9 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Person
+import androidx.compose.material.icons.filled.Warning
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -31,8 +35,8 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -40,13 +44,17 @@ import androidx.compose.ui.unit.sp
 import cohappy.frontend.components.ResearchBar
 import cohappy.frontend.components.Titoli
 import cohappy.frontend.viewmodel.ChatListItem
+
 @Composable
 fun ChatListView(
     isLoading: Boolean,
     searchQuery: String,
+    isError: Boolean,
+    errorMessage: String,
     filteredChats: List<ChatListItem>,
     onSearchChange: (String) -> Unit,
-    onChatClick: (String) -> Unit
+    onChatClick: (String) -> Unit,
+    onRetry: () -> Unit = {}
 ) {
     val isDark = isSystemInDarkTheme()
     val bgColor = if (isDark) Color.Black else Color.White
@@ -67,9 +75,40 @@ fun ChatListView(
                 }
             }
 
-
-
-            if (isLoading) {
+            if (isError) {
+                item {
+                    Column(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(top = 100.dp)
+                            .padding(horizontal = 40.dp),
+                        horizontalAlignment = Alignment.CenterHorizontally,
+                        verticalArrangement = Arrangement.Center
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.Warning,
+                            contentDescription = null,
+                            tint = Color.Red,
+                            modifier = Modifier.size(48.dp)
+                        )
+                        Spacer(modifier = Modifier.height(16.dp))
+                        Text(
+                            text = errorMessage,
+                            color = contentColor,
+                            fontSize = 16.sp,
+                            fontWeight = FontWeight.Medium,
+                            textAlign = androidx.compose.ui.text.style.TextAlign.Center
+                        )
+                        Spacer(modifier = Modifier.height(24.dp))
+                        Button(
+                            onClick = onRetry,
+                            colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary)
+                        ) {
+                            Text("Riprova", color = Color.White)
+                        }
+                    }
+                }
+            } else if (isLoading) {
                 item {
                     Box(modifier = Modifier.fillMaxWidth().height(250.dp), contentAlignment = Alignment.Center) {
                         Text("Caricamento chat...", color = Color.Gray, fontSize = 16.sp)
@@ -87,15 +126,13 @@ fun ChatListView(
                     }
                 }
             } else {
-                stickyHeader {
-                    Surface(color = bgColor, modifier = Modifier.fillMaxWidth()) {
-                        Column(modifier = Modifier.padding(horizontal = 24.dp).padding(top = 8.dp, bottom = 16.dp)) {
-                            ResearchBar(
-                                query = searchQuery,
-                                onQueryChange = onSearchChange,
-                                placeholder = "Cerca nelle chat..."
-                            )
-                        }
+                item {
+                    Column(modifier = Modifier.padding(horizontal = 24.dp).padding(top = 8.dp, bottom = 16.dp)) {
+                        ResearchBar(
+                            query = searchQuery,
+                            onQueryChange = onSearchChange,
+                            placeholder = "Cerca nelle chat..."
+                        )
                     }
                 }
                 items(filteredChats) { chat ->

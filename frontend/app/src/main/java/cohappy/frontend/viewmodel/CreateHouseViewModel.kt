@@ -7,9 +7,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import cohappy.frontend.client.ClientSingleton
 import cohappy.frontend.client.dto.request.CreateHouseDTO
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 
 class CreateHouseViewModel : ViewModel() {
 
@@ -59,9 +57,7 @@ class CreateHouseViewModel : ViewModel() {
                     costPerMonth = 0      // Passiamo 0 invece di null
                 )
 
-                val response = withContext(Dispatchers.IO) {
-                    ClientSingleton.houseApi.createHouse(dto)
-                }
+                val response = ClientSingleton.houseApi.createHouse(dto)
 
                 if (response.isSuccessful) {
                     createdHouseCode = response.body() ?: ""

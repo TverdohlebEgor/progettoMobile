@@ -10,9 +10,7 @@ import cohappy.frontend.client.dto.enum.DebtType
 import cohappy.frontend.client.dto.request.CreateDebtDTO
 import cohappy.frontend.client.dto.response.DebtDTO
 import cohappy.frontend.repository.PortfolioRepository
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 import java.util.UUID
 
 data class PortfolioTransaction(
@@ -24,8 +22,9 @@ data class PortfolioTransaction(
     val category: DebtType?
 )
 
-class PortfolioViewModel : ViewModel() {
-    private val repository = PortfolioRepository()
+class PortfolioViewModel(
+    private val repository: PortfolioRepository = PortfolioRepository()
+) : ViewModel() {
 
     var isLoading by mutableStateOf(true)
         private set
@@ -57,21 +56,19 @@ class PortfolioViewModel : ViewModel() {
                 val tokenPulito = userToken.replace("\"", "").trim()
 
                 try {
-                    val responseDebt = withContext(Dispatchers.IO) {
-                        repository.fetchTotalDebt(tokenPulito)
-                    }
-                    totalDebts = if (responseDebt.isSuccessful && responseDebt.body() != null) responseDebt.body()!!.toDouble() else 0.0
+                    val resultDebt = repository.fetchTotalDebt(tokenPulito)
+                    totalDebts = resultDebt.getOrNull()?.toDouble() ?: 0.0
                 } catch(e: Exception) { totalDebts = 0.0 }
 
                 try {
-                    val responseCredits = withContext(Dispatchers.IO) { repository.fetchTotalCredits(tokenPulito) }
-                    totalCredits = if (responseCredits.isSuccessful && responseCredits.body() != null) responseCredits.body()!!.toDouble() else 0.0
+                    val resultCredits = repository.fetchTotalCredits(tokenPulito)
+                    totalCredits = resultCredits.getOrNull()?.toDouble() ?: 0.0
                 } catch(e: Exception) { totalCredits = 0.0 }
 
                 try {
-                    val responsePortfolio = withContext(Dispatchers.IO) { repository.fetchUserPortfolio(tokenPulito) }
-                    if (responsePortfolio.isSuccessful && responsePortfolio.body() != null) {
-                        val portfolio = responsePortfolio.body()!!
+                    val resultPortfolio = repository.fetchUserPortfolio(tokenPulito)
+                    if (resultPortfolio.isSuccess) {
+                        val portfolio = resultPortfolio.getOrNull()!!
                         val rawTransactions: List<DebtDTO> = portfolio.debts ?: emptyList()
                         val mappedList = mutableListOf<PortfolioTransaction>()
 
@@ -154,7 +151,7 @@ class PortfolioViewModel : ViewModel() {
                     debtType = newDebtCategory
                 )
 
-                val response = withContext(Dispatchers.IO) { ClientSingleton.portfolioApi.createDebt(requestDto) }
+                val response = ClientSingleton.portfolioApi.createDebt(requestDto)
                 if (response.isSuccessful) {
                     closeAddDebtSheet()
                     loadPortfolio(userToken)

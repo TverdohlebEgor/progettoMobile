@@ -10,9 +10,7 @@ import cohappy.frontend.client.ClientSingleton
 import cohappy.frontend.client.dto.response.GetNextChoreDTO
 import cohappy.frontend.client.dto.response.GetNotificationDTO
 import cohappy.frontend.repository.HouseDashboardRepository
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 import java.time.temporal.ChronoUnit
@@ -50,7 +48,7 @@ class HouseDashboardViewModel : ViewModel() {
 
 
                 try {
-                    val responseUser = withContext(Dispatchers.IO) { repository.fetchUserProfile(tokenPulito) }
+                    val responseUser = repository.fetchUserProfile(tokenPulito)
                     if (responseUser.isSuccessful && responseUser.body() != null) {
                         val data = responseUser.body()!!
                         nomeUtente = data.name ?: "Utente"
@@ -69,9 +67,7 @@ class HouseDashboardViewModel : ViewModel() {
 
                 if (houseCode.isNotBlank()) {
                     try {
-                        val responseHouse = withContext(Dispatchers.IO) {
-                            ClientSingleton.houseApi.getHouse(houseCode)
-                        }
+                        val responseHouse = ClientSingleton.houseApi.getHouse(houseCode)
                         if (responseHouse.isSuccessful && responseHouse.body() != null) {
                             val house = responseHouse.body()!!
                             houseAddress = "${house.street ?: "Via Sconosciuta"} ${house.civicNumber ?: ""}".trim()
@@ -88,7 +84,7 @@ class HouseDashboardViewModel : ViewModel() {
 
 
                 try {
-                    val responseNotif = withContext(Dispatchers.IO) { repository.fetchNotifications(tokenPulito) }
+                    val responseNotif = repository.fetchNotifications(tokenPulito)
                     if (responseNotif.isSuccessful && responseNotif.body() != null) {
                         notifications = responseNotif.body()!!
                     }
@@ -98,7 +94,7 @@ class HouseDashboardViewModel : ViewModel() {
 
 
                 try {
-                    val responseChore = withContext(Dispatchers.IO) { repository.fetchNextChore(tokenPulito) }
+                    val responseChore = repository.fetchNextChore(tokenPulito)
 
                     if (responseChore.isSuccessful && responseChore.body() != null) {
                         val listaFaccende: List<GetNextChoreDTO> = responseChore.body()!!
@@ -132,7 +128,7 @@ class HouseDashboardViewModel : ViewModel() {
                     nextChoreDeadline = "Tocca a te"
                 }
                 try {
-                    val responseDebt = withContext(Dispatchers.IO) { repository.fetchTotalDebt(tokenPulito) }
+                    val responseDebt = repository.fetchTotalDebt(tokenPulito)
                     if (responseDebt.isSuccessful && responseDebt.body() != null) {
                         val debtValue = responseDebt.body()!!
                         totalDebtAmount = String.format(Locale.getDefault(), "%.2f €", debtValue)

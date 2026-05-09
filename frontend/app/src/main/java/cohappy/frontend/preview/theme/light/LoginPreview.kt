@@ -1,6 +1,5 @@
 package cohappy.frontend.preview.theme.light
 
-import android.content.res.Configuration
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.tooling.preview.Preview
 import cohappy.frontend.view.auth.LoginView

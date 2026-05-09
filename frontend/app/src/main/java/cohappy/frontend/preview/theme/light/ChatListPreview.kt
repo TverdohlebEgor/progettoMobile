@@ -1,33 +1,37 @@
 package cohappy.frontend.preview.theme.light
 
-import android.content.res.Configuration
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
+import cohappy.frontend.expections.ErrorMessages.SERVER_ERROR
+import cohappy.frontend.expections.ErrorMessages.USER_NOT_FOUND_GET_CHATS
 import cohappy.frontend.util.randomPhoto
-import cohappy.frontend.view.auth.LoginView
 import cohappy.frontend.view.chat.ChatListView
 import cohappy.frontend.viewmodel.ChatListItem
 
-@Preview(showBackground = true, name = "Login - Standard")
+@Preview(showBackground = true, name = "Chat List - Empty")
 @Composable
 fun PreviewChatListEmpty() {
     ChatListView(
-        false,
-        "",
-        emptyList(),
-        {},
-        {}
+        isLoading = false,
+        searchQuery = "",
+        isError = false,
+        errorMessage = "",
+        filteredChats = emptyList(),
+        onSearchChange = {},
+        onChatClick = {}
     )
 }
 
-@Preview(showBackground = true, name = "Login - Standard")
+@Preview(showBackground = true, name = "Chat List - Success")
 @Composable
 fun PreviewChatList() {
     ChatListView(
-        false,
-        "",
-        listOf(
+        isLoading = false,
+        searchQuery = "",
+        isError = false,
+        errorMessage = "",
+        filteredChats = listOf(
             ChatListItem(
                 "chat1",
                 "Egor",
@@ -43,39 +47,66 @@ fun PreviewChatList() {
                 randomPhoto(LocalContext.current)
             )
         ),
-        {},
-        {}
+        onSearchChange = {},
+        onChatClick = {}
     )
 }
 
-@Preview(showBackground = true, name = "Login - Standard")
-@Composable
-fun PreviewChatListWithSearchQuery() {
-    ChatListView(
-        false,
-        "Egor",
-        listOf(
-            ChatListItem(
-                "chat1",
-                "Egor",
-                "Birra?",
-                "10:00",
-                null
-            )
-        ),
-        {},
-        {}
-    )
-}
-
-@Preview(showBackground = true, name = "Login - Standard")
+@Preview(showBackground = true, name = "Chat List - Loading")
 @Composable
 fun PreviewChatListLoading() {
     ChatListView(
-        true,
-        "Egor",
-        emptyList(),
-        {},
-        {}
+        isLoading = true,
+        searchQuery = "",
+        isError = false,
+        errorMessage = "",
+        filteredChats = emptyList(),
+        onSearchChange = {},
+        onChatClick = {}
+    )
+}
+
+@Preview(showBackground = true, name = "Chat List - Error (Server)")
+@Composable
+fun PreviewChatListErrorServer() {
+    ChatListView(
+        isLoading = false,
+        searchQuery = "",
+        isError = true,
+        errorMessage = SERVER_ERROR,
+        filteredChats = emptyList(),
+        onSearchChange = {},
+        onChatClick = {},
+        onRetry = {}
+    )
+}
+
+@Preview(showBackground = true, name = "Chat List - Error (User Not Found)")
+@Composable
+fun PreviewChatListErrorUserNotFound() {
+    ChatListView(
+        isLoading = false,
+        searchQuery = "",
+        isError = true,
+        errorMessage = USER_NOT_FOUND_GET_CHATS,
+        filteredChats = emptyList(),
+        onSearchChange = {},
+        onChatClick = {},
+        onRetry = {}
+    )
+}
+
+@Preview(showBackground = true, name = "Chat List - Error (Network)")
+@Composable
+fun PreviewChatListErrorGeneric() {
+    ChatListView(
+        isLoading = false,
+        searchQuery = "",
+        isError = true,
+        errorMessage = "Unable to resolve host \"api.cohappy.com\": No address associated with hostname",
+        filteredChats = emptyList(),
+        onSearchChange = {},
+        onChatClick = {},
+        onRetry = {}
     )
 }

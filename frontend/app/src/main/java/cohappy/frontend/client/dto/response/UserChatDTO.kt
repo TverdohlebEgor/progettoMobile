@@ -6,5 +6,6 @@ data class UserChatDTO(
     var chatCode: String? = null,
     var participating: List<String>? = null,
     var name: String? = null,
-    var image: ByteArray? = null
+    var image: ByteArray? = null,
+    var lastMessage: String? = null
 )

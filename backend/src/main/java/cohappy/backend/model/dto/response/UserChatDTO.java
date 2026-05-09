@@ -12,4 +12,5 @@ public class UserChatDTO {
     private List<String> participating;
     private String name;
     private byte[] immage;
+    private String lastMessage;
 }

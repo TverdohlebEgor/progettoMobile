@@ -13,9 +13,7 @@ import cohappy.frontend.client.dto.request.PatchUserDTO
 import cohappy.frontend.client.dto.request.RemoveUserDTO
 import cohappy.frontend.client.dto.response.GetHouseDTO
 import cohappy.frontend.client.dto.response.UserAccountDTO
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 
 data class RoommateItem(
     val userCode: String,
@@ -68,9 +66,7 @@ class RommateProfileViewModel : ViewModel() {
         viewModelScope.launch {
             isLoading = true
             try {
-                val response = withContext(Dispatchers.IO) {
-                    ClientSingleton.userApi.getUserProfile(myUserCode)
-                }
+                val response = ClientSingleton.userApi.getUserProfile(myUserCode)
                 if (response.isSuccessful && response.body() != null) {
                     val data: UserAccountDTO = response.body()!!
                     userName = data.name ?: "Utente"
@@ -98,9 +94,7 @@ class RommateProfileViewModel : ViewModel() {
                     val tokenPulito = userToken.replace("\"", "").trim()
                     if (myUserCode.isBlank()) myUserCode = tokenPulito
 
-                    val response = withContext(Dispatchers.IO) {
-                        ClientSingleton.houseApi.getHouse(currentHouseCode)
-                    }
+                    val response = ClientSingleton.houseApi.getHouse(currentHouseCode)
                     if (response.isSuccessful && response.body() != null) {
                         val house: GetHouseDTO = response.body()!!
 
@@ -129,9 +123,7 @@ class RommateProfileViewModel : ViewModel() {
                     images = listOf(imageBytes)
                 )
 
-                val response = withContext(Dispatchers.IO) {
-                    ClientSingleton.userApi.patchUser(patchRequest)
-                }
+                val response = ClientSingleton.userApi.patchUser(patchRequest)
 
                 if (response.isSuccessful) {
                     Log.d("RommateProfileVM", "✅ Immagine salvata sul DB!")
@@ -150,9 +142,7 @@ class RommateProfileViewModel : ViewModel() {
                 val tokenPulito = userToken.replace("\"", "").trim()
                 val activeCode = currentHouseCode.ifBlank { houseCode }
                 val dto = RemoveUserDTO(houseCode = activeCode, userCode = tokenPulito)
-                val response = withContext(Dispatchers.IO) {
-                    ClientSingleton.houseApi.removeUser(dto)
-                }
+                val response = ClientSingleton.houseApi.removeUser(dto)
                 if (response.isSuccessful) {
                     hasLeftHouse = true
                 }
@@ -178,9 +168,7 @@ class RommateProfileViewModel : ViewModel() {
             try {
                 val tokenPulito = userToken.replace("\"", "").trim()
 
-                val houseResponse = withContext(Dispatchers.IO) {
-                    ClientSingleton.houseApi.getHouse(activeCode)
-                }
+                val houseResponse = ClientSingleton.houseApi.getHouse(activeCode)
 
                 if (houseResponse.isSuccessful && houseResponse.body() != null) {
                     val house: GetHouseDTO = houseResponse.body()!!
@@ -194,9 +182,7 @@ class RommateProfileViewModel : ViewModel() {
 
                     for (uCode in allUserCodes) {
                         try {
-                            val userResponse = withContext(Dispatchers.IO) {
-                                ClientSingleton.userApi.getUserProfile(uCode)
-                            }
+                            val userResponse = ClientSingleton.userApi.getUserProfile(uCode)
                             if (userResponse.isSuccessful && userResponse.body() != null) {
                                 val uData: UserAccountDTO = userResponse.body()!!
                                 items.add(
@@ -228,7 +214,7 @@ class RommateProfileViewModel : ViewModel() {
             try {
                 val activeCode = currentHouseCode.ifBlank { houseCode }
                 val dto = AddAdminDTO(houseCode = activeCode, userCode = targetUserCode)
-                val response = withContext(Dispatchers.IO) { ClientSingleton.houseApi.addAdmin(dto) }
+                val response = ClientSingleton.houseApi.addAdmin(dto)
 
                 if (response.isSuccessful) {
                     Log.d("RommateProfileVM", "✅ Promosso ad Admin sul DB!")
@@ -249,7 +235,7 @@ class RommateProfileViewModel : ViewModel() {
             try {
                 val activeCode = currentHouseCode.ifBlank { houseCode }
                 val dto = RemoveUserDTO(houseCode = activeCode, userCode = targetUserCode)
-                val response = withContext(Dispatchers.IO) { ClientSingleton.houseApi.removeUser(dto) }
+                val response = ClientSingleton.houseApi.removeUser(dto)
 
                 if (response.isSuccessful) {
                     roommatesList = roommatesList.filter { it.userCode != targetUserCode }
@@ -280,7 +266,7 @@ class RommateProfileViewModel : ViewModel() {
                     newHouseCode = newCodePulito
                 )
 
-                val response = withContext(Dispatchers.IO) { ClientSingleton.houseApi.modifyHouse(dto) }
+                val response = ClientSingleton.houseApi.modifyHouse(dto)
 
                 if (response.isSuccessful) {
                     Log.d("RommateProfileVM", "✅ Codice casa aggiornato con successo!")
@@ -320,7 +306,7 @@ class RommateProfileViewModel : ViewModel() {
                     civicNumber = civicInt
                 )
 
-                val response = withContext(Dispatchers.IO) { ClientSingleton.houseApi.modifyHouse(dto) }
+                val response = ClientSingleton.houseApi.modifyHouse(dto)
 
                 if (response.isSuccessful) {
                     Log.d("RommateProfileVM", "✅ Indirizzo aggiornato con successo!")

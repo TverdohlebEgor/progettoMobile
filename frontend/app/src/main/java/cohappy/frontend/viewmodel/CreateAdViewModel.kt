@@ -9,9 +9,7 @@ import androidx.lifecycle.viewModelScope
 import cohappy.frontend.client.dto.enum.HouseStateEnum
 import cohappy.frontend.client.dto.request.CreateHouseAdvertisementDTO
 import cohappy.frontend.repository.CreateAdRepository
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 
 class CreateAdViewModel : ViewModel() {
     private val repository = CreateAdRepository()
@@ -60,9 +58,7 @@ class CreateAdViewModel : ViewModel() {
                     publishedBy = tokenPulito
                 )
 
-                val response = withContext(Dispatchers.IO) {
-                    repository.createAdvertisement(dto)
-                }
+                val response = repository.createAdvertisement(dto)
 
                 if (response.isSuccessful) {
                     isSuccess = true

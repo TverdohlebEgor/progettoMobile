@@ -8,10 +8,8 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import cohappy.frontend.client.dto.response.GetHouseAdvertesimentDTO
 import cohappy.frontend.repository.AdListRepository
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 
 class AdListViewModel : ViewModel() {
     private val repository = AdListRepository()
@@ -34,14 +32,13 @@ class AdListViewModel : ViewModel() {
 
             while (attempt <= maxRetries && !success) {
                 try {
-                    val response = withContext(Dispatchers.IO) { repository.fetchAds() }
-                    if (response.isSuccessful && response.body() != null) {
-                        adsList = response.body()!!
+                    val result = repository.fetchAds()
+                    if (result.isSuccess) {
+                        adsList = result.getOrNull() ?: emptyList()
                         Log.d("AdListVM", "✅ Caricati ${adsList.size} annunci")
                         success = true
                     } else {
-                        val errorBody = response.errorBody()?.string()
-                        Log.e("AdListVM", "❌ Errore Backend (${response.code()}): $errorBody")
+                        Log.e("AdListVM", "❌ Errore Backend: ${result.exceptionOrNull()?.message}")
                         break
                     }
                 } catch (e: Exception) {
