@@ -67,7 +67,6 @@ fun CreateAdView(
         Column(
             modifier = Modifier.fillMaxSize()
         ) {
-            // Freccia indietro
             CustomBackButton(
                 color = contentColor,
                 onClick = onBackClick,
@@ -247,22 +246,5 @@ fun CreateAdView(
                 Spacer(modifier = Modifier.height(40.dp))
             }
         }
-    }
-}
-
-// 💅 PREVIEW MAGICA! Guarda il risultato senza dover avviare l'emulatore!
-@Preview(showBackground = true)
-@Composable
-fun PreviewCreateAd() {
-    MaterialTheme {
-        CreateAdView(
-            prezzo = "",
-            descrizione = "",
-            onPrezzoChange = {},
-            onDescrizioneChange = {},
-            onAddPhotoClick = {},
-            onPublishClick = {},
-            onBackClick = {}
-        )
     }
 }

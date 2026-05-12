@@ -100,7 +100,6 @@ fun HouseMainScreen(
                 "annunci" -> {
                     Box(modifier = Modifier.fillMaxSize()) {
                         AdListScreen(
-                            innerPadding = paddingValues,
                             onAdClick = onAnnuncioClick
                         )
                     }

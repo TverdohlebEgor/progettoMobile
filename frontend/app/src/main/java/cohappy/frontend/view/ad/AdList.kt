@@ -33,7 +33,6 @@ import cohappy.frontend.components.Titoli
 
 @Composable
 fun AdListView(
-    innerPadding: PaddingValues,
     isLoading: Boolean,
     searchQuery: String,
     filteredAds: List<GetHouseAdvertesimentDTO>,
@@ -95,11 +94,7 @@ fun AdListView(
 
                         if (primaImmagine != null) {
                             try {
-                                val bytes = when (primaImmagine) {
-                                    is String -> Base64.decode(primaImmagine as String, Base64.DEFAULT)
-                                    is ByteArray -> primaImmagine as ByteArray
-                                    else -> null
-                                }
+                                val bytes = Base64.decode(primaImmagine as String, Base64.DEFAULT)
                                 if (bytes != null) {
                                     imageBmp = BitmapFactory.decodeByteArray(bytes, 0, bytes.size).asImageBitmap()
                                 }
@@ -118,7 +113,7 @@ fun AdListView(
                             ImageWithTextCard(
                                 title = if (!annuncio.street.isNullOrBlank()) "Stanza in ${annuncio.street}" else "Stanza singola",
                                 subtitle = annuncio.country ?: "Città non specificata",
-                                priceTag = "${annuncio.costPerMonth?.toInt() ?: 0}€/mese",
+                                priceTag = "${annuncio.costPerMonth ?:  0}€/mese",
                                 imageRes = R.drawable.casa1,
                                 imageBitmap = imageBmp,
                                 onImageClick = { onAdClick(idAnnuncio) }

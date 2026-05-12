@@ -11,9 +11,9 @@ import cohappy.frontend.client.dto.request.CreateHouseAdvertisementDTO
 import cohappy.frontend.repository.CreateAdRepository
 import kotlinx.coroutines.launch
 
-class CreateAdViewModel : ViewModel() {
-    private val repository = CreateAdRepository()
-
+class CreateAdViewModel(
+    private val repository: CreateAdRepository = CreateAdRepository()
+) : ViewModel() {
     var price by mutableStateOf("")
         private set
     var description by mutableStateOf("")
@@ -36,9 +36,7 @@ class CreateAdViewModel : ViewModel() {
     }
 
     fun publishAdvertisement(houseCode: String, userToken: String) {
-        val priceDouble = price.replace(",", ".").toDoubleOrNull()
-
-        if (priceDouble == null || description.isBlank()) {
+        if (price.isBlank() || description.isBlank()) {
             errorMessage = "Inserisci un prezzo valido e una descrizione"
             return
         }
@@ -49,21 +47,20 @@ class CreateAdViewModel : ViewModel() {
             try {
                 val tokenPulito = userToken.replace("\"", "").trim()
 
-
                 val dto = CreateHouseAdvertisementDTO(
                     houseCode = houseCode,
                     state = HouseStateEnum.PUBLIC,
                     description = description,
-                    //images = selectedImages.ifEmpty { emptyList() },
+                    images = selectedImages.ifEmpty { null },
                     publishedBy = tokenPulito
                 )
 
-                val response = repository.createAdvertisement(dto)
+                val result = repository.createAdvertisement(dto)
 
-                if (response.isSuccessful) {
+                if (result.isSuccess) {
                     isSuccess = true
                 } else {
-                    errorMessage = "Errore del server: ${response.code()}"
+                    errorMessage = result.exceptionOrNull()?.message ?: "Errore sconosciuto"
                 }
             } catch (e: Exception) {
                 Log.e("CreateAdVM", "Errore di rete", e)
