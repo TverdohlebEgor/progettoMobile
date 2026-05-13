@@ -13,6 +13,7 @@ import cohappy.frontend.client.dto.request.PatchUserDTO
 import cohappy.frontend.client.dto.request.RemoveUserDTO
 import cohappy.frontend.client.dto.response.GetHouseDTO
 import cohappy.frontend.client.dto.response.UserAccountDTO
+import cohappy.frontend.repository.RoommateProfileRepository
 import kotlinx.coroutines.launch
 
 data class RoommateItem(
@@ -24,6 +25,7 @@ data class RoommateItem(
 )
 
 class RommateProfileViewModel : ViewModel() {
+    private val repository = RoommateProfileRepository()
 
     var userName by mutableStateOf("Caricamento...")
         private set
@@ -66,7 +68,7 @@ class RommateProfileViewModel : ViewModel() {
         viewModelScope.launch {
             isLoading = true
             try {
-                val response = ClientSingleton.userApi.getUserProfile(myUserCode)
+                val response = repository.fetchUserProfile(myUserCode)
                 if (response.isSuccessful && response.body() != null) {
                     val data: UserAccountDTO = response.body()!!
                     userName = data.name ?: "Utente"
@@ -118,12 +120,7 @@ class RommateProfileViewModel : ViewModel() {
                 profileImageBytes = imageBytes
                 val tokenPulito = userToken.replace("\"", "").trim()
 
-                val patchRequest = PatchUserDTO(
-                    userCode = tokenPulito,
-                    images = listOf(imageBytes)
-                )
-
-                val response = ClientSingleton.userApi.patchUser(patchRequest)
+                val response = repository.updateUserImage(tokenPulito, imageBytes)
 
                 if (response.isSuccessful) {
                     Log.d("RommateProfileVM", "✅ Immagine salvata sul DB!")
