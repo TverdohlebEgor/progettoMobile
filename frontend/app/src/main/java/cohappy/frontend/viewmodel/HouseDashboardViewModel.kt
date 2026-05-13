@@ -16,8 +16,9 @@ import java.time.format.DateTimeFormatter
 import java.time.temporal.ChronoUnit
 import java.util.Locale
 
-class HouseDashboardViewModel : ViewModel() {
-    private val repository = HouseDashboardRepository()
+class HouseDashboardViewModel(
+    private val repository: HouseDashboardRepository = HouseDashboardRepository()
+) : ViewModel() {
 
     var nomeUtente by mutableStateOf("Caricamento...")
         private set
@@ -62,12 +63,13 @@ class HouseDashboardViewModel : ViewModel() {
                     }
                 } catch (e: Exception) {
                     Log.e("HouseDashboardVM", "Errore profilo", e)
+                    nomeUtente = "Offline"
                 }
 
 
                 if (houseCode.isNotBlank()) {
                     try {
-                        val responseHouse = ClientSingleton.houseApi.getHouse(houseCode)
+                        val responseHouse = repository.fetchHouseDetails(houseCode)
                         if (responseHouse.isSuccessful && responseHouse.body() != null) {
                             val house = responseHouse.body()!!
                             houseAddress = "${house.street ?: "Via Sconosciuta"} ${house.civicNumber ?: ""}".trim()
