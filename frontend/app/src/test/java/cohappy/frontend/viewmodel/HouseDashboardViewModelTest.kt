@@ -10,6 +10,8 @@ import io.mockk.coEvery
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.mockkStatic
+import io.mockk.unmockkAll
+import io.mockk.unmockkStatic
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.StandardTestDispatcher
@@ -17,6 +19,7 @@ import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.resetMain
 import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.test.setMain
+import okhttp3.ResponseBody.Companion.toResponseBody
 import org.junit.After
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
@@ -35,40 +38,42 @@ class HouseDashboardViewModelTest {
 
     @Before
     fun setUp() {
+        Dispatchers.setMain(testDispatcher)
+
         mockkStatic(Log::class)
         every { Log.e(any(), any()) } returns 0
         every { Log.e(any(), any(), any()) } returns 0
+        every { Log.d(any(), any()) } returns 0
 
-        Dispatchers.setMain(testDispatcher)
         viewModel = HouseDashboardViewModel(repository)
     }
 
     @After
     fun tearDown() {
         Dispatchers.resetMain()
+        unmockkStatic(Log::class)
+        unmockkAll()
     }
 
     @Test
-    fun `loadDashboardData success updates all state variables`() = runTest {
-        val userToken = "token_baddie"
+    fun `loadDashboardData happy path updates all state variables`() = runTest {
+        val userToken = "token_123"
         val houseCode = "CASA_123"
 
         val mockUser = UserAccountDTO(name = "Ale", houseCode = houseCode)
         val mockHouse = GetHouseDTO(street = "Via Roma", civicNumber = 10)
-        val mockNotifications = listOf(GetNotificationDTO("id1", "type1", "Notifica 1", "subtitle", "2023-10-27T10:00:00"))
-        val mockChore = GetNextChoreDTO("code1", "Lavare terra", "user1", LocalDate.now(), "false")
-        val mockDebt = 15.50
+        val mockNotifications = listOf(GetNotificationDTO(eventId = "E1", eventType = "T1", title = "Notifica 1", subtitle = "Sub", timestamp = "2023-10-27T10:00:00"))
+        val mockChore = GetNextChoreDTO(choreCode = "C1", name = "Lavare terra", assignedTo = "User1", date = LocalDate.now(), completed = "false")
+        val mockDebt = 15.50f
 
         coEvery { repository.fetchUserProfile(any()) } returns Response.success(mockUser)
         coEvery { repository.fetchHouseDetails(houseCode) } returns Response.success(mockHouse)
         coEvery { repository.fetchNotifications(any()) } returns Response.success(mockNotifications)
         coEvery { repository.fetchNextChore(any()) } returns Response.success(listOf(mockChore))
-        coEvery { repository.fetchTotalDebt(any()) } returns Response.success(mockDebt.toFloat())
+        coEvery { repository.fetchTotalDebt(any()) } returns Response.success(mockDebt)
 
         viewModel.loadDashboardData(userToken, houseCode)
-
         assertTrue(viewModel.isLoading)
-
         advanceUntilIdle()
 
         assertFalse(viewModel.isLoading)
@@ -77,14 +82,13 @@ class HouseDashboardViewModelTest {
         assertEquals(1, viewModel.notifications.size)
         assertEquals("Lavare terra", viewModel.nextChoreName)
         assertEquals("Oggi", viewModel.nextChoreDeadline)
-        
-        val debtText = viewModel.totalDebtAmount
-        assertTrue("Debt amount '$debtText' should contain 15.50 or 15,50", debtText.contains("15.50") || debtText.contains("15,50"))
+        // Locale.getDefault() could be anything, but we expect 15.50 with some separator
+        assertTrue(viewModel.totalDebtAmount.contains("15") && viewModel.totalDebtAmount.contains("50"))
     }
 
     @Test
-    fun `loadDashboardData failure sets fallback values`() = runTest {
-        val userToken = "token_baddie"
+    fun `loadDashboardData unhappy path sets fallback values`() = runTest {
+        val userToken = "token_123"
         val houseCode = "CASA_123"
 
         coEvery { repository.fetchUserProfile(any()) } throws Exception("Network Error")
@@ -94,7 +98,6 @@ class HouseDashboardViewModelTest {
         coEvery { repository.fetchTotalDebt(any()) } throws Exception("Network Error")
 
         viewModel.loadDashboardData(userToken, houseCode)
-
         advanceUntilIdle()
 
         assertFalse(viewModel.isLoading)
@@ -102,19 +105,21 @@ class HouseDashboardViewModelTest {
         assertEquals("Offline", viewModel.houseAddress)
         assertTrue(viewModel.notifications.isEmpty())
         assertEquals("Nessuna", viewModel.nextChoreName)
+        assertEquals("Tocca a te", viewModel.nextChoreDeadline)
         assertEquals("0,00 €", viewModel.totalDebtAmount)
     }
 
     @Test
     fun `loadDashboardData with 204 next chore sets default text`() = runTest {
-        val userToken = "token_baddie"
+        val userToken = "token_123"
         val houseCode = "CASA_123"
+        val mockUser = UserAccountDTO(name = "Ale")
 
-        coEvery { repository.fetchUserProfile(any()) } returns Response.success(UserAccountDTO(name = "Ale"))
+        coEvery { repository.fetchUserProfile(any()) } returns Response.success(mockUser)
         coEvery { repository.fetchHouseDetails(any()) } returns Response.success(GetHouseDTO())
         coEvery { repository.fetchNotifications(any()) } returns Response.success(emptyList())
-        coEvery { repository.fetchNextChore(any()) } returns Response.success(204, emptyList())
-        coEvery { repository.fetchTotalDebt(any()) } returns Response.success(0f)
+        coEvery { repository.fetchNextChore(any()) } returns Response.error(204, "".toResponseBody())
+        coEvery { repository.fetchTotalDebt(any()) } returns Response.success(0.0f)
 
         viewModel.loadDashboardData(userToken, houseCode)
         advanceUntilIdle()

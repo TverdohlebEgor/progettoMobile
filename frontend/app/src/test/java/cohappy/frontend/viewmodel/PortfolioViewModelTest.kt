@@ -1,11 +1,15 @@
 package cohappy.frontend.viewmodel
 
-import cohappy.frontend.client.dto.enum.DebtType
 import cohappy.frontend.client.dto.response.DebtDTO
 import cohappy.frontend.client.dto.response.PortfolioDTO
+import cohappy.frontend.client.dto.response.UserAccountDTO
+import cohappy.frontend.client.ClientSingleton
+import cohappy.frontend.client.dto.enum.DebtType
 import cohappy.frontend.repository.PortfolioRepository
 import io.mockk.coEvery
 import io.mockk.mockk
+import io.mockk.mockkObject
+import io.mockk.unmockkAll
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.StandardTestDispatcher
@@ -13,29 +17,32 @@ import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.resetMain
 import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.test.setMain
+import okhttp3.ResponseBody.Companion.toResponseBody
 import org.junit.After
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.Test
+import retrofit2.Response
 
 @OptIn(ExperimentalCoroutinesApi::class)
 class PortfolioViewModelTest {
 
     private lateinit var viewModel: PortfolioViewModel
-    private val repository: PortfolioRepository = mockk()
     private val testDispatcher = StandardTestDispatcher()
 
     @Before
     fun setUp() {
         Dispatchers.setMain(testDispatcher)
-        viewModel = PortfolioViewModel(repository)
+        mockkObject(ClientSingleton)
+        viewModel = PortfolioViewModel()
     }
 
     @After
     fun tearDown() {
         Dispatchers.resetMain()
+        unmockkAll()
     }
 
     @Test
@@ -55,7 +62,7 @@ class PortfolioViewModelTest {
         val fakeDebtDto2 = DebtDTO(
             debtId = "d2",
             debtorUserCode = "altro_user",
-            beneficiaryUserCode = "token_di_prova", // Sono io, è un credito
+            beneficiaryUserCode = "token_di_prova",
             amount = 20.0f,
             description = "Spesa",
             debtType = DebtType.GROCERIE
@@ -65,40 +72,47 @@ class PortfolioViewModelTest {
             debts = listOf(fakeDebtDto1, fakeDebtDto2)
         )
 
-        coEvery { repository.fetchTotalDebt(fintoToken) } returns Result.success(debitoTotale)
-        coEvery { repository.fetchTotalCredits(fintoToken) } returns Result.success(creditoTotale)
-        coEvery { repository.fetchUserPortfolio(fintoToken) } returns Result.success(fakePortfolio)
+        val portfolioRepo = mockk<PortfolioRepository>()
+        coEvery { portfolioRepo.fetchTotalDebt(fintoToken) } returns Result.success(debitoTotale)
+        coEvery { portfolioRepo.fetchTotalCredits(fintoToken) } returns Result.success(creditoTotale)
+        coEvery { portfolioRepo.fetchUserPortfolio(fintoToken) } returns Result.success(fakePortfolio)
 
-        viewModel.loadPortfolio(fintoToken)
+        coEvery { ClientSingleton.userApi.getUserProfile(fintoToken) } returns Response.success(UserAccountDTO(houseCode = null))
 
-        assertTrue(viewModel.isLoading)
+        val viewModelWithMock = PortfolioViewModel(portfolioRepo)
+        viewModelWithMock.loadPortfolio(fintoToken)
+
+        assertTrue(viewModelWithMock.isLoading)
 
         advanceUntilIdle()
 
-        assertFalse(viewModel.isLoading)
-        assertEquals(50.0, viewModel.totalDebts, 0.001)
-        assertEquals(120.0, viewModel.totalCredits, 0.001)
-        assertEquals(2, viewModel.transactions.size)
-        assertEquals("Spesa", viewModel.transactions[0].title)
-        assertFalse(viewModel.transactions[0].isDebt)
+        assertFalse(viewModelWithMock.isLoading)
+        assertEquals(50.0, viewModelWithMock.totalDebts, 0.001)
+        assertEquals(120.0, viewModelWithMock.totalCredits, 0.001)
+        assertEquals(2, viewModelWithMock.transactions.size)
+        assertEquals("Spesa", viewModelWithMock.transactions[0].title)
+        assertFalse(viewModelWithMock.transactions[0].isDebt)
     }
 
     @Test
     fun `loadPortfolio fallback a zero in caso di errore di rete`() = runTest {
         val fintoToken = "token_di_prova"
+        val portfolioRepo = mockk<PortfolioRepository>()
 
-        coEvery { repository.fetchTotalDebt(fintoToken) } returns Result.failure(Exception("Rete andata"))
-        coEvery { repository.fetchTotalCredits(fintoToken) } returns Result.failure(Exception("Rete andata"))
-        coEvery { repository.fetchUserPortfolio(fintoToken) } returns Result.failure(Exception("Rete andata"))
+        coEvery { portfolioRepo.fetchTotalDebt(fintoToken) } returns Result.failure(Exception("Error"))
+        coEvery { portfolioRepo.fetchTotalCredits(fintoToken) } returns Result.failure(Exception("Error"))
+        coEvery { portfolioRepo.fetchUserPortfolio(fintoToken) } returns Result.failure(Exception("Error"))
+        coEvery { ClientSingleton.userApi.getUserProfile(fintoToken) } returns Response.error(500, "".toResponseBody())
 
-        viewModel.loadPortfolio(fintoToken)
+        val viewModelWithMock = PortfolioViewModel(portfolioRepo)
+        viewModelWithMock.loadPortfolio(fintoToken)
 
         advanceUntilIdle()
 
-        assertFalse(viewModel.isLoading)
-        assertEquals(0.0, viewModel.totalDebts, 0.001)
-        assertEquals(0.0, viewModel.totalCredits, 0.001)
-        assertTrue(viewModel.transactions.isEmpty())
+        assertFalse(viewModelWithMock.isLoading)
+        assertEquals(0.0, viewModelWithMock.totalDebts, 0.001)
+        assertEquals(0.0, viewModelWithMock.totalCredits, 0.001)
+        assertTrue(viewModelWithMock.transactions.isEmpty())
     }
 
     @Test
@@ -122,30 +136,78 @@ class PortfolioViewModelTest {
             debtType = DebtType.GROCERIE
         )
 
-        coEvery { repository.fetchTotalDebt(any()) } returns Result.success(0f)
-        coEvery { repository.fetchTotalCredits(any()) } returns Result.success(0f)
-        coEvery { repository.fetchUserPortfolio(any()) } returns Result.success(PortfolioDTO(debts = listOf(fakeDebt, fakeCredit)))
+        val portfolioRepo = mockk<PortfolioRepository>()
+        coEvery { portfolioRepo.fetchTotalDebt(any()) } returns Result.success(0f)
+        coEvery { portfolioRepo.fetchTotalCredits(any()) } returns Result.success(0f)
+        coEvery { portfolioRepo.fetchUserPortfolio(any()) } returns Result.success(PortfolioDTO(debts = listOf(fakeDebt, fakeCredit)))
+        coEvery { ClientSingleton.userApi.getUserProfile(fintoToken) } returns Response.success(UserAccountDTO(houseCode = null))
 
-        viewModel.loadPortfolio(fintoToken)
+        val viewModelWithMock = PortfolioViewModel(portfolioRepo)
+        viewModelWithMock.loadPortfolio(fintoToken)
         advanceUntilIdle()
 
-        assertEquals(2, viewModel.transactions.size)
+        assertEquals(2, viewModelWithMock.transactions.size)
 
-        viewModel.setFilter("DEBTS")
-        assertEquals("DEBTS", viewModel.activeFilter)
+        viewModelWithMock.setFilter("DEBTS")
+        assertEquals("DEBTS", viewModelWithMock.activeFilter)
 
-        val filteredDebts = viewModel.getFilteredTransactions()
+        val filteredDebts = viewModelWithMock.getFilteredTransactions()
         assertEquals(1, filteredDebts.size)
         assertEquals("Debito", filteredDebts[0].title)
         assertTrue(filteredDebts[0].isDebt)
 
-        // Applichiamo filtro CREDITS
-        viewModel.setFilter("CREDITS")
-        assertEquals("CREDITS", viewModel.activeFilter)
+        viewModelWithMock.setFilter("CREDITS")
+        assertEquals("CREDITS", viewModelWithMock.activeFilter)
 
-        val filteredCredits = viewModel.getFilteredTransactions()
+        val filteredCredits = viewModelWithMock.getFilteredTransactions()
         assertEquals(1, filteredCredits.size)
         assertEquals("Credito", filteredCredits[0].title)
         assertFalse(filteredCredits[0].isDebt)
+    }
+
+    @Test
+    fun `createDebt correctly updates state`() = runTest {
+        val fintoToken = "token_di_prova"
+        val portfolioRepo = mockk<PortfolioRepository>()
+        val viewModelWithMock = PortfolioViewModel(portfolioRepo)
+
+        viewModelWithMock.updateNewDebtAmount("100.0")
+        viewModelWithMock.updateNewDebtTitle("Spesa")
+        viewModelWithMock.updateNewDebtCategory(DebtType.GROCERIE)
+        viewModelWithMock.updateNewDebtReceiver("user_2")
+
+        coEvery { ClientSingleton.portfolioApi.createDebt(any()) } returns Response.success("NEW_DEBT_ID")
+
+        coEvery { portfolioRepo.fetchTotalDebt(fintoToken) } returns Result.success(0f)
+        coEvery { portfolioRepo.fetchTotalCredits(fintoToken) } returns Result.success(0f)
+        coEvery { portfolioRepo.fetchUserPortfolio(fintoToken) } returns Result.success(PortfolioDTO(debts = emptyList()))
+        coEvery { ClientSingleton.userApi.getUserProfile(fintoToken) } returns Response.success(UserAccountDTO(houseCode = null))
+
+        viewModelWithMock.createDebt(fintoToken)
+        advanceUntilIdle()
+
+        assertFalse(viewModelWithMock.isAddingDebt)
+        assertFalse(viewModelWithMock.showAddDebtSheet)
+    }
+
+    @Test
+    fun `createDebt does nothing if amount is invalid or receiver is blank`() = runTest {
+        val fintoToken = "token_di_prova"
+        val portfolioRepo = mockk<PortfolioRepository>()
+        val viewModelWithMock = PortfolioViewModel(portfolioRepo)
+
+        viewModelWithMock.openAddDebtSheet()
+
+        viewModelWithMock.updateNewDebtAmount("")
+        viewModelWithMock.updateNewDebtTitle("Spesa")
+        viewModelWithMock.createDebt(fintoToken)
+        advanceUntilIdle()
+        assertTrue(viewModelWithMock.showAddDebtSheet)
+
+        viewModelWithMock.updateNewDebtAmount("100.0")
+        viewModelWithMock.updateNewDebtReceiver("")
+        viewModelWithMock.createDebt(fintoToken)
+        advanceUntilIdle()
+        assertTrue(viewModelWithMock.showAddDebtSheet)
     }
 }

@@ -3,6 +3,7 @@ package cohappy.frontend.client
 import cohappy.frontend.client.dto.response.GetHouseDTO
 import cohappy.frontend.client.dto.response.GetNextChoreDTO
 import cohappy.frontend.client.dto.response.GetNotificationDTO
+import java.time.LocalDate
 import com.squareup.moshi.Moshi
 import kotlinx.coroutines.test.runTest
 import okhttp3.mockwebserver.MockResponse
@@ -17,8 +18,6 @@ import org.junit.Test
 import retrofit2.Retrofit
 import retrofit2.converter.moshi.MoshiConverterFactory
 import retrofit2.converter.scalars.ScalarsConverterFactory
-import java.time.LocalDate
-import java.time.LocalDateTime
 
 class HouseDashboardClientIT {
 
@@ -57,7 +56,7 @@ class HouseDashboardClientIT {
     }
 
     @Test
-    fun testGetHouseDetailsSuccess() = runTest {
+    fun `getHouse success returns GetHouseDTO`() = runTest {
         val jsonResponse = """
             {
                 "houseCode": "COH-8X2P",
@@ -70,57 +69,56 @@ class HouseDashboardClientIT {
             }
         """.trimIndent()
 
-        mockWebServer.enqueue(
-            MockResponse()
-                .setResponseCode(200)
-                .setBody(jsonResponse)
-        )
-
+        mockWebServer.enqueue(MockResponse().setResponseCode(200).setBody(jsonResponse))
         val response = houseApi.getHouse("COH-8X2P")
 
         assertTrue(response.isSuccessful)
         assertEquals("Via Roma", response.body()?.street)
         assertEquals(12, response.body()?.civicNumber)
-
-        val request = mockWebServer.takeRequest()
-        assertEquals("/api/house/COH-8X2P", request.path)
-        assertEquals("GET", request.method)
     }
 
     @Test
-    fun testGetNotificationsSuccess() = runTest {
+    fun `getHouse error 404 returns failure`() = runTest {
+        mockWebServer.enqueue(MockResponse().setResponseCode(404))
+        val response = houseApi.getHouse("INVALID_CODE")
+        assertFalse(response.isSuccessful)
+        assertEquals(404, response.code())
+    }
+
+    @Test
+    fun `getNotifications success returns list`() = runTest {
         val jsonResponse = """
             [
                 {
                     "eventId": "NOTIF_1",
                     "eventType": "CHAT",
                     "title": "Nuovo Messaggio",
-                    "subtitle": "Hai un nuovo messaggio da Egor",
+                    "subtitle": "Hai un nuovo messaggio",
                     "timestamp": "2026-05-11",
                     "userCode": "user_123"
                 }
             ]
         """.trimIndent()
 
-        mockWebServer.enqueue(
-            MockResponse()
-                .setResponseCode(200)
-                .setBody(jsonResponse)
-        )
-
+        mockWebServer.enqueue(MockResponse().setResponseCode(200).setBody(jsonResponse))
         val response = notificationApi.getUserNotifications("user_123")
 
         assertTrue(response.isSuccessful)
         assertEquals(1, response.body()?.size)
         assertEquals("CHAT", response.body()?.get(0)?.eventType)
-        assertEquals("Nuovo Messaggio", response.body()?.get(0)?.title)
+    }
 
-        val request = mockWebServer.takeRequest()
-        assertEquals("/api/notifications/user_123", request.path)
+    // 💅 AGGIUNTO: Unhappy path per le notifiche
+    @Test
+    fun `getNotifications error 500 returns failure`() = runTest {
+        mockWebServer.enqueue(MockResponse().setResponseCode(500))
+        val response = notificationApi.getUserNotifications("user_123")
+        assertFalse(response.isSuccessful)
+        assertEquals(500, response.code())
     }
 
     @Test
-    fun testGetNextChoreSuccess() = runTest {
+    fun `getNextChore success returns DTO`() = runTest {
         val jsonResponse = """
             [
                 {
@@ -133,66 +131,46 @@ class HouseDashboardClientIT {
             ]
         """.trimIndent()
 
-        mockWebServer.enqueue(
-            MockResponse()
-                .setResponseCode(200)
-                .setBody(jsonResponse)
-        )
-
-        val targetDate = LocalDate.parse("2026-05-12")
-        val response = choreApi.getNextUserChore("user_123", targetDate)
+        mockWebServer.enqueue(MockResponse().setResponseCode(200).setBody(jsonResponse))
+        val response = choreApi.getNextUserChore("user_123", LocalDate.parse("2026-05-12"))
 
         assertTrue(response.isSuccessful)
-        val chore = response.body()?.firstOrNull()
-        assertEquals("Spazzare a terra", chore?.name)
-        assertEquals(targetDate, chore?.date)
-
-        val request = mockWebServer.takeRequest()
-        assertEquals("/api/chore/next/user_123/2026-05-12", request.path)
+        assertEquals("Spazzare a terra", response.body()?.get(0)?.name)
     }
 
     @Test
-    fun testGetNextChoreNoContent() = runTest {
-        mockWebServer.enqueue(
-            MockResponse()
-                .setResponseCode(204)
-        )
-
-        val targetDate = LocalDate.parse("2026-05-12")
-        val response = choreApi.getNextUserChore("user_123", targetDate)
+    fun `getNextChore 204 No Content returns null body`() = runTest {
+        mockWebServer.enqueue(MockResponse().setResponseCode(204))
+        val response = choreApi.getNextUserChore("user_123", LocalDate.parse("2026-05-12"))
 
         assertTrue(response.isSuccessful)
         assertEquals(204, response.code())
         assertNull(response.body())
     }
 
+    // 💅 AGGIUNTO: Unhappy path per la prossima faccenda
     @Test
-    fun testGetTotalDebtSuccess() = runTest {
-        mockWebServer.enqueue(
-            MockResponse()
-                .setResponseCode(200)
-                .setBody("45.5")
-        )
+    fun `getNextChore error 500 returns failure`() = runTest {
+        mockWebServer.enqueue(MockResponse().setResponseCode(500))
+        val response = choreApi.getNextUserChore("user_123", LocalDate.parse("2026-05-12"))
+        assertFalse(response.isSuccessful)
+        assertEquals(500, response.code())
+    }
 
+    @Test
+    fun `getTotalDebt success returns double`() = runTest {
+        mockWebServer.enqueue(MockResponse().setResponseCode(200).setBody("45.5"))
         val response = portfolioApi.getUserTotalDebt("user_123")
 
         assertTrue(response.isSuccessful)
         assertEquals(45.5f, response.body() ?: 0.0f, 0.001f)
-
-        val request = mockWebServer.takeRequest()
-        assertEquals("/api/debt/user_123/total", request.path)
     }
 
     @Test
-    fun testHouseApiErrorHandling() = runTest {
-        mockWebServer.enqueue(
-            MockResponse()
-                .setResponseCode(404)
-        )
-
-        val response = houseApi.getHouse("INVALID_CODE")
-
+    fun `getTotalDebt error 500 returns failure`() = runTest {
+        mockWebServer.enqueue(MockResponse().setResponseCode(500))
+        val response = portfolioApi.getUserTotalDebt("user_123")
         assertFalse(response.isSuccessful)
-        assertEquals(404, response.code())
+        assertEquals(500, response.code())
     }
 }

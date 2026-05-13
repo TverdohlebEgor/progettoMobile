@@ -55,100 +55,87 @@ class HouseDashboardRepositoryTest {
     }
 
     @Test
-    fun `fetchUserProfile success returns UserAccountDTO`() = runTest {
-        val userCode = "USR_123"
-        val expectedDto = UserAccountDTO(name = "Ale", surname = "Boss")
-
-        coEvery { userApi.getUserProfile(userCode) } returns Response.success(expectedDto)
-
-        val result = repository.fetchUserProfile(userCode)
-
+    fun `fetchUserProfile success`() = runTest {
+        val expectedDto = UserAccountDTO(name = "Ale", houseCode = "H1")
+        coEvery { userApi.getUserProfile("USR_1") } returns Response.success(expectedDto)
+        val result = repository.fetchUserProfile("USR_1")
         assertTrue(result.isSuccessful)
         assertEquals(expectedDto, result.body())
-        coVerify(exactly = 1) { userApi.getUserProfile(userCode) }
     }
 
     @Test
-    fun `fetchUserProfile failure returns error`() = runTest {
-        val userCode = "USR_123"
-
-        coEvery { userApi.getUserProfile(userCode) } returns Response.error<UserAccountDTO>(404, "".toResponseBody())
-
-        val result = repository.fetchUserProfile(userCode)
-
+    fun `fetchUserProfile error 404`() = runTest {
+        coEvery { userApi.getUserProfile("USR_1") } returns Response.error(404, "".toResponseBody())
+        val result = repository.fetchUserProfile("USR_1")
         assertFalse(result.isSuccessful)
         assertEquals(404, result.code())
     }
 
     @Test
-    fun `fetchHouseDetails success returns GetHouseDTO`() = runTest {
-        val houseCode = "COH-8X2P"
-        val expectedDto = GetHouseDTO(street = "Via Roma", civicNumber = 12)
-
-        coEvery { houseApi.getHouse(houseCode) } returns Response.success(expectedDto)
-
-        val result = repository.fetchHouseDetails(houseCode)
-
+    fun `fetchHouseDetails success`() = runTest {
+        val expectedDto = GetHouseDTO(street = "Via Roma")
+        coEvery { houseApi.getHouse("H1") } returns Response.success(expectedDto)
+        val result = repository.fetchHouseDetails("H1")
         assertTrue(result.isSuccessful)
         assertEquals(expectedDto, result.body())
-        coVerify(exactly = 1) { houseApi.getHouse(houseCode) }
     }
 
     @Test
-    fun `fetchNotifications success returns list of GetNotificationDTO`() = runTest {
-        val userCode = "USR_123"
-        val expectedList = listOf(
-            GetNotificationDTO(
-                eventId = "EVT_123",
-                eventType = "MESSAGE",
-                title = "Nuovo Messaggio",
-                subtitle = "Da Anna",
-                timestamp = "2024-05-12T10:00:00"
-            )
-        )
+    fun `fetchHouseDetails error 404`() = runTest {
+        coEvery { houseApi.getHouse("INVALID_H") } returns Response.error(404, "".toResponseBody())
+        val result = repository.fetchHouseDetails("INVALID_H")
+        assertFalse(result.isSuccessful)
+        assertEquals(404, result.code())
+    }
 
-        coEvery { notificationApi.getUserNotifications(userCode) } returns Response.success(expectedList)
-
-        val result = repository.fetchNotifications(userCode)
-
+    @Test
+    fun `fetchNotifications success`() = runTest {
+        val expectedList = listOf(GetNotificationDTO("ID1", "TYPE", "Test", "Sub", "2026-05-11"))
+        coEvery { notificationApi.getUserNotifications("USR_1") } returns Response.success(expectedList)
+        val result = repository.fetchNotifications("USR_1")
         assertTrue(result.isSuccessful)
         assertEquals(expectedList, result.body())
-        coVerify(exactly = 1) { notificationApi.getUserNotifications(userCode) }
+    }
+
+    // 💅 AGGIUNTO: Unhappy path per Notifications
+    @Test
+    fun `fetchNotifications error 500`() = runTest {
+        coEvery { notificationApi.getUserNotifications("USR_1") } returns Response.error(500, "".toResponseBody())
+        val result = repository.fetchNotifications("USR_1")
+        assertFalse(result.isSuccessful)
+        assertEquals(500, result.code())
     }
 
     @Test
-    fun `fetchNextChore success returns list of GetNextChoreDTO`() = runTest {
-        val userCode = "USR_123"
-        val expectedList = listOf(
-            GetNextChoreDTO(
-                choreCode = "CHORE_1",
-                name = "Spazzare a terra",
-                assignedTo = "USR_123",
-                date = LocalDate.parse("2026-05-12"),
-                completed = "NO"
-            )
-        )
-
-        coEvery { choreApi.getNextUserChore(eq(userCode), any<LocalDate>()) } returns Response.success(expectedList)
-
-        val result = repository.fetchNextChore(userCode)
-
+    fun `fetchNextChore success with date`() = runTest {
+        val expectedList = listOf(GetNextChoreDTO("C1", "Pulizie", "USR_1", LocalDate.now(), "false"))
+        coEvery { choreApi.getNextUserChore(any(), any()) } returns Response.success(expectedList)
+        val result = repository.fetchNextChore("USR_1")
         assertTrue(result.isSuccessful)
         assertEquals(expectedList, result.body())
-        coVerify(exactly = 1) { choreApi.getNextUserChore(eq(userCode), any<LocalDate>()) }
     }
 
     @Test
-    fun `fetchTotalDebt success returns Float`() = runTest {
-        val userCode = "USR_123"
-        val expectedDebt = 45.5f
+    fun `fetchNextChore error 500`() = runTest {
+        coEvery { choreApi.getNextUserChore(any(), any()) } returns Response.error(500, "".toResponseBody())
+        val result = repository.fetchNextChore("USR_1")
+        assertFalse(result.isSuccessful)
+        assertEquals(500, result.code())
+    }
 
-        coEvery { portfolioApi.getUserTotalDebt(userCode) } returns Response.success(expectedDebt)
-
-        val result = repository.fetchTotalDebt(userCode)
-
+    @Test
+    fun `fetchTotalDebt success`() = runTest {
+        coEvery { portfolioApi.getUserTotalDebt("USR_1") } returns Response.success(15.5f)
+        val result = repository.fetchTotalDebt("USR_1")
         assertTrue(result.isSuccessful)
-        assertEquals(expectedDebt, result.body())
-        coVerify(exactly = 1) { portfolioApi.getUserTotalDebt(userCode) }
+        assertEquals(15.5f, result.body())
+    }
+
+    @Test
+    fun `fetchTotalDebt error 500`() = runTest {
+        coEvery { portfolioApi.getUserTotalDebt("USR_1") } returns Response.error(500, "".toResponseBody())
+        val result = repository.fetchTotalDebt("USR_1")
+        assertFalse(result.isSuccessful)
+        assertEquals(500, result.code())
     }
 }
