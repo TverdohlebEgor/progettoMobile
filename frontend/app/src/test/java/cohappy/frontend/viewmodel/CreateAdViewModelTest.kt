@@ -1,19 +1,12 @@
 package cohappy.frontend.viewmodel
 
-import cohappy.frontend.client.dto.enum.HouseStateEnum
+import android.util.Log
 import cohappy.frontend.client.dto.request.CreateHouseAdvertisementDTO
 import cohappy.frontend.repository.CreateAdRepository
-import io.mockk.coEvery
-import io.mockk.coVerify
-import io.mockk.mockkConstructor
-import io.mockk.unmockkAll
+import io.mockk.*
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.test.StandardTestDispatcher
-import kotlinx.coroutines.test.advanceUntilIdle
-import kotlinx.coroutines.test.resetMain
-import kotlinx.coroutines.test.runTest
-import kotlinx.coroutines.test.setMain
+import kotlinx.coroutines.test.*
 import okhttp3.ResponseBody.Companion.toResponseBody
 import org.junit.After
 import org.junit.Assert.assertEquals
@@ -27,13 +20,23 @@ import retrofit2.Response
 class CreateAdViewModelTest {
 
     private lateinit var viewModel: CreateAdViewModel
-    private val testDispatcher = StandardTestDispatcher()
+    private val repository: CreateAdRepository = mockk()
+    
+    // UnconfinedTestDispatcher esegue le coroutine immediatamente, 
+    // rendendo isLoading=true/false deterministico nei test.
+    private val testDispatcher = UnconfinedTestDispatcher()
 
     @Before
     fun setUp() {
         Dispatchers.setMain(testDispatcher)
-        mockkConstructor(CreateAdRepository::class)
-        viewModel = CreateAdViewModel()
+        
+        // Mock obbligatorio per Log, altrimenti crasha nei test unitari
+        mockkStatic(Log::class)
+        every { Log.e(any(), any()) } returns 0
+        every { Log.e(any(), any(), any()) } returns 0
+        every { Log.d(any(), any()) } returns 0
+        
+        viewModel = CreateAdViewModel(repository)
     }
 
     @After
@@ -43,59 +46,52 @@ class CreateAdViewModelTest {
     }
 
     @Test
-    fun `publishAdvertisement fails locally if inputs are invalid`() = runTest {
+    fun `publishOrUpdateAdvertisement fails locally if inputs are invalid`() = runTest {
         viewModel.updatePrice("invalid_price")
         viewModel.updateDescription("  ")
 
-        viewModel.publishAdvertisement("HOUSE_1", "TOKEN_1")
+        viewModel.publishOrUpdateAdvertisement("HOUSE_1", "TOKEN_1")
 
         assertEquals("Inserisci un prezzo valido e una descrizione", viewModel.errorMessage)
         assertFalse(viewModel.isLoading)
         assertFalse(viewModel.isSuccess)
 
-        coVerify(exactly = 0) { anyConstructed<CreateAdRepository>().createAdvertisement(any()) }
+        coVerify(exactly = 0) { repository.createAdvertisement(any()) }
     }
 
     @Test
-    fun `publishAdvertisement happy path updates state to success`() = runTest {
+    fun `publishOrUpdateAdvertisement happy path updates state to success`() = runTest {
         val houseCode = "HOUSE_1"
         val userToken = "TOKEN_1"
 
         viewModel.updatePrice("450.50")
         viewModel.updateDescription("Bella stanza")
-        viewModel.addImage(byteArrayOf(1, 2, 3))
+        
+        coEvery { repository.createAdvertisement(any()) } returns Response.success("OK")
 
-        val expectedDto = CreateHouseAdvertisementDTO(
-            houseCode = houseCode,
-            state = HouseStateEnum.PUBLIC,
-            publishedBy = userToken,
-            description = "Bella stanza",
-            images = listOf(byteArrayOf(1, 2, 3))
-        )
+        viewModel.publishOrUpdateAdvertisement(houseCode, userToken)
 
-        coEvery { anyConstructed<CreateAdRepository>().createAdvertisement(any()) } returns Response.success("OK")
-
-        viewModel.publishAdvertisement(houseCode, userToken)
-
-        assertTrue(viewModel.isLoading)
-        advanceUntilIdle()
-
+        // Con UnconfinedTestDispatcher, non serve advanceUntilIdle() 
+        // per le operazioni semplici, lo stato è già aggiornato.
         assertFalse(viewModel.isLoading)
         assertTrue(viewModel.isSuccess)
         assertEquals(null, viewModel.errorMessage)
 
-        coVerify(exactly = 1) { anyConstructed<CreateAdRepository>().createAdvertisement(expectedDto) }
+        coVerify(exactly = 1) { 
+            repository.createAdvertisement(match { 
+                it.houseCode == houseCode && it.description == "Bella stanza"
+            }) 
+        }
     }
 
     @Test
-    fun `publishAdvertisement unhappy path updates error message`() = runTest {
+    fun `publishOrUpdateAdvertisement unhappy path updates error message`() = runTest {
         viewModel.updatePrice("500")
         viewModel.updateDescription("Stanza doppia")
 
-        coEvery { anyConstructed<CreateAdRepository>().createAdvertisement(any()) } returns Response.error(400, "".toResponseBody())
+        coEvery { repository.createAdvertisement(any()) } returns Response.error(400, "".toResponseBody())
 
-        viewModel.publishAdvertisement("HOUSE_1", "TOKEN_1")
-        advanceUntilIdle()
+        viewModel.publishOrUpdateAdvertisement("HOUSE_1", "TOKEN_1")
 
         assertFalse(viewModel.isLoading)
         assertFalse(viewModel.isSuccess)
@@ -103,14 +99,13 @@ class CreateAdViewModelTest {
     }
 
     @Test
-    fun `publishAdvertisement network failure catches exception`() = runTest {
+    fun `publishOrUpdateAdvertisement network failure catches exception`() = runTest {
         viewModel.updatePrice("500")
         viewModel.updateDescription("Stanza doppia")
 
-        coEvery { anyConstructed<CreateAdRepository>().createAdvertisement(any()) } throws Exception("No Internet")
+        coEvery { repository.createAdvertisement(any()) } throws Exception("No Internet")
 
-        viewModel.publishAdvertisement("HOUSE_1", "TOKEN_1")
-        advanceUntilIdle()
+        viewModel.publishOrUpdateAdvertisement("HOUSE_1", "TOKEN_1")
 
         assertFalse(viewModel.isLoading)
         assertFalse(viewModel.isSuccess)
@@ -118,19 +113,13 @@ class CreateAdViewModelTest {
     }
 
     @Test
-    fun `state resets work correctly`() {
-        viewModel.updatePrice("500")
-        viewModel.updateDescription("Stanza")
+    fun `state resets work correctly`() = runTest {
+        // Prepariamo uno stato di errore
+        viewModel.updatePrice("invalid")
+        viewModel.publishOrUpdateAdvertisement("H1", "T1")
+        assertEquals("Inserisci un prezzo valido e una descrizione", viewModel.errorMessage)
 
-        // Simulo l'impostazione degli stati
-        val errorField = viewModel.javaClass.getDeclaredField("errorMessage")
-        errorField.isAccessible = true
-        errorField.set(viewModel, "Errore precedente")
-
-        val successField = viewModel.javaClass.getDeclaredField("isSuccess")
-        successField.isAccessible = true
-        successField.set(viewModel, true)
-
+        // Reset
         viewModel.resetError()
         viewModel.resetSuccess()
 

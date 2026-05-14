@@ -9,5 +9,6 @@ data class CreateHouseAdvertisementDTO(
     val images: List<ByteArray>? = null,
     val state: HouseStateEnum,
     val publishedBy: String,
-    var description: String? = null
+    var description: String? = null,
+    val costPerMonth: Int? = null
 )
