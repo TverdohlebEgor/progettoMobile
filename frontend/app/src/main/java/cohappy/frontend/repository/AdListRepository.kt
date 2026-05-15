@@ -7,15 +7,15 @@ import cohappy.frontend.expections.ServerErrorException
 
 class AdListRepository {
     suspend fun fetchAds(): Result<List<GetHouseAdvertesimentDTO>> {
-        return try {
-            val response = ClientSingleton.houseApi.getAllHouseAdvertisements()
-            if (response.isSuccessful && response.body() != null) {
-                Result.success(response.body()!!)
+        try {
+            val apiResponse = ClientSingleton.houseApi.getAllHouseAdvertisements()
+            if (apiResponse.isSuccessful && apiResponse.body() != null) {
+                return Result.success(apiResponse.body()!!)
             } else {
-                Result.failure(ServerErrorException(SERVER_ERROR))
+                return Result.failure(ServerErrorException(SERVER_ERROR))
             }
         } catch (e: Exception) {
-            Result.failure(e)
+            return Result.failure(e)
         }
     }
 }

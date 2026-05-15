@@ -74,7 +74,6 @@ fun AdsMainScreen(
                     Box(modifier = Modifier.fillMaxSize()) {
 
                         AdListScreen(
-                            innerPadding = paddingValues,
                             onAdClick = onAnnuncioClick
                         )
                     }
