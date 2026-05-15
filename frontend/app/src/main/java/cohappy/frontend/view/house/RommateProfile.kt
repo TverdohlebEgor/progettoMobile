@@ -85,6 +85,7 @@ fun HouseProfileView(
     onLogoutClick: () -> Unit = {},
     onRoommatesClick: () -> Unit = {},
     onCreateAdClick: () -> Unit = {},
+    hasExistingAd: Boolean = false,
     showRoommatesPopup: Boolean = false,
     roommatesList: List<RoommateItem> = emptyList(),
     isCurrentUserAdmin: Boolean = false,
@@ -174,7 +175,7 @@ fun HouseProfileView(
 
                         SettingItem(
                             icon = Icons.Default.Campaign,
-                            title = "Crea annuncio casa",
+                            title = if (hasExistingAd) "Modifica annuncio casa" else "Crea annuncio casa",
                             onClick = onCreateAdClick
                         )
                     }

@@ -29,7 +29,8 @@ fun RoommateProfileDarkPreviewLoading() {
             imageBytes = null,
             isLoading = true,
             houseAddress = "",
-            houseCode = ""
+            houseCode = "",
+            hasExistingAd = false
         )
     }
 }
@@ -45,7 +46,8 @@ fun RoommateProfileDarkPreviewNormal() {
             isLoading = false,
             houseAddress = "Via Garibaldi 12",
             houseCode = "COH-1234",
-            isCurrentUserAdmin = false
+            isCurrentUserAdmin = false,
+            hasExistingAd = false
         )
     }
 }
@@ -61,7 +63,8 @@ fun RoommateProfileDarkPreviewCodeError() {
             isLoading = false,
             houseAddress = "Via Garibaldi 12",
             houseCode = "COH-1234",
-            codeUpdateError = "Questo codice è già in uso!"
+            codeUpdateError = "Questo codice è già in uso!",
+            hasExistingAd = false
         )
     }
 }
@@ -78,7 +81,8 @@ fun RoommateProfileDarkPreviewRoommatesLoading() {
             houseAddress = "Via Garibaldi 12",
             houseCode = "COH-1234",
             showRoommatesPopup = true,
-            isRoommatesLoading = true
+            isRoommatesLoading = true,
+            hasExistingAd = false
         )
     }
 }
@@ -97,7 +101,45 @@ fun RoommateProfileDarkPreviewRoommatesLoaded() {
             showRoommatesPopup = true,
             isRoommatesLoading = false,
             roommatesList = mockRoommatesDark,
-            isCurrentUserAdmin = true
+            isCurrentUserAdmin = true,
+            hasExistingAd = true
+        )
+    }
+}
+
+@Preview(showBackground = true, uiMode = Configuration.UI_MODE_NIGHT_YES, name = "6. Dark Admin View - Edit Advertisement")
+@Composable
+fun RoommateProfileDarkPreviewAdminEditAd() {
+    ProgettoMobileTheme {
+        HouseProfileView(
+            userName = "Ale",
+            userSurname = "Rossi",
+            imageBytes = null,
+            isLoading = false,
+            houseAddress = "Via Garibaldi 12",
+            houseCode = "COH-1234",
+            isCurrentUserAdmin = true,
+            hasExistingAd = true
+        )
+    }
+}
+
+@Preview(showBackground = true, uiMode = Configuration.UI_MODE_NIGHT_YES, name = "7. Dark Roommate Actions (Admin Buttons)")
+@Composable
+fun RoommateProfileDarkPreviewAdminActions() {
+    ProgettoMobileTheme {
+        HouseProfileView(
+            userName = "Ale",
+            userSurname = "Rossi",
+            imageBytes = null,
+            isLoading = false,
+            houseAddress = "Via Garibaldi 12",
+            houseCode = "COH-1234",
+            showRoommatesPopup = true,
+            isRoommatesLoading = false,
+            roommatesList = mockRoommatesDark,
+            isCurrentUserAdmin = true,
+            hasExistingAd = true
         )
     }
 }

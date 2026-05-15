@@ -39,9 +39,14 @@ fun CreateAdScreen(
         }
     }
 
+    LaunchedEffect(houseCode) {
+        viewModel.fetchExistingAd(houseCode)
+    }
+
     LaunchedEffect(viewModel.isSuccess) {
         if (viewModel.isSuccess) {
-            Toast.makeText(context, "Annuncio pubblicato con successo!", Toast.LENGTH_LONG).show()
+            val message = if (viewModel.isEditMode) "Annuncio aggiornato con successo!" else "Annuncio pubblicato con successo!"
+            Toast.makeText(context, message, Toast.LENGTH_LONG).show()
             viewModel.resetSuccess()
             onAdPublished()
         }
@@ -57,6 +62,7 @@ fun CreateAdScreen(
     CreateAdView(
         prezzo = viewModel.price,
         descrizione = viewModel.description,
+        immagine = viewModel.selectedImages.lastOrNull(), // Mostriamo l'ultima aggiunta
         onPrezzoChange = { viewModel.updatePrice(it) },
         onDescrizioneChange = { viewModel.updateDescription(it) },
         onAddPhotoClick = {
@@ -64,7 +70,8 @@ fun CreateAdScreen(
                 PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly)
             )
         },
-        onPublishClick = { viewModel.publishAdvertisement(houseCode, userToken) },
-        onBackClick = onBackClick
+        onPublishClick = { viewModel.publishOrUpdateAdvertisement(houseCode, userToken) },
+        onBackClick = onBackClick,
+        isEditMode = viewModel.isEditMode
     )
 }

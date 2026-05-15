@@ -70,6 +70,7 @@ fun RommateProfileScreen(
         isUpdatingCode = viewModel.isUpdatingCode,
         codeUpdateError = viewModel.codeUpdateError,
         isCurrentUserAdmin = viewModel.isCurrentUserAdmin,
+        hasExistingAd = viewModel.hasExistingAd,
         onUpdateCodeClick = { nuovoCodice ->
             viewModel.updateHouseCode(viewModel.currentHouseCode.ifBlank { houseCode }, nuovoCodice)
         },

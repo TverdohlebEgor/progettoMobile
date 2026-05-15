@@ -84,4 +84,17 @@ class PortfolioRepository {
             Result.failure(e)
         }
     }
+
+    suspend fun settleDebt(debtId: String): Result<Unit> {
+        return try {
+            val response = ClientSingleton.portfolioApi.deleteDebt(debtId)
+            if (response.isSuccessful) {
+                Result.success(Unit)
+            } else {
+                Result.failure(ServerErrorException(SERVER_ERROR))
+            }
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
+    }
 }

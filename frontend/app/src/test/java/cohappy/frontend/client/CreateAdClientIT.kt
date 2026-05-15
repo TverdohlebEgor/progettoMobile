@@ -3,12 +3,13 @@ package cohappy.frontend.client
 import cohappy.frontend.client.dto.enum.HouseStateEnum
 import cohappy.frontend.client.dto.request.CreateHouseAdvertisementDTO
 import com.squareup.moshi.Moshi
-import com.squareup.moshi.kotlin.reflect.KotlinJsonAdapterFactory
 import kotlinx.coroutines.test.runTest
 import okhttp3.mockwebserver.MockResponse
 import okhttp3.mockwebserver.MockWebServer
 import org.junit.After
-import org.junit.Assert
+import org.junit.Assert.assertEquals
+import org.junit.Assert.assertFalse
+import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.Test
 import retrofit2.Retrofit
@@ -18,10 +19,10 @@ import retrofit2.converter.scalars.ScalarsConverterFactory
 class CreateAdClientIT {
 
     private lateinit var mockWebServer: MockWebServer
-    private lateinit var testHouseApi: HouseApiClient
+    private lateinit var houseApi: HouseApiClient
 
     @Before
-    fun setup() {
+    fun setUp() {
         mockWebServer = MockWebServer()
         mockWebServer.start()
 
@@ -29,98 +30,74 @@ class CreateAdClientIT {
             .add(LocalDateAdapter())
             .add(LocalDateTimeAdapter())
             .add(ByteArrayAdapter())
-            .add(KotlinJsonAdapterFactory())
             .build()
 
-        val retrofit = Retrofit.Builder()
+        houseApi = Retrofit.Builder()
             .baseUrl(mockWebServer.url("/"))
             .addConverterFactory(ScalarsConverterFactory.create())
-            .addConverterFactory(MoshiConverterFactory.create(moshi))
+            .addConverterFactory(MoshiConverterFactory.create(moshi).asLenient())
             .build()
-
-        testHouseApi = retrofit.create(HouseApiClient::class.java)
+            .create(HouseApiClient::class.java)
     }
 
     @After
-    fun teardown() {
+    fun tearDown() {
         mockWebServer.shutdown()
     }
 
     @Test
-    fun `createHouseAdvertisement returns success`() = runTest {
-        val request = CreateHouseAdvertisementDTO(
-            houseCode = "HOUSE123",
+    fun `createHouseAdvertisement happy path returns success ID`() = runTest {
+        mockWebServer.enqueue(MockResponse().setResponseCode(200).setBody("NEW_AD_123"))
+
+        val dto = CreateHouseAdvertisementDTO(
+            houseCode = "H1",
             state = HouseStateEnum.PUBLIC,
-            publishedBy = "USER123",
-            description = "Bella casa"
+            publishedBy = "U1",
+            description = "Bella stanza",
+            images = emptyList()
         )
 
-        mockWebServer.enqueue(
-            MockResponse()
-                .setResponseCode(200)
-                .setBody("Advertisement created successfully")
-        )
+        val response = houseApi.createHouseAdvertisement(dto)
 
-        val response = testHouseApi.createHouseAdvertisement(request)
+        assertTrue(response.isSuccessful)
+        assertEquals("NEW_AD_123", response.body())
 
-        Assert.assertTrue(response.isSuccessful)
-        Assert.assertEquals("Advertisement created successfully", response.body())
+        val request = mockWebServer.takeRequest()
+        assertEquals("POST", request.method)
+        assertEquals("/api/house/advertisement/create", request.path)
     }
 
     @Test
-    fun `createHouseAdvertisement returns 400 bad request`() = runTest {
-        val request = CreateHouseAdvertisementDTO(
+    fun `createHouseAdvertisement unhappy path 400 returns failure`() = runTest {
+        mockWebServer.enqueue(MockResponse().setResponseCode(400))
+
+        val dto = CreateHouseAdvertisementDTO(
             houseCode = "",
-            state = HouseStateEnum.PUBLIC,
-            publishedBy = "USER123"
+            state = HouseStateEnum.PRIVATE,
+            publishedBy = "",
+            description = ""
         )
 
-        mockWebServer.enqueue(
-            MockResponse()
-                .setResponseCode(400)
-        )
+        val response = houseApi.createHouseAdvertisement(dto)
 
-        val response = testHouseApi.createHouseAdvertisement(request)
-
-        Assert.assertFalse(response.isSuccessful)
-        Assert.assertEquals(400, response.code())
+        assertFalse(response.isSuccessful)
+        assertEquals(400, response.code())
     }
 
     @Test
-    fun `createHouseAdvertisement returns 404 not found`() = runTest {
-        val request = CreateHouseAdvertisementDTO(
-            houseCode = "UNKNOWN",
+    fun `createHouseAdvertisement unhappy path 500 returns server error`() = runTest {
+        mockWebServer.enqueue(MockResponse().setResponseCode(500))
+
+        val dto = CreateHouseAdvertisementDTO(
+            houseCode = "H1",
             state = HouseStateEnum.PUBLIC,
-            publishedBy = "USER123"
+            publishedBy = "U1",
+            description = "Test",
+            images = null
         )
+        val response = houseApi.createHouseAdvertisement(dto)
 
-        mockWebServer.enqueue(
-            MockResponse()
-                .setResponseCode(404)
-        )
-
-        val response = testHouseApi.createHouseAdvertisement(request)
-
-        Assert.assertFalse(response.isSuccessful)
-        Assert.assertEquals(404, response.code())
-    }
-
-    @Test
-    fun `createHouseAdvertisement returns 500 error`() = runTest {
-        val request = CreateHouseAdvertisementDTO(
-            houseCode = "HOUSE123",
-            state = HouseStateEnum.PUBLIC,
-            publishedBy = "USER123"
-        )
-
-        mockWebServer.enqueue(
-            MockResponse()
-                .setResponseCode(500)
-        )
-
-        val response = testHouseApi.createHouseAdvertisement(request)
-
-        Assert.assertFalse(response.isSuccessful)
-        Assert.assertEquals(500, response.code())
+        assertFalse(response.isSuccessful)
+        assertEquals(500, response.code())
     }
 }

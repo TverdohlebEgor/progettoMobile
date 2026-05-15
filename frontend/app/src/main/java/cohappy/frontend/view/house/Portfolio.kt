@@ -1,5 +1,9 @@
 package cohappy.frontend.view.house
 
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.animateContentSize
+import androidx.compose.animation.core.Spring
+import androidx.compose.animation.core.spring
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.BorderStroke
@@ -32,14 +36,21 @@ import androidx.compose.material.icons.filled.ArrowDownward
 import androidx.compose.material.icons.filled.ArrowUpward
 import androidx.compose.material.icons.filled.AttachMoney
 import androidx.compose.material.icons.filled.Build
+import androidx.compose.material.icons.filled.CheckCircle
+import androidx.compose.material.icons.filled.ExpandLess
+import androidx.compose.material.icons.filled.ExpandMore
 import androidx.compose.material.icons.filled.FlashOn
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.LocalPizza
 import androidx.compose.material.icons.filled.PlayArrow
+import androidx.compose.material.icons.filled.RadioButtonUnchecked
 import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material.icons.filled.ShoppingCart
 import androidx.compose.material.icons.filled.Star
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -57,12 +68,16 @@ import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalLocale
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextDecoration
+import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import cohappy.frontend.client.dto.enum.DebtType
 import cohappy.frontend.components.CustomIconButton
 import cohappy.frontend.components.Titoli
 import cohappy.frontend.viewmodel.PortfolioTransaction
+import cohappy.frontend.viewmodel.TransactionShare
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
@@ -74,7 +89,8 @@ fun PortfolioView(
     activeFilter: String,
     transactions: List<PortfolioTransaction>,
     onFilterChange: (String) -> Unit,
-    onAddClick: () -> Unit = {}
+    onAddClick: () -> Unit = {},
+    onSettleClick: (String) -> Unit = {}
 ) {
     val isDark = isSystemInDarkTheme()
     val bgColor = if (isDark) Color.Black else Color.White
@@ -153,9 +169,11 @@ fun PortfolioView(
                         }
                     } else {
                         items(transactions) { tx ->
-                            Box(modifier = Modifier.padding(horizontal = 24.dp)) {
-                                TransactionItem(transaction = tx)
-                            }
+                            TransactionItem(
+                                transaction = tx,
+                                onSettleClick = { tx.myDebtId?.let { onSettleClick(it) } },
+                                modifier = Modifier.padding(horizontal = 24.dp)
+                            )
                         }
                     }
                 }
@@ -219,7 +237,13 @@ fun FilterPill(
 }
 
 @Composable
-fun TransactionItem(transaction: PortfolioTransaction) {
+fun TransactionItem(
+    transaction: PortfolioTransaction,
+    onSettleClick: () -> Unit = {},
+    isInitiallyExpanded: Boolean = false,
+    modifier: Modifier = Modifier
+) {
+    var expanded by remember { mutableStateOf(isInitiallyExpanded) }
     val isDark = isSystemInDarkTheme()
     val bgCard = if (isDark) Color(0xFF1E1C22) else Color.White
     val titleColor = if (isDark) Color.White else Color.Black
@@ -248,56 +272,156 @@ fun TransactionItem(transaction: PortfolioTransaction) {
 
     val iconTint = if (transaction.isDebt) Color(0xFFFF6961) else Color(0xFF34D399)
 
+    val allPaid = transaction.shares.isNotEmpty() && transaction.shares.all { it.isPaid }
+
     Surface(
-        modifier = Modifier.fillMaxWidth(),
+        modifier = modifier
+            .fillMaxWidth()
+            .animateContentSize(
+                animationSpec = spring(
+                    dampingRatio = Spring.DampingRatioLowBouncy,
+                    stiffness = Spring.StiffnessLow
+                )
+            )
+            .clickable { expanded = !expanded },
         shape = RoundedCornerShape(24.dp),
         color = bgCard,
         shadowElevation = if (isDark) 0.dp else 10.dp,
         border = if (isDark) BorderStroke(1.dp, Color.White.copy(alpha = 0.1f)) else null
     ) {
-        Row(
-            modifier = Modifier.padding(16.dp),
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            Box(
-                modifier = Modifier
-                    .size(48.dp)
-                    .clip(CircleShape)
-                    .background(iconBg),
-                contentAlignment = Alignment.Center
+        Column {
+            Row(
+                modifier = Modifier.padding(16.dp),
+                verticalAlignment = Alignment.CenterVertically
             ) {
+                Box(
+                    modifier = Modifier
+                        .size(48.dp)
+                        .clip(CircleShape)
+                        .background(iconBg),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Icon(
+                        imageVector = iconObj,
+                        contentDescription = null,
+                        tint = iconTint,
+                        modifier = Modifier.size(24.dp)
+                    )
+                }
+
+                Spacer(modifier = Modifier.width(16.dp))
+
+                Column(modifier = Modifier.weight(1f)) {
+                    Text(
+                        text = transaction.title,
+                        color = titleColor,
+                        fontWeight = FontWeight.Bold,
+                        fontSize = 16.sp,
+                        textDecoration = if (allPaid) TextDecoration.LineThrough else TextDecoration.None,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis
+                    )
+                    Spacer(modifier = Modifier.height(2.dp))
+                    Text(
+                        text = transaction.subtitle,
+                        color = subtitleColor,
+                        fontWeight = FontWeight.Medium,
+                        fontSize = 13.sp,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis
+                    )
+                }
+
+                Text(
+                    text = "$sign $amountFormatted €",
+                    color = amountColor,
+                    fontWeight = FontWeight.Black,
+                    fontSize = 18.sp
+                )
+
                 Icon(
-                    imageVector = iconObj,
+                    imageVector = if (expanded) Icons.Default.ExpandLess else Icons.Default.ExpandMore,
                     contentDescription = null,
-                    tint = iconTint,
-                    modifier = Modifier.size(24.dp)
+                    tint = subtitleColor,
+                    modifier = Modifier.padding(start = 8.dp)
                 )
             }
 
-            Spacer(modifier = Modifier.width(16.dp))
+            AnimatedVisibility(visible = expanded) {
+                Column(
+                    modifier = Modifier
+                        .padding(horizontal = 16.dp)
+                        .padding(bottom = 16.dp)
+                ) {
+                    HorizontalDivider(
+                        color = titleColor.copy(alpha = 0.05f),
+                        thickness = 1.dp,
+                        modifier = Modifier.padding(bottom = 12.dp)
+                    )
 
-            Column(modifier = Modifier.weight(1f)) {
-                Text(
-                    text = transaction.title,
-                    color = titleColor,
-                    fontWeight = FontWeight.Bold,
-                    fontSize = 16.sp
-                )
-                Spacer(modifier = Modifier.height(2.dp))
-                Text(
-                    text = transaction.subtitle,
-                    color = subtitleColor,
-                    fontWeight = FontWeight.Medium,
-                    fontSize = 13.sp
-                )
+                    Text(
+                        text = "Stato Pagamenti",
+                        color = titleColor,
+                        fontWeight = FontWeight.Bold,
+                        fontSize = 14.sp,
+                        modifier = Modifier.padding(bottom = 8.dp)
+                    )
+
+                    transaction.shares.forEach { share ->
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(vertical = 4.dp),
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.SpaceBetween
+                        ) {
+                            Row(verticalAlignment = Alignment.CenterVertically) {
+                                Icon(
+                                    imageVector = if (share.isPaid) Icons.Default.CheckCircle else Icons.Default.RadioButtonUnchecked,
+                                    contentDescription = null,
+                                    tint = if (share.isPaid) Color(0xFF34D399) else subtitleColor,
+                                    modifier = Modifier.size(16.dp)
+                                )
+                                Spacer(modifier = Modifier.width(8.dp))
+                                Text(
+                                    text = share.userName,
+                                    color = if (share.isPaid) titleColor.copy(alpha = 0.6f) else titleColor,
+                                    fontSize = 14.sp,
+                                    textDecoration = if (share.isPaid) TextDecoration.LineThrough else TextDecoration.None
+                                )
+                            }
+
+                            if (!share.isPaid) {
+                                val shareAmount = String.format(LocalLocale.current.platformLocale, "%.2f", share.amount).replace(".", ",")
+                                Text(
+                                    text = "$shareAmount €",
+                                    color = titleColor.copy(alpha = 0.8f),
+                                    fontWeight = FontWeight.Medium,
+                                    fontSize = 14.sp
+                                )
+                            }
+                        }
+                    }
+
+                    if (transaction.isDebt && !allPaid) {
+                        Spacer(modifier = Modifier.height(16.dp))
+                        Button(
+                            onClick = onSettleClick,
+                            modifier = Modifier.fillMaxWidth(),
+                            colors = ButtonDefaults.buttonColors(
+                                containerColor = Color(0xFF34D399),
+                                contentColor = Color.White
+                            ),
+                            shape = RoundedCornerShape(12.dp)
+                        ) {
+                            Text(
+                                text = "Segna come Saldato",
+                                fontWeight = FontWeight.Bold
+                            )
+                        }
+                    }
+                }
             }
-
-            Text(
-                text = "$sign $amountFormatted €",
-                color = amountColor,
-                fontWeight = FontWeight.Black,
-                fontSize = 18.sp
-            )
         }
     }
 }
@@ -427,5 +551,84 @@ fun BalanceCardFace(
                 )
             }
         }
+    }
+}
+
+@Preview(showBackground = true)
+@Composable
+fun PortfolioViewPreview() {
+    val sampleTransactions = listOf(
+        PortfolioTransaction(
+            id = "1",
+            isDebt = true,
+            title = "Affitto Marzo",
+            subtitle = "Devi a Mario",
+            amount = 450.0,
+            category = DebtType.RENT,
+            shares = listOf(
+                TransactionShare("1", "Mario Rossi", 450.0, true),
+                TransactionShare("2", "Tu", 450.0, false)
+            )
+        ),
+        PortfolioTransaction(
+            id = "2",
+            isDebt = false,
+            title = "Spesa Esselunga",
+            subtitle = "In attesa da 2 persone",
+            amount = 30.0,
+            category = DebtType.GROCERIE,
+            shares = listOf(
+                TransactionShare("1", "Mario Rossi", 15.0, false),
+                TransactionShare("2", "Luigi Bianchi", 15.0, true),
+                TransactionShare("3", "Tu", 15.0, true)
+            )
+        ),
+        PortfolioTransaction(
+            id = "3",
+            isDebt = false,
+            title = "Bolletta Luce",
+            subtitle = "Tutti hanno pagato",
+            amount = 0.0,
+            category = DebtType.BILL,
+            shares = listOf(
+                TransactionShare("1", "Mario Rossi", 20.0, true),
+                TransactionShare("2", "Luigi Bianchi", 20.0, true),
+                TransactionShare("3", "Tu", 20.0, true)
+            )
+        )
+    )
+
+    PortfolioView(
+        isLoading = false,
+        totalDebts = 450.0,
+        totalCredits = 30.0,
+        activeFilter = "ALL",
+        transactions = sampleTransactions,
+        onFilterChange = {}
+    )
+}
+
+@Preview(showBackground = true, name = "Many Roommates")
+@Composable
+fun TransactionItemManyRoommatesPreview() {
+    val manyShares = (1..10).map { i ->
+        TransactionShare(
+            userCode = "user$i",
+            userName = "Roommate $i",
+            amount = 5.0,
+            isPaid = i % 3 == 0
+        )
+    }
+    val tx = PortfolioTransaction(
+        id = "many",
+        isDebt = false,
+        title = "Super Spesa Condivisa",
+        subtitle = "In attesa da 7 persone",
+        amount = 35.0,
+        category = DebtType.GROCERIE,
+        shares = manyShares
+    )
+    Box(modifier = Modifier.padding(16.dp)) {
+        TransactionItem(transaction = tx, isInitiallyExpanded = true)
     }
 }

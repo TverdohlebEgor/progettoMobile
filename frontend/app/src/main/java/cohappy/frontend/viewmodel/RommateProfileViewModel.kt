@@ -13,6 +13,7 @@ import cohappy.frontend.client.dto.request.PatchUserDTO
 import cohappy.frontend.client.dto.request.RemoveUserDTO
 import cohappy.frontend.client.dto.response.GetHouseDTO
 import cohappy.frontend.client.dto.response.UserAccountDTO
+import cohappy.frontend.repository.RoommateProfileRepository
 import kotlinx.coroutines.launch
 
 data class RoommateItem(
@@ -24,6 +25,7 @@ data class RoommateItem(
 )
 
 class RommateProfileViewModel : ViewModel() {
+    private val repository = RoommateProfileRepository()
 
     var userName by mutableStateOf("Caricamento...")
         private set
@@ -43,6 +45,9 @@ class RommateProfileViewModel : ViewModel() {
     var isCurrentUserAdmin by mutableStateOf(false)
         private set
     var isRoommatesLoading by mutableStateOf(false)
+        private set
+
+    var hasExistingAd by mutableStateOf(false)
         private set
 
     var isUpdatingCode by mutableStateOf(false)
@@ -66,7 +71,7 @@ class RommateProfileViewModel : ViewModel() {
         viewModelScope.launch {
             isLoading = true
             try {
-                val response = ClientSingleton.userApi.getUserProfile(myUserCode)
+                val response = repository.fetchUserProfile(myUserCode)
                 if (response.isSuccessful && response.body() != null) {
                     val data: UserAccountDTO = response.body()!!
                     userName = data.name ?: "Utente"
@@ -101,6 +106,8 @@ class RommateProfileViewModel : ViewModel() {
                         isCurrentUserAdmin = house.admins?.contains(tokenPulito) == true
 
                         houseAddress = "${house.street ?: "Via Sconosciuta"} ${house.civicNumber ?: ""}".trim()
+
+                        checkExistingAd(currentHouseCode)
                     } else {
                         houseAddress = "Indirizzo non trovato"
                     }
@@ -118,12 +125,7 @@ class RommateProfileViewModel : ViewModel() {
                 profileImageBytes = imageBytes
                 val tokenPulito = userToken.replace("\"", "").trim()
 
-                val patchRequest = PatchUserDTO(
-                    userCode = tokenPulito,
-                    images = listOf(imageBytes)
-                )
-
-                val response = ClientSingleton.userApi.patchUser(patchRequest)
+                val response = repository.updateUserImage(tokenPulito, imageBytes)
 
                 if (response.isSuccessful) {
                     Log.d("RommateProfileVM", "✅ Immagine salvata sul DB!")
@@ -291,34 +293,16 @@ class RommateProfileViewModel : ViewModel() {
     }
 
     fun updateHouseAddress(houseCode: String, newAddress: String) {
+        // ... (esistente)
+    }
+
+    private fun checkExistingAd(houseCode: String) {
         viewModelScope.launch {
-            isUpdatingAddress = true
-            addressUpdateError = null
             try {
-                val parts = newAddress.split(" ")
-                val civicStr = parts.lastOrNull() ?: ""
-                val streetStr = parts.dropLast(1).joinToString(" ")
-                val civicInt = civicStr.toIntOrNull()
-
-                val dto = ModifyHouseDTO(
-                    houseCode = houseCode,
-                    street = if (streetStr.isNotBlank()) streetStr else newAddress,
-                    civicNumber = civicInt
-                )
-
-                val response = ClientSingleton.houseApi.modifyHouse(dto)
-
-                if (response.isSuccessful) {
-                    Log.d("RommateProfileVM", "✅ Indirizzo aggiornato con successo!")
-                    houseAddress = newAddress
-                } else {
-                    addressUpdateError = "Errore backend: ${response.code()}"
-                }
+                val response = ClientSingleton.houseApi.getHouseAdvertisement(houseCode)
+                hasExistingAd = response.isSuccessful && response.body() != null
             } catch (e: Exception) {
-                Log.e("RommateProfileVM", "🚨 Errore di rete update indirizzo", e)
-                addressUpdateError = "Errore di connessione"
-            } finally {
-                isUpdatingAddress = false
+                hasExistingAd = false
             }
         }
     }

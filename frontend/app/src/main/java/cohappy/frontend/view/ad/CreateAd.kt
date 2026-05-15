@@ -43,21 +43,32 @@ import androidx.compose.ui.unit.sp
 import cohappy.frontend.components.CustomBackButton
 import cohappy.frontend.components.Titoli
 
+import android.graphics.BitmapFactory
+import androidx.compose.foundation.Image
+import androidx.compose.ui.graphics.asImageBitmap
+import androidx.compose.ui.layout.ContentScale
+
 @Composable
 fun CreateAdView(
     prezzo: String,
     descrizione: String,
+    immagine: ByteArray? = null,
     onPrezzoChange: (String) -> Unit,
     onDescrizioneChange: (String) -> Unit,
     onAddPhotoClick: () -> Unit,
     onPublishClick: () -> Unit,
-    onBackClick: () -> Unit
+    onBackClick: () -> Unit,
+    isEditMode: Boolean = false
 ) {
     val isDark = isSystemInDarkTheme()
     val bgColor = if (isDark) Color.Black else Color.White
     val contentColor = if (isDark) Color.White else Color.Black
     val inputBgColor = MaterialTheme.colorScheme.secondary.copy(alpha = 0.15f)
     val btnBgColor = Color(0xFF6B53A4) // Il nostro viola iconico!
+
+    val bitmap = immagine?.let {
+        BitmapFactory.decodeByteArray(it, 0, it.size)?.asImageBitmap()
+    }
 
     Surface(
         modifier = Modifier.fillMaxSize(),
@@ -67,6 +78,7 @@ fun CreateAdView(
         Column(
             modifier = Modifier.fillMaxSize()
         ) {
+            // Freccia indietro
             CustomBackButton(
                 color = contentColor,
                 onClick = onBackClick,
@@ -81,9 +93,9 @@ fun CreateAdView(
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
                 Titoli(
-                    titolo1 = "Pubblica",
+                    titolo1 = if (isEditMode) "Modifica" else "Pubblica",
                     titolo2 = "Un Annuncio",
-                    sottotitolo = "Mostra la tua stanza al mondo.",
+                    sottotitolo = if (isEditMode) "Aggiorna i dettagli della tua stanza." else "Mostra la tua stanza al mondo.",
                     color = contentColor
                 )
 
@@ -93,36 +105,77 @@ fun CreateAdView(
                 Box(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .height(180.dp)
+                        .height(200.dp)
                         .clip(RoundedCornerShape(32.dp))
                         .background(inputBgColor)
-                        // Bordino tratteggiato finto (usiamo un bordo liscio semitrasparente per eleganza)
                         .border(2.dp, Color.Gray.copy(alpha = 0.3f), RoundedCornerShape(32.dp))
                         .clickable { onAddPhotoClick() },
                     contentAlignment = Alignment.Center
                 ) {
-                    Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                    if (immagine != null) {
+                        if (bitmap != null) {
+                            Image(
+                                bitmap = bitmap,
+                                contentDescription = "Foto selezionata",
+                                modifier = Modifier.fillMaxSize(),
+                                contentScale = ContentScale.Crop
+                            )
+                        } else {
+                            // Caso per la Preview: se i byte non sono un'immagine valida, 
+                            // mostriamo un placeholder colorato
+                            Box(
+                                modifier = Modifier
+                                    .fillMaxSize()
+                                    .background(btnBgColor.copy(alpha = 0.4f)),
+                                contentAlignment = Alignment.Center
+                            ) {
+                                Icon(
+                                    imageVector = Icons.Default.AddPhotoAlternate,
+                                    contentDescription = null,
+                                    tint = Color.White,
+                                    modifier = Modifier.size(48.dp)
+                                )
+                            }
+                        }
+                        
+                        // Overlay per il cambio foto
                         Box(
                             modifier = Modifier
-                                .size(56.dp)
-                                .clip(CircleShape)
-                                .background(btnBgColor.copy(alpha = 0.1f)),
-                            contentAlignment = Alignment.Center
-                        ) {
-                            Icon(
-                                imageVector = Icons.Default.AddPhotoAlternate,
-                                contentDescription = "Aggiungi Foto",
-                                tint = btnBgColor,
-                                modifier = Modifier.size(28.dp)
+                                .fillMaxSize()
+                                .background(Color.Black.copy(alpha = 0.2f))
+                        )
+                        Text(
+                            text = "Tocca per cambiare",
+                            color = Color.White,
+                            fontWeight = FontWeight.Bold,
+                            modifier = Modifier
+                                .background(Color.Black.copy(alpha = 0.5f), RoundedCornerShape(8.dp))
+                                .padding(horizontal = 12.dp, vertical = 6.dp)
+                        )
+                    } else {
+                        Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                            Box(
+                                modifier = Modifier
+                                    .size(56.dp)
+                                    .clip(CircleShape)
+                                    .background(btnBgColor.copy(alpha = 0.1f)),
+                                contentAlignment = Alignment.Center
+                            ) {
+                                Icon(
+                                    imageVector = Icons.Default.AddPhotoAlternate,
+                                    contentDescription = "Aggiungi Foto",
+                                    tint = btnBgColor,
+                                    modifier = Modifier.size(28.dp)
+                                )
+                            }
+                            Spacer(modifier = Modifier.height(12.dp))
+                            Text(
+                                text = "Carica foto della stanza",
+                                color = Color.Gray,
+                                fontWeight = FontWeight.Bold,
+                                fontSize = 14.sp
                             )
                         }
-                        Spacer(modifier = Modifier.height(12.dp))
-                        Text(
-                            text = "Carica foto della stanza",
-                            color = Color.Gray,
-                            fontWeight = FontWeight.Bold,
-                            fontSize = 14.sp
-                        )
                     }
                 }
 
@@ -246,5 +299,42 @@ fun CreateAdView(
                 Spacer(modifier = Modifier.height(40.dp))
             }
         }
+    }
+}
+
+// 💅 PREVIEW MAGICA! Guarda il risultato senza dover avviare l'emulatore!
+@Preview(showBackground = true, name = "Create Mode")
+@Composable
+fun PreviewCreateAd() {
+    MaterialTheme {
+        CreateAdView(
+            prezzo = "",
+            descrizione = "",
+            immagine = null,
+            onPrezzoChange = {},
+            onDescrizioneChange = {},
+            onAddPhotoClick = {},
+            onPublishClick = {},
+            onBackClick = {},
+            isEditMode = false
+        )
+    }
+}
+
+@Preview(showBackground = true, name = "Edit Mode")
+@Composable
+fun PreviewEditAd() {
+    MaterialTheme {
+        CreateAdView(
+            prezzo = "450",
+            descrizione = "Bellissima stanza in centro, luminosa e spaziosa.",
+            immagine = null,
+            onPrezzoChange = {},
+            onDescrizioneChange = {},
+            onAddPhotoClick = {},
+            onPublishClick = {},
+            onBackClick = {},
+            isEditMode = true
+        )
     }
 }

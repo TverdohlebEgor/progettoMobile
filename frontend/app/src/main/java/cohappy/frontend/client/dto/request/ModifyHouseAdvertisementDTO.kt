@@ -8,5 +8,6 @@ data class ModifyHouseAdvertisementDTO(
     val houseCode: String,
     val state: HouseStateEnum,
     var description: String? = null,
-    val images: List<ByteArray>? = null
+    val images: List<ByteArray>? = null,
+    val costPerMonth: Int? = null
 )

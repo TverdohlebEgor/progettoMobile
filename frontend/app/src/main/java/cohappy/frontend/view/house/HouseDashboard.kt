@@ -126,7 +126,7 @@ fun HouseDashboardView(
                     LastMessView(
                         isLoading = isLoading,
                         notifications = notifications,
-                        modifier = Modifier.weight(1f)
+                        modifier = Modifier.weight(1f).padding(start=24.dp, end=24.dp)
                     )
                 }
             }

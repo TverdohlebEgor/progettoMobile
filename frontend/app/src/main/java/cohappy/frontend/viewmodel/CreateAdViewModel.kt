@@ -8,17 +8,21 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import cohappy.frontend.client.dto.enum.HouseStateEnum
 import cohappy.frontend.client.dto.request.CreateHouseAdvertisementDTO
+import cohappy.frontend.client.dto.request.ModifyHouseAdvertisementDTO
+import cohappy.frontend.client.dto.response.GetHouseAdvertesimentDTO
 import cohappy.frontend.repository.CreateAdRepository
 import kotlinx.coroutines.launch
 
-class CreateAdViewModel(
-    private val repository: CreateAdRepository = CreateAdRepository()
-) : ViewModel() {
+class CreateAdViewModel(private val repository: CreateAdRepository = CreateAdRepository()) : ViewModel() {
+
     var price by mutableStateOf("")
         private set
     var description by mutableStateOf("")
         private set
     var selectedImages by mutableStateOf<List<ByteArray>>(emptyList())
+        private set
+
+    var isEditMode by mutableStateOf(false)
         private set
 
     var isLoading by mutableStateOf(false)
@@ -35,32 +39,69 @@ class CreateAdViewModel(
         selectedImages = selectedImages + image
     }
 
-    fun publishAdvertisement(houseCode: String, userToken: String) {
-        if (price.isBlank() || description.isBlank()) {
+    fun fetchExistingAd(houseCode: String) {
+        isLoading = true
+        viewModelScope.launch {
+            try {
+                val response = repository.getAdvertisement(houseCode)
+                if (response.isSuccessful && response.body() != null) {
+                    val ad = response.body()!!
+                    price = ad.costPerMonth?.toString() ?: ""
+                    description = ad.description ?: ""
+                    selectedImages = ad.images ?: emptyList()
+                    isEditMode = true
+                }
+            } catch (e: Exception) {
+                Log.e("CreateAdVM", "Errore nel recupero annuncio", e)
+            } finally {
+                isLoading = false
+            }
+        }
+    }
+
+    fun publishOrUpdateAdvertisement(houseCode: String, userToken: String) {
+        if (isLoading) return
+
+        val priceDouble = price.replace(",", ".").toDoubleOrNull()
+
+        if (priceDouble == null || description.isBlank()) {
             errorMessage = "Inserisci un prezzo valido e una descrizione"
             return
         }
 
+        isLoading = true
+        errorMessage = null
+        isSuccess = false
+
         viewModelScope.launch {
-            isLoading = true
-            errorMessage = null
             try {
                 val tokenPulito = userToken.replace("\"", "").trim()
 
-                val dto = CreateHouseAdvertisementDTO(
-                    houseCode = houseCode,
-                    state = HouseStateEnum.PUBLIC,
-                    description = description,
-                    images = selectedImages.ifEmpty { null },
-                    publishedBy = tokenPulito
-                )
+                val response = if (isEditMode) {
+                    val dto = ModifyHouseAdvertisementDTO(
+                        houseCode = houseCode,
+                        state = HouseStateEnum.PUBLIC,
+                        description = description,
+                        images = selectedImages.ifEmpty { null },
+                        costPerMonth = priceDouble.toInt()
+                    )
+                    repository.modifyAdvertisement(dto)
+                } else {
+                    val dto = CreateHouseAdvertisementDTO(
+                        houseCode = houseCode,
+                        images = selectedImages.ifEmpty { null },
+                        state = HouseStateEnum.PUBLIC,
+                        publishedBy = tokenPulito,
+                        description = description,
+                        costPerMonth = priceDouble.toInt()
+                    )
+                    repository.createAdvertisement(dto)
+                }
 
-                val result = repository.createAdvertisement(dto)
-
-                if (result.isSuccess) {
+                if (response.isSuccessful) {
                     isSuccess = true
                 } else {
-                    errorMessage = result.exceptionOrNull()?.message ?: "Errore sconosciuto"
+                    errorMessage = "Errore del server: ${response.code()}"
                 }
             } catch (e: Exception) {
                 Log.e("CreateAdVM", "Errore di rete", e)

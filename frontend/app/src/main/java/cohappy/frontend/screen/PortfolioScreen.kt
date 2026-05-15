@@ -66,7 +66,8 @@ fun PortfolioScreen(
             activeFilter = viewModel.activeFilter,
             transactions = viewModel.getFilteredTransactions(),
             onFilterChange = { viewModel.setFilter(it) },
-            onAddClick = { viewModel.openAddDebtSheet() }
+            onAddClick = { viewModel.openAddDebtSheet() },
+            onSettleClick = { debtId -> viewModel.settleDebt(cleanToken, debtId) }
         )
 
         if (viewModel.showAddDebtSheet) {
@@ -92,6 +93,7 @@ fun PortfolioScreen(
                         fontSize = 24.sp,
                         color = contentColor
                     )
+
                     Spacer(modifier = Modifier.height(24.dp))
 
                     CustomTextField(
@@ -118,12 +120,64 @@ fun PortfolioScreen(
                     )
                     Spacer(modifier = Modifier.height(16.dp))
 
-                    CustomTextField(
-                        value = viewModel.newDebtReceiver,
-                        onValueChange = { viewModel.updateNewDebtReceiver(it) },
-                        placeholder = "Codice Coinquilino debitore",
-                        customFontSize = 16
-                    )
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Column {
+                            Text("Dividi con", fontWeight = FontWeight.Bold, color = Color.Gray, fontSize = 14.sp)
+                            val totalAmount = viewModel.newDebtAmount.replace(",", ".").toDoubleOrNull() ?: 0.0
+                            
+                            val numParticipants = viewModel.selectedRoommates.size
+                            
+                            if (numParticipants > 0 && totalAmount > 0) {
+                                val perPerson = totalAmount / numParticipants
+                                val locale = androidx.compose.ui.platform.LocalLocale.current.platformLocale
+                                Text(
+                                    text = String.format(locale, "%.2f € a testa", perPerson),
+                                    color = MaterialTheme.colorScheme.primary,
+                                    fontWeight = FontWeight.Black,
+                                    fontSize = 12.sp
+                                )
+                            }
+                        }
+                        Text(
+                            text = if (viewModel.selectedRoommates.size == viewModel.availableRoommates.size) "Deseleziona tutti" else "Seleziona tutti",
+                            color = MaterialTheme.colorScheme.primary,
+                            fontWeight = FontWeight.Bold,
+                            fontSize = 12.sp,
+                            modifier = Modifier.clickable { viewModel.toggleSelectAll() }
+                        )
+                    }
+                    Spacer(modifier = Modifier.height(8.dp))
+
+                    Row(
+                        modifier = Modifier.fillMaxWidth().horizontalScroll(rememberScrollState()),
+                        horizontalArrangement = Arrangement.spacedBy(8.dp)
+                    ) {
+                        viewModel.availableRoommates.forEach { roommate ->
+                            val isSelected = viewModel.selectedRoommates.contains(roommate.code)
+                            val pillBg = if (isSelected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.secondary.copy(alpha = 0.15f)
+                            val pillText = if (isSelected) MaterialTheme.colorScheme.onPrimary else contentColor
+
+                            Box(
+                                modifier = Modifier
+                                    .clip(RoundedCornerShape(16.dp))
+                                    .background(pillBg)
+                                    .clickable { viewModel.toggleRoommateSelection(roommate.code) }
+                                    .padding(horizontal = 16.dp, vertical = 8.dp)
+                            ) {
+                                Text(
+                                    text = roommate.fullName,
+                                    color = pillText,
+                                    fontWeight = FontWeight.Bold,
+                                    fontSize = 12.sp
+                                )
+                            }
+                        }
+                    }
+
                     Spacer(modifier = Modifier.height(24.dp))
 
                     Text("Categoria", fontWeight = FontWeight.Bold, color = Color.Gray, fontSize = 14.sp)
