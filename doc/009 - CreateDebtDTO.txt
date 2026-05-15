@@ -1,0 +1,24 @@
+Modifica DTO e API per la creazione dei debiti
+Per gestire correttamente i pagamenti multi-utente, avrei bisogno di aggiornare il CreateDebtDTO (e di conseguenza l'endpoint API che lo riceve).
+Le modifiche richieste sono:
+1.
+Ridenominazione campi:
+◦senderUserCode → creditorCode
+◦receiverUserCode → debtorCode
+2.
+Cambio tipo per i debitori: il campo debtorCode non deve più essere una stringa singola, ma una mappa Map<String, Boolean> dove:
+◦La chiave è lo userCode del debitore.
+◦Il valore è un booleano che indica se ha già pagato (haPagato).
+3.
+Nuova variabile di controllo: aggiungere un booleano fuori dalla mappa (es. isCreatorIncluded) per indicare se chi sta creando il debito è incluso nel conteggio della spesa.
+Ecco come dovrebbe apparire il nuovo DTO in Kotlin:
+
+Kotlin
+@JsonClass(generateAdapter = true)data class CreateDebtDTO(
+    val creditorCode: String,
+    val debtorCode: Map<String, Boolean>, // Map<UserCode, HaPagato>
+    val isCreatorIncluded: Boolean,
+    val amount: Float,
+    var description: String? = null,
+    val debtType: DebtType
+)
