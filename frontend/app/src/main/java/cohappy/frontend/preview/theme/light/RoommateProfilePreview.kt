@@ -101,3 +101,40 @@ fun RoommateProfilePreviewRoommatesLoaded() {
         )
     }
 }
+
+@Preview(showBackground = true, name = "6. Admin View - Edit Advertisement")
+@Composable
+fun RoommateProfilePreviewAdminEditAd() {
+    ProgettoMobileTheme {
+        HouseProfileView(
+            userName = "Ale",
+            userSurname = "Rossi",
+            imageBytes = null,
+            isLoading = false,
+            houseAddress = "Via Garibaldi 12",
+            houseCode = "COH-1234",
+            isCurrentUserAdmin = true,
+            hasExistingAd = true
+        )
+    }
+}
+
+@Preview(showBackground = true, name = "7. Roommate Actions (Admin Buttons)")
+@Composable
+fun RoommateProfilePreviewAdminActions() {
+    ProgettoMobileTheme {
+        HouseProfileView(
+            userName = "Ale",
+            userSurname = "Rossi",
+            imageBytes = null,
+            isLoading = false,
+            houseAddress = "Via Garibaldi 12",
+            houseCode = "COH-1234",
+            showRoommatesPopup = true,
+            isRoommatesLoading = false,
+            roommatesList = mockRoommates,
+            isCurrentUserAdmin = true,
+            hasExistingAd = true
+        )
+    }
+}
