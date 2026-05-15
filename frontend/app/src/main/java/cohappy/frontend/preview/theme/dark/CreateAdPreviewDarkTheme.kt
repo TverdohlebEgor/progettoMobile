@@ -1,13 +1,18 @@
-package cohappy.frontend.preview.theme.light
+package cohappy.frontend.preview.theme.dark
 
+import android.content.res.Configuration
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.tooling.preview.Preview
 import cohappy.frontend.ui.theme.ProgettoMobileTheme
 import cohappy.frontend.view.ad.CreateAdView
 
-@Preview(showBackground = true, name = "1. Empty State")
+@Preview(
+    showBackground = true,
+    uiMode = Configuration.UI_MODE_NIGHT_YES,
+    name = "1. Dark Empty State"
+)
 @Composable
-fun CreateAdPreviewEmpty() {
+fun CreateAdDarkPreviewEmpty() {
     ProgettoMobileTheme {
         CreateAdView(
             prezzo = "",
@@ -21,9 +26,13 @@ fun CreateAdPreviewEmpty() {
     }
 }
 
-@Preview(showBackground = true, name = "2. Filled State")
+@Preview(
+    showBackground = true,
+    uiMode = Configuration.UI_MODE_NIGHT_YES,
+    name = "2. Dark Filled State"
+)
 @Composable
-fun CreateAdPreviewFilled() {
+fun CreateAdDarkPreviewFilled() {
     ProgettoMobileTheme {
         CreateAdView(
             prezzo = "450",
