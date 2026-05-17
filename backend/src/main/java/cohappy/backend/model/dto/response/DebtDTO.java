@@ -6,6 +6,8 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.springframework.data.annotation.Id;
 
+import java.util.Map;
+
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
@@ -13,8 +15,8 @@ public class DebtDTO {
     @Id
     private String debtId;
     private String linkedDebtId;
-    private String debtorUserCode;
-    private String beneficiaryUserCode;
+    private String creditorUserCode;
+    private Map<String,Boolean> debtorsUserCode;
     private float amount;
     private String description;
     private DebtType debtType;

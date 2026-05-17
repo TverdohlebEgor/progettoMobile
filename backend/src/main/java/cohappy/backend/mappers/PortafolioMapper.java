@@ -17,8 +17,8 @@ public class PortafolioMapper {
         return new DebtDTO(
                 debt.getDebtId(),
                 debt.getLinkedDebtId(),
-                debt.getDebtorUserCode(),
-                debt.getBeneficiaryUserCode(),
+                debt.getCreditorUserCode(),
+                debt.getDebtorsCode(),
                 debt.getAmount(),
                 debt.getDescription(),
                 debt.getDebtType()

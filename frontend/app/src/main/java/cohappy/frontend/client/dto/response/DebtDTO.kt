@@ -6,8 +6,8 @@ import com.squareup.moshi.JsonClass
 data class DebtDTO(
     var debtId: String? = null,
     var linkedDebtId: String? = null,
-    var debtorUserCode: String? = null,
-    var beneficiaryUserCode: String? = null,
+    var creditorUserCode: String? = null,
+    var debtorsUserCode: Map<String,Boolean>? = null,
     var amount: Float? = null,
     var description: String? = null,
     val debtType: DebtType

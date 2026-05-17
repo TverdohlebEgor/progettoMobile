@@ -20,6 +20,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 import static cohappy.backend.model.OperationResultMessages.*;
@@ -106,58 +107,60 @@ public class PortfolioService {
     }
 
     public void createDebtMoney(CreateDebtDTO createDebtDTO) {
-        String senderUserCode = createDebtDTO.getSenderUserCode();
-        String receiverUserCode = createDebtDTO.getReceiverUserCode();
+        String creditorUserCode = createDebtDTO.getCreditorCode();
+        Map<String, Boolean> debtorsUserCode = createDebtDTO.getReceiverCode();
 
-        if (receiverUserCode.equals(senderUserCode)) {
+        if (debtorsUserCode.containsKey(creditorUserCode)) {
             throw new IllegalInputException("Sender and receiver can't be the same person");
         }
 
-        UserAccount senderUserAccount = userRepository.findByUserCode(senderUserCode)
-                .orElseThrow(() -> new NotFoundException(USER_NOT_FOUND.formatted(senderUserCode)));
+        UserAccount senderUserAccount = userRepository.findByUserCode(creditorUserCode)
+                .orElseThrow(() -> new NotFoundException(USER_NOT_FOUND.formatted(creditorUserCode)));
 
-        UserAccount receiverUserAccount = userRepository.findByUserCode(receiverUserCode)
-                .orElseThrow(() -> new NotFoundException(USER_NOT_FOUND.formatted(receiverUserCode)));
+        for (String receiverUserCode : debtorsUserCode.keySet()) {
 
-        String senderDebtId = UUID.randomUUID().toString();
-        String receiverDebtId = UUID.randomUUID().toString();
+        }
 
-        Debt senderDebt = new Debt(
-                senderDebtId,
-                receiverDebtId,
-                senderUserCode,
-                receiverUserCode,
+        String creditorDebtId = UUID.randomUUID().toString();
+        String debtorDebtId = UUID.randomUUID().toString();
+
+        Debt creditorDebt = new Debt(
+                creditorDebtId,
+                debtorDebtId,
+                creditorUserCode,
+                debtorsUserCode,
                 createDebtDTO.getAmount(),
                 createDebtDTO.getDescription(),
                 createDebtDTO.getDebtType()
         );
-
-        Debt receiverDebt = new Debt(
-                receiverDebtId,
-                senderDebtId,
-                receiverUserCode,
-                senderUserCode,
-                createDebtDTO.getAmount(),
-                createDebtDTO.getDescription(),
-                createDebtDTO.getDebtType()
-        );
-
-        debtRepository.save(senderDebt);
-        debtRepository.save(receiverDebt);
-
-        senderUserAccount.getPortfolio().getDebts().add(senderDebt);
-        receiverUserAccount.getPortfolio().getDebts().add(receiverDebt);
-
+        debtRepository.save(creditorDebt);
+        senderUserAccount.getPortfolio().getDebts().add(creditorDebt);
         userRepository.save(senderUserAccount);
-        userRepository.save(receiverUserAccount);
 
-        notificationService.createNotification(
-                NotificationType.PORTFOLIO,
-                "Nuovo debito",
-                createDebtDTO.getDescription(),
-                null,
-                receiverUserCode
-        );
+        for(String debtorUserCode: debtorsUserCode.keySet()){
+            UserAccount debtorAcount = userRepository.findByUserCode(debtorUserCode)
+                    .orElseThrow(() -> new NotFoundException(USER_NOT_FOUND.formatted(debtorUserCode)));
+            Debt debtorDebt = new Debt(
+                    debtorDebtId,
+                    creditorDebtId,
+                    debtorUserCode,
+                    Map.of(creditorUserCode,true),
+                    createDebtDTO.getAmount(),
+                    createDebtDTO.getDescription(),
+                    createDebtDTO.getDebtType()
+            );
+            debtRepository.save(debtorDebt);
+            debtorAcount.getPortfolio().getDebts().add(debtorDebt);
+            userRepository.save(debtorAcount);
+
+            notificationService.createNotification(
+                    NotificationType.PORTFOLIO,
+                    "Nuovo debito",
+                    createDebtDTO.getDescription(),
+                    null,
+                    debtorUserCode
+            );
+        }
     }
 
     public void deleteDebt(String debtId) {

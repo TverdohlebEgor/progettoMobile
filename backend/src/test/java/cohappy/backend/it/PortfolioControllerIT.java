@@ -18,6 +18,7 @@ import org.springframework.http.MediaType;
 import tools.jackson.databind.ObjectMapper;
 
 import java.util.ArrayList;
+import java.util.Map;
 
 import static cohappy.backend.model.OperationResultMessages.USER_NOT_FOUND;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
@@ -272,7 +273,7 @@ public class PortfolioControllerIT extends BaseIT {
 
         CreateDebtDTO request = new CreateDebtDTO(
                 USER_CODE,
-                USER_CODE_2,
+                Map.of(USER_CODE_2,false),
                 50,
                 "",
                 DebtType.OTHER
@@ -289,8 +290,8 @@ public class PortfolioControllerIT extends BaseIT {
                 .getDebts();
 
         assertThat(debtsSender.size()).isEqualTo(1);
-        assertThat(debtsSender.getFirst().getDebtorUserCode()).isEqualTo(USER_CODE);
-        assertThat(debtsSender.getFirst().getBeneficiaryUserCode()).isEqualTo(USER_CODE_2);
+        assertThat(debtsSender.getFirst().getCreditorUserCode()).isEqualTo(USER_CODE);
+        assertThat(debtsSender.getFirst().getDebtorsCode().containsKey(USER_CODE_2)).isTrue();
         assertThat(debtsSender.getFirst().getAmount()).isEqualTo(50);
 
         var debtsReceiver = userRepository.findByUserCode(USER_CODE_2)
@@ -299,8 +300,8 @@ public class PortfolioControllerIT extends BaseIT {
                 .getDebts();
 
         assertThat(debtsReceiver.size()).isEqualTo(1);
-        assertThat(debtsReceiver.getFirst().getDebtorUserCode()).isEqualTo(USER_CODE_2);
-        assertThat(debtsReceiver.getFirst().getBeneficiaryUserCode()).isEqualTo(USER_CODE);
+        assertThat(debtsReceiver.getFirst().getCreditorUserCode()).isEqualTo(USER_CODE_2);
+        assertThat(debtsReceiver.getFirst().getDebtorsCode().containsKey(USER_CODE)).isTrue();
         assertThat(debtsReceiver.getFirst().getAmount()).isEqualTo(50);
         assertThat(debtsReceiver.getFirst().getLinkedDebtId()).isEqualTo(debtsSender.getFirst().getDebtId());
     }
@@ -312,7 +313,7 @@ public class PortfolioControllerIT extends BaseIT {
 
         CreateDebtDTO request = new CreateDebtDTO(
                 "NOTEXISTING",
-                USER_CODE_2,
+                Map.of(USER_CODE_2,false),
                 50,
                 "",
                 DebtType.DELIVERY_AND_EATING_OUT
@@ -331,7 +332,7 @@ public class PortfolioControllerIT extends BaseIT {
 
         CreateDebtDTO request = new CreateDebtDTO(
                 USER_CODE,
-                "NOTEXISTING",
+                Map.of("NOTEXISTING",false),
                 50,
                 "",
                 DebtType.DELIVERY_AND_EATING_OUT
@@ -350,7 +351,7 @@ public class PortfolioControllerIT extends BaseIT {
 
         CreateDebtDTO request = new CreateDebtDTO(
                 USER_CODE,
-                USER_CODE,
+                Map.of(USER_CODE,false),
                 50,
                 "",
                 DebtType.OTHER
@@ -373,7 +374,7 @@ public class PortfolioControllerIT extends BaseIT {
 
         CreateDebtDTO request = new CreateDebtDTO(
                 USER_CODE,
-                USER_CODE_2,
+                Map.of(USER_CODE_2,false),
                 50,
                 "",
                 DebtType.OTHER

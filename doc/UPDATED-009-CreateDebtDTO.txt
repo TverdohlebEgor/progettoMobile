@@ -22,3 +22,9 @@ Kotlin
     var description: String? = null,
     val debtType: DebtType
 )
+
+ ----
+
+ Faccio i primi due punti
+ per il terzo mi sfugge la logica, perchè il creatore di un debtor dovrebbe aggiungersi al conteggio? se i soldi sono suoi che crei un debito che comprende gli altri
+ togliendo dal totale la propria parte

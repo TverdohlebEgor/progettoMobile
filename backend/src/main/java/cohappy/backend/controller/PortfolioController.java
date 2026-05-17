@@ -91,7 +91,7 @@ public class PortfolioController {
             PortfolioDTO portfolio = portafolioService.getUserPortfolio(userCode);
             return ResponseEntity.ok(
                     portfolio.getDebts().stream()
-                            .filter(d -> d.getDebtorUserCode().equals(userCode))
+                            .filter(d -> d.getCreditorUserCode().equals(userCode))
                             .map(d -> d.getAmount())
                             .reduce((a1,a2) -> a1+a2)
                             .get()
@@ -109,7 +109,7 @@ public class PortfolioController {
             PortfolioDTO portfolio = portafolioService.getUserPortfolio(userCode);
             return ResponseEntity.ok(
                     portfolio.getDebts().stream()
-                            .filter(d -> d.getBeneficiaryUserCode().equals(userCode))
+                            .filter(d -> d.getDebtorsUserCode().equals(userCode))
                             .map(d -> d.getAmount())
                             .reduce((a1,a2) -> a1+a2)
                             .get()
