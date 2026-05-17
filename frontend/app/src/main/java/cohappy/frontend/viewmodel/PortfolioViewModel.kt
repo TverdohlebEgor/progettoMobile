@@ -140,8 +140,9 @@ class PortfolioViewModel(
                     val mappedList = mutableListOf<PortfolioTransaction>()
 
                     for (debt in rawDebts) {
-                        val debtorCode = (debt.debtorUserCode ?: "").clean()
-                        val beneficiaryCode = (debt.beneficiaryUserCode ?: "").clean()
+                        // Extract first key from map if present, otherwise empty string
+                        val debtorCode = (debt.debtorsUserCode?.keys?.firstOrNull() ?: "").clean()
+                        val beneficiaryCode = (debt.creditorUserCode ?: "").clean()
 
                         val isMyDebt = debtorCode == currentUserCode
                         val isMyCredit = beneficiaryCode == currentUserCode
@@ -235,8 +236,8 @@ class PortfolioViewModel(
                     if (cleanDebtor == myCode) continue
 
                     val requestDto = CreateDebtDTO(
-                        senderUserCode = myCode,       // Tu (Creditore)
-                        receiverUserCode = cleanDebtor, // Lui (Debitore)
+                        creditorCode = myCode,       // Tu (Creditore)
+                        receiverCode = mapOf(cleanDebtor to false), // Lui (Debitore)
                         amount = splitAmount,          // Quota divisa
                         description = newDebtTitle,
                         debtType = newDebtCategory

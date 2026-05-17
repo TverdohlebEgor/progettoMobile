@@ -1,7 +1,9 @@
 package cohappy.frontend.client.dto.request
 
+import com.squareup.moshi.JsonClass
 import java.time.LocalDate
 
+@JsonClass(generateAdapter = true)
 data class CreateChoreDTO(
     var days: List<LocalDate>? = null,
     var assignedTo: Map<LocalDate, String>? = null,

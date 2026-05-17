@@ -6,6 +6,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import cohappy.frontend.model.Chore
 import cohappy.frontend.ui.theme.ProgettoMobileTheme
 import cohappy.frontend.view.house.ChoresView
+import java.time.LocalDate
 
 private val mockChoresDark = listOf(
     Chore(
@@ -21,9 +22,9 @@ private val mockChoresDark = listOf(
         choreCode = "002",
         title = "Buttare spazzatura",
         description = "Plastica e Umido",
-        assignedToCode = "altro_utente",
-        assigneeName = "Marco",
-        isCompleted = true,
+        assignedToCode = null, // Esempio non assegnata
+        assigneeName = null,
+        isCompleted = false,
         dayLabel = "Martedì"
     ),
     Chore(
@@ -32,9 +33,15 @@ private val mockChoresDark = listOf(
         description = "Spostare anche i tappeti",
         assignedToCode = "altro_utente_2",
         assigneeName = "Sofia",
-        isCompleted = false,
+        isCompleted = true,
         dayLabel = "Giovedì"
     )
+)
+
+private val mockRoommatesDark = listOf(
+    "user1" to "Sofia",
+    "user2" to "Marco",
+    "my_token" to "Te"
 )
 
 @Preview(
@@ -50,9 +57,12 @@ fun ChoresDarkPreviewLoading() {
             imageBytes = null,
             isLoading = true,
             userToken = "my_token",
+            selectedDate = LocalDate.now(),
+            onDateSelected = {},
             chores = emptyList(),
             onChoreToggle = { _, _, _ -> },
-            onAddClick = {}
+            onAddChoreConfirm = { _, _, _, _, _ -> },
+            roommates = emptyList()
         )
     }
 }
@@ -70,9 +80,12 @@ fun ChoresDarkPreviewEmpty() {
             imageBytes = null,
             isLoading = false,
             userToken = "my_token",
+            selectedDate = LocalDate.now(),
+            onDateSelected = {},
             chores = emptyList(),
             onChoreToggle = { _, _, _ -> },
-            onAddClick = {}
+            onAddChoreConfirm = { _, _, _, _, _ -> },
+            roommates = mockRoommatesDark
         )
     }
 }
@@ -90,9 +103,46 @@ fun ChoresDarkPreviewPopulated() {
             imageBytes = null,
             isLoading = false,
             userToken = "my_token",
+            selectedDate = LocalDate.now(),
+            onDateSelected = {},
             chores = mockChoresDark,
             onChoreToggle = { _, _, _ -> },
-            onAddClick = {}
+            onAddChoreConfirm = { _, _, _, _, _ -> },
+            roommates = mockRoommatesDark,
+            daysWithChores = listOf(
+                LocalDate.now(),
+                LocalDate.now().plusDays(2),
+                LocalDate.now().minusDays(1)
+            )
+        )
+    }
+}
+
+@Preview(
+    showBackground = true,
+    uiMode = Configuration.UI_MODE_NIGHT_YES,
+    name = "4. Dark Monthly State"
+)
+@Composable
+fun ChoresDarkPreviewMonthly() {
+    ProgettoMobileTheme {
+        ChoresView(
+            nomeUtente = "Ale",
+            imageBytes = null,
+            isLoading = false,
+            userToken = "my_token",
+            selectedDate = LocalDate.now(),
+            onDateSelected = {},
+            chores = mockChoresDark,
+            onChoreToggle = { _, _, _ -> },
+            onAddChoreConfirm = { _, _, _, _, _ -> },
+            initialCalendarMode = cohappy.frontend.view.house.CalendarMode.MONTH,
+            roommates = mockRoommatesDark,
+            daysWithChores = listOf(
+                LocalDate.now(),
+                LocalDate.now().plusDays(5),
+                LocalDate.now().plusDays(10)
+            )
         )
     }
 }

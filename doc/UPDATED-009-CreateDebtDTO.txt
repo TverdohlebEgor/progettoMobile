@@ -28,3 +28,5 @@ Kotlin
  Faccio i primi due punti
  per il terzo mi sfugge la logica, perchè il creatore di un debtor dovrebbe aggiungersi al conteggio? se i soldi sono suoi che crei un debito che comprende gli altri
  togliendo dal totale la propria parte
+-----------
+perché per rapidità se faccio la spesa per 4, me compreso, e spendo 50€ mi è piu comodo inserire 50€ e dividerlo per 3 coinquilini + me in modo da non dover calcolare io la mia quota 

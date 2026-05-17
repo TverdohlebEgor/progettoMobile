@@ -16,14 +16,31 @@ fun ChoresScreen(
             viewModel.loadUserData(userToken)
         }
     }
+
     ChoresView(
         nomeUtente = viewModel.nomeUtente,
         imageBytes = null,
         isLoading = viewModel.isLoading,
         userToken = userToken,
+        selectedDate = viewModel.selectedDate,
+        onDateSelected = { viewModel.onDateSelected(it, userToken) },
         chores = viewModel.chores,
+        daysWithChores = viewModel.daysWithChores,
         onChoreToggle = { choreCode, assignedToUser, newStatus ->
             viewModel.toggleChoreCompletion(choreCode, assignedToUser, newStatus)
-        }
+        },
+        onAddChoreConfirm = { name, desc, dates, user, isRecursive ->
+            viewModel.createChore(
+                userToken = userToken,
+                name = name,
+                description = desc,
+                dates = dates,
+                assignedTo = user,
+                isRecursive = isRecursive,
+                onSuccess = { /* Automagic update since it's a state */ }
+            )
+        },
+        roommates = viewModel.roommates,
+        currentUserCode = viewModel.currentUserCode ?: ""
     )
 }

@@ -1,7 +1,9 @@
 package cohappy.frontend.client.dto.request
 
-import java.time.LocalDate;
+import com.squareup.moshi.JsonClass
+import java.time.LocalDate
 
+@JsonClass(generateAdapter = true)
 data class PatchChoreDTO(
     val choreCode: String,
     val day: LocalDate? = null,

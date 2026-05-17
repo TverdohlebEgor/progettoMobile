@@ -40,13 +40,14 @@ class ChoreRepositoryTest {
     }
 
     @Test
-    fun `fetchUserChores happy path returns success`() = runTest {
+    fun `fetchChores happy path returns success`() = runTest {
         val houseCode = "HOUSE_123"
+        val date = LocalDate.now()
         val expectedList = listOf(GetChoreDTO(name = "Bagno"))
 
         coEvery { choreApi.getChore(eq(houseCode), any<LocalDate>()) } returns Response.success(expectedList)
 
-        val result = repository.fetchUserChores(houseCode)
+        val result = repository.fetchChores(houseCode, date)
 
         assertTrue(result.isSuccessful)
         assertEquals(expectedList, result.body())
@@ -54,12 +55,13 @@ class ChoreRepositoryTest {
     }
 
     @Test
-    fun `fetchUserChores unhappy path 500`() = runTest {
+    fun `fetchChores unhappy path 500`() = runTest {
         val houseCode = "HOUSE_123"
+        val date = LocalDate.now()
 
         coEvery { choreApi.getChore(eq(houseCode), any<LocalDate>()) } returns Response.error(500, "".toResponseBody())
 
-        val result = repository.fetchUserChores(houseCode)
+        val result = repository.fetchChores(houseCode, date)
 
         assertFalse(result.isSuccessful)
         assertEquals(500, result.code())

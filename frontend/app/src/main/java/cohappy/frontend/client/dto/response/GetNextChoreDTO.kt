@@ -9,5 +9,5 @@ data class GetNextChoreDTO(
     val name: String,
     val assignedTo: String,
     val date: LocalDate,
-    val completed: String) {
+    val completed: Boolean) {
 }

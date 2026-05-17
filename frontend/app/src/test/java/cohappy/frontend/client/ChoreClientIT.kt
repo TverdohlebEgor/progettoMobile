@@ -12,11 +12,14 @@ import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.Test
+import org.junit.runner.RunWith
+import org.robolectric.RobolectricTestRunner
 import retrofit2.Retrofit
 import retrofit2.converter.moshi.MoshiConverterFactory
 import retrofit2.converter.scalars.ScalarsConverterFactory
 import java.time.LocalDate
 
+@RunWith(RobolectricTestRunner::class)
 class ChoreClientIT {
 
     private lateinit var mockWebServer: MockWebServer
@@ -36,7 +39,7 @@ class ChoreClientIT {
         choreApi = Retrofit.Builder()
             .baseUrl(mockWebServer.url("/"))
             .addConverterFactory(ScalarsConverterFactory.create())
-            .addConverterFactory(MoshiConverterFactory.create(moshi).asLenient())
+            .addConverterFactory(MoshiConverterFactory.create(moshi))
             .build()
             .create(ChoreApiClient::class.java)
     }

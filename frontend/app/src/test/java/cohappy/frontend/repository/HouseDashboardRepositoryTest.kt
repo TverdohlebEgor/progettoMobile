@@ -108,7 +108,7 @@ class HouseDashboardRepositoryTest {
 
     @Test
     fun `fetchNextChore success with date`() = runTest {
-        val expectedList = listOf(GetNextChoreDTO("C1", "Pulizie", "USR_1", LocalDate.now(), "false"))
+        val expectedList = listOf(GetNextChoreDTO("C1", "Pulizie", "USR_1", LocalDate.now(), false))
         coEvery { choreApi.getNextUserChore(any(), any()) } returns Response.success(expectedList)
         val result = repository.fetchNextChore("USR_1")
         assertTrue(result.isSuccessful)

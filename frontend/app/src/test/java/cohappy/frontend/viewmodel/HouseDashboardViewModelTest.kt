@@ -63,7 +63,7 @@ class HouseDashboardViewModelTest {
         val mockUser = UserAccountDTO(name = "Ale", houseCode = houseCode)
         val mockHouse = GetHouseDTO(street = "Via Roma", civicNumber = 10)
         val mockNotifications = listOf(GetNotificationDTO(eventId = "E1", eventType = "T1", title = "Notifica 1", subtitle = "Sub", timestamp = "2023-10-27T10:00:00"))
-        val mockChore = GetNextChoreDTO(choreCode = "C1", name = "Lavare terra", assignedTo = "User1", date = LocalDate.now(), completed = "false")
+        val mockChore = GetNextChoreDTO(choreCode = "C1", name = "Lavare terra", assignedTo = "User1", date = LocalDate.now(), completed = false)
         val mockDebt = 15.50f
 
         coEvery { repository.fetchUserProfile(any()) } returns Response.success(mockUser)

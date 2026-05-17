@@ -4,14 +4,23 @@ import cohappy.frontend.client.ClientSingleton
 import cohappy.frontend.client.dto.request.CreateChoreDTO
 import cohappy.frontend.client.dto.request.PatchChoreDTO
 import cohappy.frontend.client.dto.response.GetChoreDTO
+import cohappy.frontend.client.dto.response.GetHouseDTO
+import cohappy.frontend.client.dto.response.UserAccountDTO
 import retrofit2.Response
 import java.time.LocalDate
 
 class ChoreRepository {
 
-    suspend fun fetchUserChores(houseCode: String): Response<List<GetChoreDTO>> {
-        val today = LocalDate.now()
-        return ClientSingleton.choreApi.getChore(houseCode, today)
+    suspend fun getUserProfile(userCode: String): Response<UserAccountDTO> {
+        return ClientSingleton.userApi.getUserProfile(userCode)
+    }
+
+    suspend fun getHouseDetails(houseCode: String): Response<GetHouseDTO> {
+        return ClientSingleton.houseApi.getHouse(houseCode)
+    }
+
+    suspend fun fetchChores(houseCode: String, date: LocalDate): Response<List<GetChoreDTO>> {
+        return ClientSingleton.choreApi.getChore(houseCode, date)
     }
 
     suspend fun updateChoreStatus(patchData: PatchChoreDTO): Response<String> {

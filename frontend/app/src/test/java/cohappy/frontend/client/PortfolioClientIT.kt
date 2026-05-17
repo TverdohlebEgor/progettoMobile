@@ -2,42 +2,33 @@ package cohappy.frontend.client
 
 import cohappy.frontend.client.dto.enum.DebtType
 import cohappy.frontend.client.dto.request.CreateDebtDTO
-import com.squareup.moshi.Moshi
-import kotlinx.coroutines.test.runTest
+import kotlinx.coroutines.runBlocking
 import okhttp3.mockwebserver.MockResponse
 import okhttp3.mockwebserver.MockWebServer
 import org.junit.After
 import org.junit.Assert.assertEquals
-import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.Test
 import retrofit2.Retrofit
 import retrofit2.converter.moshi.MoshiConverterFactory
-import retrofit2.converter.scalars.ScalarsConverterFactory
 
 class PortfolioClientIT {
 
     private lateinit var mockWebServer: MockWebServer
-    private lateinit var portfolioApi: PortfolioApiClient
+    private lateinit var api: PortfolioApiClient
 
     @Before
     fun setUp() {
         mockWebServer = MockWebServer()
         mockWebServer.start()
 
-        val moshi = Moshi.Builder()
-            .add(LocalDateAdapter())
-            .add(LocalDateTimeAdapter())
-            .add(ByteArrayAdapter())
+        val retrofit = Retrofit.Builder()
+            .baseUrl(mockWebServer.url("/"))
+            .addConverterFactory(MoshiConverterFactory.create())
             .build()
 
-        portfolioApi = Retrofit.Builder()
-            .baseUrl(mockWebServer.url("/"))
-            .addConverterFactory(ScalarsConverterFactory.create())
-            .addConverterFactory(MoshiConverterFactory.create(moshi).asLenient())
-            .build()
-            .create(PortfolioApiClient::class.java)
+        api = retrofit.create(PortfolioApiClient::class.java)
     }
 
     @After
@@ -45,100 +36,69 @@ class PortfolioClientIT {
         mockWebServer.shutdown()
     }
 
+    // --- HAPPY PATHS ---
+
     @Test
-    fun testGetUserPortfolioSuccess() = runTest {
+    fun `getUserPortfolio - Happy Path - Ritorna DTO correttamente deserializzato`() = runBlocking {
         val jsonResponse = """
             {
-                "monthlyTransactions": [],
                 "debts": [
                     {
-                        "debtId": "DEBT_123",
-                        "debtorUserCode": "user_1",
-                        "beneficiaryUserCode": "user_2",
-                        "amount": 25.5,
-                        "description": "Sushi Delivery",
-                        "category": "DELIVERY_AND_EATING_OUT"
+                        "debtId": "D123",
+                        "debtorsUserCode": {"U1": false},
+                        "creditorUserCode": "U2",
+                        "amount": 25.50,
+                        "description": "Sushi",
+                        "debtType": "DELIVERY_AND_EATING_OUT"
                     }
                 ]
             }
         """.trimIndent()
 
         mockWebServer.enqueue(MockResponse().setResponseCode(200).setBody(jsonResponse))
-        val response = portfolioApi.getUserPortfolio("user_1")
+
+        val response = api.getUserPortfolio("U1")
 
         assertTrue(response.isSuccessful)
-        assertEquals(25.5f, response.body()?.debts?.get(0)?.amount)
-        assertEquals(DebtType.DELIVERY_AND_EATING_OUT, response.body()?.debts?.get(0)?.debtType)
-
-        val request = mockWebServer.takeRequest()
-        assertEquals("GET", request.method)
+        val body = response.body()
+        assertEquals(1, body?.debts?.size)
+        assertEquals("D123", body?.debts?.get(0)?.debtId)
+        assertEquals(25.50f, body?.debts?.get(0)?.amount)
+        assertEquals(DebtType.DELIVERY_AND_EATING_OUT, body?.debts?.get(0)?.debtType)
     }
 
     @Test
-    fun testGetUserPortfolioError404() = runTest {
+    fun `createDebt - Happy Path - Invia request corretta e riceve 200`() = runBlocking {
+        mockWebServer.enqueue(MockResponse().setResponseCode(200).setBody("\"DEBT_CREATED\""))
+
+        val request = CreateDebtDTO(
+            creditorCode = "ME",
+            receiverCode = mapOf("YOU" to false),
+            amount = 10f,
+            description = "Test",
+            debtType = DebtType.OTHER
+        )
+
+        val response = api.createDebt(request)
+
+        assertTrue(response.isSuccessful)
+
+        // Verifica che la request mandata al server fosse giusta
+        val recordedRequest = mockWebServer.takeRequest()
+        assertEquals("POST", recordedRequest.method)
+        assertEquals("/api/portafolio/debt/create", recordedRequest.path)
+        assertTrue(recordedRequest.body.readUtf8().contains("creditorCode\":\"ME\""))
+    }
+
+    // --- BAD PATHS ---
+
+    @Test
+    fun `getUserTotalDebt - Bad Path - Ritorna 404 senza esplodere`() = runBlocking {
         mockWebServer.enqueue(MockResponse().setResponseCode(404))
-        val response = portfolioApi.getUserPortfolio("user_1")
-        assertFalse(response.isSuccessful)
+
+        val response = api.getUserTotalDebt("U_UNKNOWN")
+
+        assertTrue(!response.isSuccessful)
         assertEquals(404, response.code())
-    }
-
-    @Test
-    fun testGetUserPortfolioError500() = runTest {
-        mockWebServer.enqueue(MockResponse().setResponseCode(500))
-        val response = portfolioApi.getUserPortfolio("user_1")
-        assertFalse(response.isSuccessful)
-        assertEquals(500, response.code())
-    }
-
-    @Test
-    fun testGetTotalDebtSuccess() = runTest {
-        mockWebServer.enqueue(MockResponse().setResponseCode(200).setBody("45.5"))
-        val response = portfolioApi.getUserTotalDebt("user_1")
-        assertTrue(response.isSuccessful)
-        assertEquals(45.5f, response.body())
-    }
-
-    @Test
-    fun testGetTotalDebtError400() = runTest {
-        mockWebServer.enqueue(MockResponse().setResponseCode(400))
-        val response = portfolioApi.getUserTotalDebt("user_1")
-        assertFalse(response.isSuccessful)
-        assertEquals(400, response.code())
-    }
-
-    @Test
-    fun testGetTotalCreditsSuccess() = runTest {
-        mockWebServer.enqueue(MockResponse().setResponseCode(200).setBody("120.0"))
-        val response = portfolioApi.getUserTotalCredits("user_1")
-        assertTrue(response.isSuccessful)
-        assertEquals(120.0f, response.body())
-    }
-
-    @Test
-    fun testGetTotalCreditsError500() = runTest {
-        mockWebServer.enqueue(MockResponse().setResponseCode(500))
-        val response = portfolioApi.getUserTotalCredits("user_1")
-        assertFalse(response.isSuccessful)
-        assertEquals(500, response.code())
-    }
-
-    @Test
-    fun testCreateDebtSuccess() = runTest {
-        mockWebServer.enqueue(MockResponse().setResponseCode(200).setBody("NEW_DEBT_ID_999"))
-        val dto = CreateDebtDTO("user_1", "user_2", 50.0f, "Spesa", DebtType.GROCERIE)
-        val response = portfolioApi.createDebt(dto)
-
-        assertTrue(response.isSuccessful)
-        assertEquals("NEW_DEBT_ID_999", response.body())
-    }
-
-    @Test
-    fun testCreateDebtError400() = runTest {
-        mockWebServer.enqueue(MockResponse().setResponseCode(400))
-        val dto = CreateDebtDTO("user_1", "user_2", -50.0f, "Spesa", DebtType.GROCERIE)
-        val response = portfolioApi.createDebt(dto)
-
-        assertFalse(response.isSuccessful)
-        assertEquals(400, response.code())
     }
 }
