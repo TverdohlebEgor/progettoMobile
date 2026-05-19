@@ -3,6 +3,7 @@ package cohappy.frontend.client
 import cohappy.frontend.client.dto.request.CreateDebtDTO
 import cohappy.frontend.client.dto.request.MoveMoneyDTO
 import cohappy.frontend.client.dto.request.SendMoneyDTO
+import cohappy.frontend.client.dto.response.PatchDebtPaidDTO
 import cohappy.frontend.client.dto.response.PortfolioDTO
 import retrofit2.Response
 import retrofit2.http.Body
@@ -29,6 +30,8 @@ interface PortfolioApiClient {
     @PATCH("api/portafolio/money/send")
     suspend fun sendMoney(@Body request: SendMoneyDTO): Response<String>
 
+    @PATCH("api/portfolio/debt/patch/paid")
+    suspend fun patchDebtPaid(@Body patchDebtPaidDTO: PatchDebtPaidDTO): Response<String>
     @POST("api/portafolio/debt/create")
     suspend fun createDebt(@Body request: CreateDebtDTO): Response<String>
 

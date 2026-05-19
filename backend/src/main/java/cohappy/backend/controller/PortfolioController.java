@@ -82,7 +82,7 @@ public class PortfolioController {
         }
     }
 
-    @PostMapping("/debt/patch/paid")
+    @PatchMapping("/debt/patch/paid")
     public ResponseEntity<String> patchDebtPaid(@RequestBody PatchDebtPaidDTO patchDebtPaidDTO) {
         try {
             portafolioService.patchDebtPaid(patchDebtPaidDTO);
