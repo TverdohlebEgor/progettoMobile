@@ -17,6 +17,7 @@ public class DebtDTO {
     private String linkedDebtId;
     private String creditorUserCode;
     private Map<String,Boolean> debtorsUserCode;
+    private boolean isCreatorIncluded;
     private float amount;
     private String description;
     private DebtType debtType;

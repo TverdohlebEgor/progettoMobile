@@ -13,6 +13,7 @@ import java.util.Map;
 public class CreateDebtDTO {
     private String creditorCode;
     private Map<String,Boolean> receiverCode;
+    private Boolean isCreatorIncluded;
     private float amount;
     private String description;
     private DebtType debtType;

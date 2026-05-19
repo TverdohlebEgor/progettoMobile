@@ -1,10 +1,7 @@
 package cohappy.backend.controller;
 
 import cohappy.backend.exceptions.*;
-import cohappy.backend.model.dto.request.CreateDebtDTO;
-import cohappy.backend.model.dto.request.MoveMoneyDTO;
-import cohappy.backend.model.dto.request.MoveMoneyOperationEnum;
-import cohappy.backend.model.dto.request.SendMoneyDTO;
+import cohappy.backend.model.dto.request.*;
 import cohappy.backend.model.dto.response.PortfolioDTO;
 import cohappy.backend.service.PortfolioService;
 import lombok.AllArgsConstructor;
@@ -48,7 +45,7 @@ public class PortfolioController {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
         } catch (FundExcededException | FundInsufficientException e) {
             return ResponseEntity.unprocessableContent().body(e.getMessage());
-        } catch (IllegalInputException e){
+        } catch (IllegalInputException e) {
             return ResponseEntity.badRequest().body(e.getMessage());
         } catch (Exception e) {
             return ResponseEntity.internalServerError().body(e.getMessage());
@@ -64,7 +61,7 @@ public class PortfolioController {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
         } catch (FundExcededException | FundInsufficientException e) {
             return ResponseEntity.unprocessableContent().body(e.getMessage());
-        } catch (IllegalInputException e){
+        } catch (IllegalInputException e) {
             return ResponseEntity.badRequest().body(e.getMessage());
         } catch (Exception e) {
             return ResponseEntity.internalServerError().body(e.getMessage());
@@ -78,8 +75,24 @@ public class PortfolioController {
             return ResponseEntity.ok(OPERATION_COMPLETED);
         } catch (NotFoundException e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
-        } catch (IllegalInputException e){
+        } catch (IllegalInputException e) {
             return ResponseEntity.badRequest().body(e.getMessage());
+        } catch (Exception e) {
+            return ResponseEntity.internalServerError().body(e.getMessage());
+        }
+    }
+
+    @PostMapping("/debt/patch/paid")
+    public ResponseEntity<String> patchDebtPaid(@RequestBody PatchDebtPaidDTO patchDebtPaidDTO) {
+        try {
+            portafolioService.patchDebtPaid(patchDebtPaidDTO);
+            return ResponseEntity.ok(OPERATION_COMPLETED);
+        } catch (NotFoundException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
+        } catch (IllegalInputException e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        } catch (NoPatchException e) {
+            return ResponseEntity.status(HttpStatus.NO_CONTENT).body(e.getMessage());
         } catch (Exception e) {
             return ResponseEntity.internalServerError().body(e.getMessage());
         }
@@ -93,7 +106,7 @@ public class PortfolioController {
                     portfolio.getDebts().stream()
                             .filter(d -> d.getCreditorUserCode().equals(userCode))
                             .map(d -> d.getAmount())
-                            .reduce((a1,a2) -> a1+a2)
+                            .reduce((a1, a2) -> a1 + a2)
                             .get()
             );
         } catch (NotFoundException e) {
@@ -111,7 +124,7 @@ public class PortfolioController {
                     portfolio.getDebts().stream()
                             .filter(d -> d.getDebtorsUserCode().equals(userCode))
                             .map(d -> d.getAmount())
-                            .reduce((a1,a2) -> a1+a2)
+                            .reduce((a1, a2) -> a1 + a2)
                             .get()
             );
         } catch (NotFoundException e) {

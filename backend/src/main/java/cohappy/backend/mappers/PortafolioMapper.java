@@ -19,6 +19,7 @@ public class PortafolioMapper {
                 debt.getLinkedDebtId(),
                 debt.getCreditorUserCode(),
                 debt.getDebtorsCode(),
+                debt.isCreatorIncluded(),
                 debt.getAmount(),
                 debt.getDescription(),
                 debt.getDebtType()

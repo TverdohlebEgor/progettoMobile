@@ -8,6 +8,7 @@ data class DebtDTO(
     var linkedDebtId: String? = null,
     var creditorUserCode: String? = null,
     var debtorsUserCode: Map<String,Boolean>? = null,
+    var isCreatorIncluded: Boolean? = null,
     var amount: Float? = null,
     var description: String? = null,
     val debtType: DebtType

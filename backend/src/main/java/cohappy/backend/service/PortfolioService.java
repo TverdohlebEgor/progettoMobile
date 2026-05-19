@@ -1,27 +1,18 @@
 package cohappy.backend.service;
 
-import cohappy.backend.exceptions.FundExcededException;
-import cohappy.backend.exceptions.FundInsufficientException;
-import cohappy.backend.exceptions.IllegalInputException;
-import cohappy.backend.exceptions.NotFoundException;
+import cohappy.backend.exceptions.*;
 import cohappy.backend.mappers.PortafolioMapper;
 import cohappy.backend.model.Debt;
 import cohappy.backend.model.NotificationType;
 import cohappy.backend.model.UserAccount;
-import cohappy.backend.model.dto.request.CreateDebtDTO;
-import cohappy.backend.model.dto.request.MoveMoneyDTO;
-import cohappy.backend.model.dto.request.MoveMoneyOperationEnum;
-import cohappy.backend.model.dto.request.SendMoneyDTO;
+import cohappy.backend.model.dto.request.*;
 import cohappy.backend.model.dto.response.PortfolioDTO;
 import cohappy.backend.repositories.DebtRepository;
 import cohappy.backend.repositories.UserRepository;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
+import java.util.*;
 
 import static cohappy.backend.model.OperationResultMessages.*;
 
@@ -129,6 +120,7 @@ public class PortfolioService {
                 debtorDebtId,
                 creditorUserCode,
                 debtorsUserCode,
+                createDebtDTO.getIsCreatorIncluded(),
                 createDebtDTO.getAmount(),
                 createDebtDTO.getDescription(),
                 createDebtDTO.getDebtType()
@@ -137,14 +129,15 @@ public class PortfolioService {
         senderUserAccount.getPortfolio().getDebts().add(creditorDebt);
         userRepository.save(senderUserAccount);
 
-        for(String debtorUserCode: debtorsUserCode.keySet()){
+        for (String debtorUserCode : debtorsUserCode.keySet()) {
             UserAccount debtorAcount = userRepository.findByUserCode(debtorUserCode)
                     .orElseThrow(() -> new NotFoundException(USER_NOT_FOUND.formatted(debtorUserCode)));
             Debt debtorDebt = new Debt(
                     debtorDebtId,
                     creditorDebtId,
                     debtorUserCode,
-                    Map.of(creditorUserCode,true),
+                    Map.of(creditorUserCode, true),
+                    createDebtDTO.getIsCreatorIncluded(),
                     createDebtDTO.getAmount(),
                     createDebtDTO.getDescription(),
                     createDebtDTO.getDebtType()
@@ -186,5 +179,38 @@ public class PortfolioService {
                     );
                     userRepository.save(user);
                 });
+    }
+
+    public void patchDebtPaid(PatchDebtPaidDTO patchDebtPaidDTO) {
+        boolean patched = false;
+        Debt debt = debtRepository.findByDebtId(patchDebtPaidDTO.getDebtId()).orElseThrow(
+                () -> new NotFoundException(DEBT_NOT_FOUND.formatted(patchDebtPaidDTO.getDebtId()))
+        );
+
+        String linkedDebtId = debt.getLinkedDebtId();
+
+        Debt linkedDebt = debtRepository.findByDebtId(linkedDebtId).orElseThrow(
+                () -> new NotFoundException(DEBT_NOT_FOUND.formatted(linkedDebtId))
+        );
+
+        if(debt.getDebtorsCode().containsKey(patchDebtPaidDTO.getReceiverCode())){
+            debt.getDebtorsCode().put(
+                    patchDebtPaidDTO.getReceiverCode(),
+                    patchDebtPaidDTO.getNewState()
+            );
+            patched = true;
+        }
+
+        if(linkedDebt.getDebtorsCode().containsKey(patchDebtPaidDTO.getReceiverCode())){
+            linkedDebt.getDebtorsCode().put(
+                    patchDebtPaidDTO.getReceiverCode(),
+                    patchDebtPaidDTO.getNewState()
+            );
+            patched = true;
+        }
+
+        if(!patched){
+            throw new NoPatchException(NO_PATCH.formatted("the new state given"));
+        }
     }
 }

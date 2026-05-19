@@ -16,6 +16,7 @@ public class Debt {
     private String linkedDebtId;
     private String creditorUserCode;
     private Map<String,Boolean> debtorsCode;
+    private boolean isCreatorIncluded;
     private float amount;
     private String description;
     private DebtType debtType;

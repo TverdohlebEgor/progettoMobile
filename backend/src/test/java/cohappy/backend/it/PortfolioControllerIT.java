@@ -273,7 +273,8 @@ public class PortfolioControllerIT extends BaseIT {
 
         CreateDebtDTO request = new CreateDebtDTO(
                 USER_CODE,
-                Map.of(USER_CODE_2,false),
+                Map.of(USER_CODE_2,Boolean.FALSE),
+                Boolean.FALSE,
                 50,
                 "",
                 DebtType.OTHER
@@ -313,7 +314,8 @@ public class PortfolioControllerIT extends BaseIT {
 
         CreateDebtDTO request = new CreateDebtDTO(
                 "NOTEXISTING",
-                Map.of(USER_CODE_2,false),
+                Map.of(USER_CODE_2,Boolean.FALSE),
+                Boolean.FALSE,
                 50,
                 "",
                 DebtType.DELIVERY_AND_EATING_OUT
@@ -332,7 +334,8 @@ public class PortfolioControllerIT extends BaseIT {
 
         CreateDebtDTO request = new CreateDebtDTO(
                 USER_CODE,
-                Map.of("NOTEXISTING",false),
+                Map.of("NOTEXISTING",Boolean.TRUE),
+                Boolean.TRUE,
                 50,
                 "",
                 DebtType.DELIVERY_AND_EATING_OUT
@@ -351,7 +354,8 @@ public class PortfolioControllerIT extends BaseIT {
 
         CreateDebtDTO request = new CreateDebtDTO(
                 USER_CODE,
-                Map.of(USER_CODE,false),
+                Map.of(USER_CODE,Boolean.TRUE),
+                Boolean.TRUE,
                 50,
                 "",
                 DebtType.OTHER
@@ -374,7 +378,8 @@ public class PortfolioControllerIT extends BaseIT {
 
         CreateDebtDTO request = new CreateDebtDTO(
                 USER_CODE,
-                Map.of(USER_CODE_2,false),
+                Map.of(USER_CODE_2,Boolean.TRUE),
+                Boolean.TRUE,
                 50,
                 "",
                 DebtType.OTHER
