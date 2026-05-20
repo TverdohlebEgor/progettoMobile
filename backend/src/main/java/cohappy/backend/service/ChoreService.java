@@ -151,7 +151,7 @@ public class ChoreService {
 
         for (LocalDate day : createChoreDTO.getDays()) {
             if (!createChoreDTO.getAssignedTo().containsKey(day)) {
-                throw new IllegalInputException("A day of the chore has not assigned user");
+                throw new IllegalInputException("A day of the chore has not assigned user, day:'%s'".formatted(day));
             }
 
             String userCode = createChoreDTO.getAssignedTo().get(day);
