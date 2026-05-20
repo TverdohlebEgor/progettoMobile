@@ -62,6 +62,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
@@ -172,7 +173,6 @@ fun PortfolioView(
                             TransactionItem(
                                 transaction = tx,
                                 onSettleClick = { tx.myDebtId?.let { onSettleClick(it) } },
-                                modifier = Modifier.padding(horizontal = 24.dp)
                             )
                         }
                     }
@@ -283,10 +283,12 @@ fun TransactionItem(
                     stiffness = Spring.StiffnessLow
                 )
             )
-            .clickable { expanded = !expanded },
+            .clickable { expanded = !expanded }
+            .padding(vertical = 8.dp, horizontal = 24.dp),
         shape = RoundedCornerShape(24.dp),
         color = bgCard,
-        shadowElevation = if (isDark) 0.dp else 10.dp,
+        tonalElevation = if (isDark) 4.dp else 0.dp,
+        shadowElevation = if (isDark) 0.dp else 2.dp,
         border = if (isDark) BorderStroke(1.dp, Color.White.copy(alpha = 0.1f)) else null
     ) {
         Column {
