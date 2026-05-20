@@ -76,7 +76,7 @@ public class ChoreService {
 
         LocalDate minDate = result.stream().map(GetNextChoreDTO::getDate).min(Comparator.naturalOrder()).orElse(null);
 
-        if(minDate != null){
+        if (minDate != null) {
             result = result.stream().filter(gnc -> gnc.getDate().isEqual(minDate)).toList();
         }
 
@@ -139,6 +139,13 @@ public class ChoreService {
     }
 
     public void createChore(CreateChoreDTO createChoreDTO) {
+        createChoreDTO.getAssignedTo().keySet().forEach(k -> {
+            if (createChoreDTO.getAssignedTo().get(k).equalsIgnoreCase("null")) {
+                createChoreDTO.getAssignedTo().put(k, null);
+                }
+            }
+        );
+
         if (createChoreDTO.getHouseCode() == null) {
             throw new IllegalInputException(INVALID_INPUT.formatted("house code"));
         }
@@ -151,12 +158,12 @@ public class ChoreService {
 
         for (LocalDate day : createChoreDTO.getDays()) {
             if (!createChoreDTO.getAssignedTo().containsKey(day)) {
-                throw new IllegalInputException("A day of the chore has not assigned user, day:'%s', dayList:'%s', assignedTo:'%s'".formatted(day,createChoreDTO.getDays().toString(),createChoreDTO.getAssignedTo().toString()));
+                throw new IllegalInputException("A day of the chore has not assigned user, day:'%s', dayList:'%s', assignedTo:'%s'".formatted(day, createChoreDTO.getDays().toString(), createChoreDTO.getAssignedTo().toString()));
             }
 
             String userCode = createChoreDTO.getAssignedTo().get(day);
-            if(userCode != null){
-               userRepository.findByUserCode(userCode)
+            if (userCode != null) {
+                userRepository.findByUserCode(userCode)
                         .orElseThrow(() -> new NotFoundException(USER_NOT_FOUND.formatted(userCode)));
 
                 notificationService.createNotification(
