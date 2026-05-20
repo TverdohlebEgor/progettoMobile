@@ -152,6 +152,31 @@ public class ChoreControllerIT extends BaseIT {
     }
 
     @Test
+    void shouldCreateChoreWithNotAsignedDay2() throws Exception {
+        saveDefaultUser();
+        saveDefaultHouse();
+
+        LocalDate day1 = LocalDate.of(2026,05,26);
+        LocalDate day2 = LocalDate.of(2026,06,02);
+        Map<LocalDate,String> assignedTo = new HashMap();
+        assignedTo.put(day1,null);
+        assignedTo.put(day2,null);
+        CreateChoreDTO request = new CreateChoreDTO(
+               List.of(day1,day2),
+                assignedTo,
+                "USR-999",
+                "houseCode",
+                "Chore",
+                "Desc"
+        );
+
+        mockMvc.perform(post(path("/create"))
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(request)))
+                .andExpect(status().isOk());
+    }
+
+    @Test
     void shouldNotFoundHouseCreateChore() throws Exception {
         saveDefaultUser();
         // house is NOT saved
