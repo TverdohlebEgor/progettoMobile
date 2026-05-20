@@ -128,6 +128,30 @@ public class ChoreControllerIT extends BaseIT {
     }
 
     @Test
+    void shouldCreateChoreWithNotAsignedDay() throws Exception {
+        saveDefaultUser();
+        saveDefaultHouse();
+
+        LocalDate newDate = LocalDate.of(2025,1,1);
+        CreateChoreDTO request = buildDefaultCreateChoreDTO();
+        request.getDays().add(newDate);
+        request.getAssignedTo().put(newDate,null);
+
+        mockMvc.perform(post(path("/create"))
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(request)))
+                .andExpect(status().isOk());
+
+        List<HouseChore> chores = choreRepository.findByHouseCode("houseCode");
+        assertThat(chores.isEmpty()).isFalse();
+        assertThat(chores.get(0).getName()).isEqualTo("Clean kitchen");
+        assertThat(chores.get(0).getDays().contains(DEFAULT_DATE)).isTrue();
+        assertThat(chores.get(0).getAssignedTo().get(DEFAULT_DATE)).isEqualTo("USR-999");
+        assertThat(chores.get(0).getDays().contains(newDate)).isTrue();
+        assertThat(chores.get(0).getAssignedTo().get(newDate)).isNull();
+    }
+
+    @Test
     void shouldNotFoundHouseCreateChore() throws Exception {
         saveDefaultUser();
         // house is NOT saved

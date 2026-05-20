@@ -155,16 +155,18 @@ public class ChoreService {
             }
 
             String userCode = createChoreDTO.getAssignedTo().get(day);
-            userRepository.findByUserCode(userCode)
-                    .orElseThrow(() -> new NotFoundException(USER_NOT_FOUND.formatted(userCode)));
+            if(userCode != null){
+               userRepository.findByUserCode(userCode)
+                        .orElseThrow(() -> new NotFoundException(USER_NOT_FOUND.formatted(userCode)));
 
-            notificationService.createNotification(
-                    NotificationType.CHORE,
-                    "Nuova faccenda: " + createChoreDTO.getName(),
-                    createChoreDTO.getDescription(),
-                    null,
-                    userCode
-            );
+                notificationService.createNotification(
+                        NotificationType.CHORE,
+                        "Nuova faccenda: " + createChoreDTO.getName(),
+                        createChoreDTO.getDescription(),
+                        null,
+                        userCode
+                );
+            }
         }
 
         HouseChore newChore = mapper.createDTOtoChore(createChoreDTO);
