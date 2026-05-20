@@ -40,6 +40,9 @@ fun ChoresScreen(
                 onSuccess = { /* Automagic update since it's a state */ }
             )
         },
+        onAssignChore = { choreCode, assigneeCode ->
+            viewModel.assignChore(choreCode, assigneeCode)
+        },
         roommates = viewModel.roommates,
         currentUserCode = viewModel.currentUserCode ?: ""
     )

@@ -102,6 +102,7 @@ fun ChoresView(
     chores: List<Chore>,
     onChoreToggle: (String, String?, Boolean) -> Unit,
     onAddChoreConfirm: (String, String, List<LocalDate>?, String?, Boolean) -> Unit,
+    onAssignChore: (String, String) -> Unit = { _, _ -> },
     currentUserCode: String = "",
     roommates: List<Pair<String, String>> = emptyList(),
     initialCalendarMode: CalendarMode = CalendarMode.WEEK,
@@ -118,6 +119,8 @@ fun ChoresView(
     var showAddMenu by remember { mutableStateOf(false) }
     var showCreateSheet by remember { mutableStateOf(false) }
     var isRecursiveCreation by remember { mutableStateOf(false) }
+    
+    var choreToAssign by remember { mutableStateOf<String?>(null) }
     
     val scope = rememberCoroutineScope()
 
@@ -299,18 +302,60 @@ fun ChoresView(
                     items(chores.size) { index ->
                         val chore = chores[index]
                         Box(modifier = Modifier.padding(horizontal = 20.dp, vertical = 8.dp)) {
+                            // Calcolo del testo dell'assegnatario
+                            val displayAssignee = when {
+                                chore.isCompleted -> "Completata da ${chore.assigneeName ?: "qualcuno"}"
+                                chore.assignedToCode == currentUserCode -> "È il tuo turno"
+                                chore.assignedToCode.isNullOrBlank() || chore.assignedToCode == "null" -> "Aperta a tutti"
+                                else -> chore.assigneeName ?: "Aperta a tutti"
+                            }
+
                             ChoreCard(
                                 choreCode = chore.choreCode,
                                 title = chore.title,
                                 description = chore.description,
-                                assigneeText = if (chore.assignedToCode == currentUserCode) "È il tuo turno" else chore.assigneeName
-                                    ?: "Nessuno",
+                                assigneeText = displayAssignee,
                                 assignedToCode = chore.assignedToCode,
                                 currentUserCode = currentUserCode,
                                 isCompleted = chore.isCompleted,
                                 dayLabel = chore.dayLabel,
-                                onToggleClick = onChoreToggle
+                                onToggleClick = onChoreToggle,
+                                onAssignClick = { choreToAssign = chore.choreCode }
                             )
+                        }
+                    }
+                }
+
+                // Dialog per l'assegnazione rapida
+                if (choreToAssign != null) {
+                    Dialog(onDismissRequest = { choreToAssign = null }) {
+                        Surface(
+                            modifier = Modifier.fillMaxWidth().padding(20.dp),
+                            shape = RoundedCornerShape(28.dp),
+                            color = if (isDark) Color(0xFF1E1E1E) else Color.White,
+                            tonalElevation = 8.dp
+                        ) {
+                            Column(modifier = Modifier.fillMaxWidth().padding(vertical = 16.dp)) {
+                                Text("Assegna a:", modifier = Modifier.padding(16.dp), fontWeight = FontWeight.Bold, fontSize = 20.sp, color = contentColor)
+                                roommates.forEach { (code, name) ->
+                                    Row(
+                                        modifier = Modifier
+                                            .fillMaxWidth()
+                                            .clickable {
+                                                onAssignChore(choreToAssign!!, code)
+                                                choreToAssign = null
+                                            }
+                                            .padding(16.dp),
+                                        verticalAlignment = Alignment.CenterVertically
+                                    ) {
+                                        Box(modifier = Modifier.size(32.dp).clip(CircleShape).background(Color(0xFF6B53A4).copy(alpha = 0.2f)), contentAlignment = Alignment.Center) {
+                                            Text(name.take(1).uppercase(), color = Color(0xFF6B53A4), fontWeight = FontWeight.Bold)
+                                        }
+                                        Spacer(modifier = Modifier.width(16.dp))
+                                        Text(name, fontSize = 16.sp, color = contentColor)
+                                    }
+                                }
+                            }
                         }
                     }
                 }
@@ -536,17 +581,18 @@ fun CreateChoreSheet(
 
         Spacer(modifier = Modifier.height(24.dp))
 
-        if (!isRecursive) {
-            InputFieldLabel("Chi se ne occupa?")
-            val userName = roommates.find { it.first == selectedUserCode }?.second ?: "Seleziona coinquilino"
-            SelectorField(
-                text = userName,
-                icon = Icons.Default.Person,
-                onClick = { showUserPicker = true },
-                bgColor = inputBgColor,
-                contentColor = contentColor
-            )
-        } else {
+        InputFieldLabel("Chi se ne occupa?")
+        val userName = roommates.find { it.first == selectedUserCode }?.second ?: (if (isRecursive) "Aperta a tutti (opzionale)" else "Seleziona coinquilino")
+        SelectorField(
+            text = userName,
+            icon = Icons.Default.Person,
+            onClick = { showUserPicker = true },
+            bgColor = inputBgColor,
+            contentColor = contentColor
+        )
+
+        if (isRecursive) {
+            Spacer(modifier = Modifier.height(12.dp))
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -558,7 +604,7 @@ fun CreateChoreSheet(
                     Icon(Icons.Default.Info, contentDescription = null, tint = accentColor)
                     Spacer(modifier = Modifier.width(12.dp))
                     Text(
-                        "Questa faccenda apparirà ogni giorno e può essere assegnata in qualunque momento, se non assegnata chiunque potrà completarla.",
+                        "Questa faccenda apparirà periodicamente. Se non assegni nessuno, chiunque potrà completarla.",
                         fontSize = 14.sp,
                         color = contentColor.copy(alpha = 0.8f)
                     )
@@ -582,7 +628,7 @@ fun CreateChoreSheet(
                         nome,
                         descrizione,
                         dates,
-                        if (isRecursive) null else selectedUserCode
+                        selectedUserCode
                     )
                 }
             },
@@ -854,11 +900,16 @@ fun ChoreCard(
     currentUserCode: String,
     isCompleted: Boolean,
     dayLabel: String,
-    onToggleClick: (String, String?, Boolean) -> Unit
+    onToggleClick: (String, String?, Boolean) -> Unit,
+    onAssignClick: () -> Unit = {}
 ) {
     val isDark = isSystemInDarkTheme()
     val cardBg = if (isDark) Color(0xFF1E1E1E) else Color(0xFFF8F8F8)
     val accentColor = Color(0xFF6B53A4)
+
+    // Può completare se: è aperta a tutti, è assegnata a lui, o è già completata
+    val canToggle = !isCompleted && (assignedToCode.isNullOrBlank() || assignedToCode == "null" || assignedToCode == currentUserCode) 
+                    || isCompleted
 
     Row(
         modifier = Modifier
@@ -872,12 +923,18 @@ fun ChoreCard(
             modifier = Modifier
                 .size(32.dp)
                 .clip(RoundedCornerShape(10.dp))
-                .background(if (isCompleted) accentColor else accentColor.copy(alpha = 0.1f))
-                .clickable { onToggleClick(choreCode, assignedToCode, !isCompleted) },
+                .background(
+                    if (isCompleted) accentColor 
+                    else if (canToggle) accentColor.copy(alpha = 0.1f)
+                    else Color.Gray.copy(alpha = 0.1f)
+                )
+                .clickable(enabled = canToggle) { onToggleClick(choreCode, assignedToCode, !isCompleted) },
             contentAlignment = Alignment.Center
         ) {
             if (isCompleted) {
                 Icon(Icons.Default.Check, contentDescription = null, tint = Color.White, modifier = Modifier.size(20.dp))
+            } else if (!canToggle) {
+                Icon(Icons.Default.Person, contentDescription = null, tint = Color.Gray.copy(alpha = 0.5f), modifier = Modifier.size(16.dp))
             }
         }
 
@@ -902,10 +959,24 @@ fun ChoreCard(
             }
             Spacer(modifier = Modifier.height(4.dp))
             Row(verticalAlignment = Alignment.CenterVertically) {
-                Icon(Icons.Default.Person, contentDescription = null, tint = accentColor, modifier = Modifier.size(14.dp))
+                Icon(Icons.Default.Person, contentDescription = null, tint = if (canToggle) accentColor else Color.Gray, modifier = Modifier.size(14.dp))
                 Spacer(modifier = Modifier.width(4.dp))
-                Text(text = assigneeText, fontSize = 12.sp, color = accentColor, fontWeight = FontWeight.SemiBold)
+                Text(text = assigneeText, fontSize = 12.sp, color = if (canToggle) accentColor else Color.Gray, fontWeight = FontWeight.SemiBold)
             }
+        }
+
+        // Tasto per assegnare (mostrato sempre se la faccenda non è completata)
+        if (!isCompleted) {
+            Icon(
+                imageVector = Icons.Default.Person,
+                contentDescription = "Assegna",
+                tint = accentColor,
+                modifier = Modifier
+                    .size(28.dp)
+                    .clip(CircleShape)
+                    .clickable { onAssignClick() }
+                    .padding(4.dp)
+            )
         }
     }
 }
