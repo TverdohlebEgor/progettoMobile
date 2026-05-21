@@ -41,7 +41,7 @@ public class ChoreService {
 
         return chores.stream().filter(c -> c.getDays().contains(date))
                 .map(c -> {
-                    String userCode = c.getAssignedTo().get(date);
+                    String userCode = c.getAssignedTo().getOrDefault(date,null);
                     if (userCode == null || userCode.equalsIgnoreCase("null")) {
                         return null;
                     }

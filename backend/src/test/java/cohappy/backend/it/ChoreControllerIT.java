@@ -79,6 +79,19 @@ public class ChoreControllerIT extends BaseIT {
     }
 
     @Test
+    void shouldGetChoresByHouseCodeAndDateWhenUserNotSetted() throws Exception {
+        saveDefaultUser();
+        saveDefaultHouse();
+        var chore = createDefaultChore();
+        chore.getAssignedTo().put(LocalDate.of(2026,10,12),null);
+        choreRepository.save(chore);
+
+        mockMvc.perform(get(path("/houseCode/" + DEFAULT_DATE))
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk());
+    }
+
+    @Test
     void shouldGetEmptyListWhenNoChoresOnDate() throws Exception {
         saveDefaultUser();
         saveDefaultHouse();
