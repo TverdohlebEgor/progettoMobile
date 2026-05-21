@@ -42,8 +42,8 @@ public class ChoreService {
         return chores.stream().filter(c -> c.getDays().contains(date))
                 .map(c -> {
                     String userCode = c.getAssignedTo().get(date);
-                    if (userCode == null) {
-                        throw new IllegalInputException("A day of the chore has not assigned user");
+                    if (userCode == null || userCode.equalsIgnoreCase("null")) {
+                        return null;
                     }
                     UserAccount asignedTo = userRepository.findByUserCode(userCode)
                             .orElseThrow(() -> new NotFoundException(USER_NOT_FOUND.formatted(userCode)));
