@@ -43,7 +43,7 @@ public class ChoreService {
                 .map(c -> {
                     String userCode = c.getAssignedTo().getOrDefault(date,null);
                     if (userCode == null || userCode.equalsIgnoreCase("null")) {
-                        return null;
+                        return mapper.choreToDTO(c, date, null);
                     }
                     UserAccount asignedTo = userRepository.findByUserCode(userCode)
                             .orElseThrow(() -> new NotFoundException(USER_NOT_FOUND.formatted(userCode)));
@@ -140,7 +140,7 @@ public class ChoreService {
 
     public void createChore(CreateChoreDTO createChoreDTO) {
         createChoreDTO.getAssignedTo().keySet().forEach(k -> {
-            if (createChoreDTO.getAssignedTo().get(k).equalsIgnoreCase("null")) {
+            if ("null".equalsIgnoreCase(createChoreDTO.getAssignedTo().get(k))) {
                 createChoreDTO.getAssignedTo().put(k, null);
                 }
             }

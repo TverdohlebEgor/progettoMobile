@@ -4,6 +4,7 @@ import cohappy.backend.model.HouseChore;
 import cohappy.backend.model.UserAccount;
 import cohappy.backend.model.dto.request.CreateChoreDTO;
 import cohappy.backend.model.dto.response.GetChoreDTO;
+import com.mongodb.lang.Nullable;
 
 import java.time.LocalDate;
 import java.util.Map;
@@ -13,15 +14,15 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 
 public class ChoreMapper {
-    public GetChoreDTO choreToDTO(HouseChore chore, LocalDate date, UserAccount user) {
+    public GetChoreDTO choreToDTO(HouseChore chore, LocalDate date, @Nullable UserAccount user) {
         byte[] immage = null;
-        if(user.getImages() != null && !user.getImages().isEmpty()){
+        if(user != null && user.getImages() != null && !user.getImages().isEmpty()){
             immage = user.getImages().getFirst();
         }
         return new GetChoreDTO(
                 chore.getChoreCode(),
                 chore.getAssignedTo().get(date),
-                user.getName(),
+                user != null? user.getName() : null,
                 immage,
                 chore.getCompleted().get(date),
                 chore.getCreatedBy(),
