@@ -1278,7 +1278,6 @@ public class HouseControllerIT extends BaseIT{
         user.setUserCode("USR-999");
 
         Portfolio portfolio = new Portfolio();
-        portfolio.setDebts(new ArrayList<>());
         portfolio.setAmount(0);
         user.setPortfolio(portfolio);
 

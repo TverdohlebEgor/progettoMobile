@@ -14,7 +14,6 @@ import java.util.Map;
 public class DebtDTO {
     @Id
     private String debtId;
-    private String linkedDebtId;
     private String creditorUserCode;
     private Map<String,Boolean> debtorsUserCode;
     private boolean isCreatorIncluded;

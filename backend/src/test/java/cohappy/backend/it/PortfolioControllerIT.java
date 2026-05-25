@@ -9,6 +9,7 @@ import cohappy.backend.model.dto.request.MoveMoneyDTO;
 import cohappy.backend.model.dto.request.MoveMoneyOperationEnum;
 import cohappy.backend.model.dto.request.SendMoneyDTO;
 import cohappy.backend.repositories.UserRepository;
+import cohappy.backend.repositories.DebtRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -20,7 +21,6 @@ import tools.jackson.databind.ObjectMapper;
 import java.util.ArrayList;
 import java.util.Map;
 
-import static cohappy.backend.model.OperationResultMessages.USER_NOT_FOUND;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -33,6 +33,9 @@ public class PortfolioControllerIT extends BaseIT {
     private UserRepository userRepository;
 
     @Autowired
+    private DebtRepository debtRepository;
+
+    @Autowired
     private ObjectMapper objectMapper;
 
     private static final String USER_CODE = "USR-999";
@@ -42,6 +45,7 @@ public class PortfolioControllerIT extends BaseIT {
     @BeforeEach
     void setUp() {
         userRepository.deleteAll();
+        debtRepository.deleteAll();
     }
 
     /* ########################################
@@ -284,27 +288,6 @@ public class PortfolioControllerIT extends BaseIT {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isOk());
-
-        var debtsSender = userRepository.findByUserCode(USER_CODE)
-                .orElseThrow(() -> new NotFoundException(USER_NOT_FOUND.formatted(USER_CODE)))
-                .getPortfolio()
-                .getDebts();
-
-        assertThat(debtsSender.size()).isEqualTo(1);
-        assertThat(debtsSender.getFirst().getCreditorUserCode()).isEqualTo(USER_CODE);
-        assertThat(debtsSender.getFirst().getDebtorsCode().containsKey(USER_CODE_2)).isTrue();
-        assertThat(debtsSender.getFirst().getAmount()).isEqualTo(50);
-
-        var debtsReceiver = userRepository.findByUserCode(USER_CODE_2)
-                .orElseThrow(() -> new NotFoundException(USER_NOT_FOUND.formatted(USER_CODE_2)))
-                .getPortfolio()
-                .getDebts();
-
-        assertThat(debtsReceiver.size()).isEqualTo(1);
-        assertThat(debtsReceiver.getFirst().getCreditorUserCode()).isEqualTo(USER_CODE_2);
-        assertThat(debtsReceiver.getFirst().getDebtorsCode().containsKey(USER_CODE)).isTrue();
-        assertThat(debtsReceiver.getFirst().getAmount()).isEqualTo(50);
-        assertThat(debtsReceiver.getFirst().getLinkedDebtId()).isEqualTo(debtsSender.getFirst().getDebtId());
     }
 
     @Test
@@ -389,20 +372,14 @@ public class PortfolioControllerIT extends BaseIT {
                         .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isOk());
 
-        var debtsSender = userRepository.findByUserCode(USER_CODE)
-                .orElseThrow(() -> new NotFoundException(USER_NOT_FOUND.formatted(USER_CODE)))
-                .getPortfolio()
-                .getDebts();
+        var debtsSender = debtRepository.findByCreditorUserCode(USER_CODE);
 
         log.info(debtsSender.getFirst().getDebtId());
         mockMvc.perform(delete("/api/portafolio/debt/delete/" + debtsSender.getFirst().getDebtId())
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk());
 
-        debtsSender = userRepository.findByUserCode(USER_CODE)
-                .orElseThrow(() -> new NotFoundException(USER_NOT_FOUND.formatted(USER_CODE)))
-                .getPortfolio()
-                .getDebts();
+        debtsSender = debtRepository.findByCreditorUserCode(USER_CODE);
         assertThat(debtsSender.size()).isEqualTo(0);
     }
 
@@ -422,7 +399,6 @@ public class PortfolioControllerIT extends BaseIT {
         user.setUserCode(USER_CODE);
 
         Portfolio portfolio = new Portfolio();
-        portfolio.setDebts(new ArrayList<>());
         portfolio.setAmount(100);
         user.setPortfolio(portfolio);
 

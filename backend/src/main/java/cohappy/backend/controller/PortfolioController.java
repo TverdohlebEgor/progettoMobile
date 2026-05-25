@@ -101,10 +101,8 @@ public class PortfolioController {
     @GetMapping("debt/{userCode}/total")
     public ResponseEntity<Float> getUserTotalDebt(@PathVariable String userCode) {
         try {
-            PortfolioDTO portfolio = portafolioService.getUserPortfolio(userCode);
             return ResponseEntity.ok(
-                    portfolio.getDebts().stream()
-                            .filter(d -> d.getCreditorUserCode().equals(userCode))
+                    portafolioService.findByUserCodeInDebtors(userCode).stream()
                             .map(d -> d.getAmount())
                             .reduce((a1, a2) -> a1 + a2)
                             .get()
@@ -119,10 +117,8 @@ public class PortfolioController {
     @GetMapping("/credits/{userCode}/total")
     public ResponseEntity<Float> getUserTotalCredits(@PathVariable String userCode) {
         try {
-            PortfolioDTO portfolio = portafolioService.getUserPortfolio(userCode);
             return ResponseEntity.ok(
-                    portfolio.getDebts().stream()
-                            .filter(d -> d.getDebtorsUserCode().equals(userCode))
+                    portafolioService.findByCreditorUserCode(userCode).stream()
                             .map(d -> d.getAmount())
                             .reduce((a1, a2) -> a1 + a2)
                             .get()

@@ -5,6 +5,8 @@ import cohappy.backend.model.UserAccount;
 import cohappy.backend.model.dto.request.RegisterDTO;
 import cohappy.backend.model.dto.response.UserAccountDTO;
 
+import java.util.Collections;
+
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.UUID;
@@ -30,7 +32,6 @@ public class UserMapper {
 
         Portfolio resultPortfolio = new Portfolio();
         resultPortfolio.setAmount(0);
-        resultPortfolio.setDebts(new ArrayList<>());
 
         result.setPortfolio(resultPortfolio);
 
@@ -48,7 +49,7 @@ public class UserMapper {
                 userAccount.getEmail(),
                 userAccount.getPhoneNumber(),
                 userAccount.getPassword(),
-                portafolioMapper.portfolioToDTO(userAccount.getPortfolio()),
+                portafolioMapper.portfolioToDTO(userAccount.getPortfolio(), Collections.emptyList()),
                 houseCode
         );
     }

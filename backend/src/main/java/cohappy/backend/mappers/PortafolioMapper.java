@@ -1,28 +1,16 @@
 package cohappy.backend.mappers;
 
-import cohappy.backend.model.Debt;
 import cohappy.backend.model.Portfolio;
 import cohappy.backend.model.dto.response.DebtDTO;
 import cohappy.backend.model.dto.response.PortfolioDTO;
 
+import java.util.List;
+
 public class PortafolioMapper {
-    public PortfolioDTO portfolioToDTO(Portfolio portfolio){
+    public PortfolioDTO portfolioToDTO(Portfolio portfolio, List<DebtDTO> debts){
         return new PortfolioDTO(
                portfolio.getAmount(),
-                portfolio.getDebts().stream().map(this::debtToDTO).toList()
-        );
-    }
-
-    public DebtDTO debtToDTO(Debt debt){
-        return new DebtDTO(
-                debt.getDebtId(),
-                debt.getLinkedDebtId(),
-                debt.getCreditorUserCode(),
-                debt.getDebtorsCode(),
-                debt.isCreatorIncluded(),
-                debt.getAmount(),
-                debt.getDescription(),
-                debt.getDebtType()
+               debts
         );
     }
 }

@@ -13,7 +13,6 @@ import java.util.Map;
 public class Debt {
     @Id
     private String debtId;
-    private String linkedDebtId;
     private String creditorUserCode;
     private Map<String,Boolean> debtorsCode;
     private boolean isCreatorIncluded;

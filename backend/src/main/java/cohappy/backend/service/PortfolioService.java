@@ -1,18 +1,23 @@
 package cohappy.backend.service;
 
 import cohappy.backend.exceptions.*;
+import cohappy.backend.mappers.DebtMapper;
 import cohappy.backend.mappers.PortafolioMapper;
 import cohappy.backend.model.Debt;
 import cohappy.backend.model.NotificationType;
 import cohappy.backend.model.UserAccount;
 import cohappy.backend.model.dto.request.*;
+import cohappy.backend.model.dto.response.DebtDTO;
 import cohappy.backend.model.dto.response.PortfolioDTO;
 import cohappy.backend.repositories.DebtRepository;
 import cohappy.backend.repositories.UserRepository;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.UUID;
 
 import static cohappy.backend.model.OperationResultMessages.*;
 
@@ -23,13 +28,18 @@ public class PortfolioService {
     private final UserRepository userRepository;
     private final DebtRepository debtRepository;
     private final PortafolioMapper mapper = new PortafolioMapper();
+    private final DebtMapper debtMapper = new DebtMapper();
     private static final float MAX_MONEY_ACCOUNT = 1000000f;
 
     public PortfolioDTO getUserPortfolio(String userCode) {
         UserAccount userAccount = userRepository.findByUserCode(userCode)
                 .orElseThrow(() -> new NotFoundException(USER_NOT_FOUND.formatted(userCode)));
 
-        return mapper.portfolioToDTO(userAccount.getPortfolio());
+        List<DebtDTO> debts = debtRepository.findByCreditorUserCode(userCode).stream()
+                .map(debtMapper::debtToDTO)
+                .toList();
+
+        return mapper.portfolioToDTO(userAccount.getPortfolio(), debts);
     }
 
     public void addMoneyToPortfolio(MoveMoneyDTO moveMoneyDTO) {
@@ -105,19 +115,18 @@ public class PortfolioService {
             throw new IllegalInputException("Sender and receiver can't be the same person");
         }
 
-        UserAccount senderUserAccount = userRepository.findByUserCode(creditorUserCode)
+        userRepository.findByUserCode(creditorUserCode)
                 .orElseThrow(() -> new NotFoundException(USER_NOT_FOUND.formatted(creditorUserCode)));
 
-        for (String receiverUserCode : debtorsUserCode.keySet()) {
-
+        for (String debtorUserCode : debtorsUserCode.keySet()) {
+            userRepository.findByUserCode(debtorUserCode)
+                    .orElseThrow(() -> new NotFoundException(USER_NOT_FOUND.formatted(debtorUserCode)));
         }
 
-        String creditorDebtId = UUID.randomUUID().toString();
-        String debtorDebtId = UUID.randomUUID().toString();
+        String debtId = UUID.randomUUID().toString();
 
         Debt creditorDebt = new Debt(
-                creditorDebtId,
-                debtorDebtId,
+                debtId,
                 creditorUserCode,
                 debtorsUserCode,
                 createDebtDTO.getIsCreatorIncluded(),
@@ -126,26 +135,16 @@ public class PortfolioService {
                 createDebtDTO.getDebtType()
         );
         debtRepository.save(creditorDebt);
-        senderUserAccount.getPortfolio().getDebts().add(creditorDebt);
-        userRepository.save(senderUserAccount);
+
+        notificationService.createNotification(
+                NotificationType.PORTFOLIO,
+                "Nuovo credito",
+                createDebtDTO.getDescription(),
+                null,
+                creditorUserCode
+        );
 
         for (String debtorUserCode : debtorsUserCode.keySet()) {
-            UserAccount debtorAcount = userRepository.findByUserCode(debtorUserCode)
-                    .orElseThrow(() -> new NotFoundException(USER_NOT_FOUND.formatted(debtorUserCode)));
-            Debt debtorDebt = new Debt(
-                    debtorDebtId,
-                    creditorDebtId,
-                    debtorUserCode,
-                    Map.of(creditorUserCode, true),
-                    createDebtDTO.getIsCreatorIncluded(),
-                    createDebtDTO.getAmount(),
-                    createDebtDTO.getDescription(),
-                    createDebtDTO.getDebtType()
-            );
-            debtRepository.save(debtorDebt);
-            debtorAcount.getPortfolio().getDebts().add(debtorDebt);
-            userRepository.save(debtorAcount);
-
             notificationService.createNotification(
                     NotificationType.PORTFOLIO,
                     "Nuovo debito",
@@ -157,28 +156,9 @@ public class PortfolioService {
     }
 
     public void deleteDebt(String debtId) {
-        Debt debt = debtRepository.findByDebtId(debtId).orElseThrow(
-                () -> new NotFoundException(DEBT_NOT_FOUND.formatted(debtId))
-        );
-
-        String linkedDebtId = debt.getLinkedDebtId();
-
-        debtRepository.findByDebtId(linkedDebtId).orElseThrow(
-                () -> new NotFoundException(DEBT_NOT_FOUND.formatted(linkedDebtId))
-        );
-
+        debtRepository.findByDebtId(debtId)
+                .orElseThrow(() -> new NotFoundException(DEBT_NOT_FOUND.formatted(debtId)));
         debtRepository.deleteByDebtId(debtId);
-        debtRepository.deleteByDebtId(linkedDebtId);
-
-        List<String> idsToRemove = Arrays.asList(debtId, linkedDebtId);
-
-        userRepository.findByPortfolioDebtsDebtIdIn(idsToRemove)
-                .forEach(user -> {
-                    user.getPortfolio().getDebts().removeIf(d ->
-                            idsToRemove.contains(d.getDebtId())
-                    );
-                    userRepository.save(user);
-                });
     }
 
     public void patchDebtPaid(PatchDebtPaidDTO patchDebtPaidDTO) {
@@ -187,13 +167,7 @@ public class PortfolioService {
                 () -> new NotFoundException(DEBT_NOT_FOUND.formatted(patchDebtPaidDTO.getDebtId()))
         );
 
-        String linkedDebtId = debt.getLinkedDebtId();
-
-        Debt linkedDebt = debtRepository.findByDebtId(linkedDebtId).orElseThrow(
-                () -> new NotFoundException(DEBT_NOT_FOUND.formatted(linkedDebtId))
-        );
-
-        if(debt.getDebtorsCode().containsKey(patchDebtPaidDTO.getReceiverCode())){
+        if (debt.getDebtorsCode().containsKey(patchDebtPaidDTO.getReceiverCode())) {
             debt.getDebtorsCode().put(
                     patchDebtPaidDTO.getReceiverCode(),
                     patchDebtPaidDTO.getNewState()
@@ -201,16 +175,18 @@ public class PortfolioService {
             patched = true;
         }
 
-        if(linkedDebt.getDebtorsCode().containsKey(patchDebtPaidDTO.getReceiverCode())){
-            linkedDebt.getDebtorsCode().put(
-                    patchDebtPaidDTO.getReceiverCode(),
-                    patchDebtPaidDTO.getNewState()
-            );
-            patched = true;
-        }
-
-        if(!patched){
+        if (!patched) {
             throw new NoPatchException(NO_PATCH.formatted("the new state given"));
         }
+        debtRepository.save(debt);
     }
+
+    public List<Debt> findByCreditorUserCode(String userCode){
+        return debtRepository.findByCreditorUserCode(userCode);
+    }
+
+    public List<Debt> findByUserCodeInDebtors(String userCode){
+        return debtRepository.findByUserCodeInDebtors(userCode);
+    }
+
 }

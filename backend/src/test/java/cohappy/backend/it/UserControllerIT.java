@@ -219,7 +219,6 @@ public class UserControllerIT extends BaseIT{
         assertThat(findedUserAccount.get().getPhoneNumber()).isEqualTo(newUser.getPhoneNumber());
         assertThat(findedUserAccount.get().getPassword()).isEqualTo(newUser.getPassword());
         assertThat(findedUserAccount.get().getPortfolio().getAmount()).isZero();
-        assertThat(findedUserAccount.get().getPortfolio().getDebts().size()).isZero();
 
         String houseCode = houseRepository.houseOf(userCode.get())
                 .map(house -> house.getHouseCode())
@@ -415,7 +414,6 @@ public class UserControllerIT extends BaseIT{
         user.setUserCode("USR-999");
 
         Portfolio portfolio = new Portfolio();
-        portfolio.setDebts(new ArrayList<>());
         portfolio.setAmount(0);
         user.setPortfolio(portfolio);
 
