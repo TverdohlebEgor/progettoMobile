@@ -42,7 +42,7 @@ public class ChoreService {
         return chores.stream().filter(c -> c.getDays().contains(date))
                 .map(c -> {
                     String userCode = c.getAssignedTo().getOrDefault(date,null);
-                    if (userCode == null || userCode.equalsIgnoreCase("null")) {
+                    if (userCode == null || "null".equalsIgnoreCase(userCode)) {
                         return mapper.choreToDTO(c, date, null);
                     }
                     UserAccount asignedTo = userRepository.findByUserCode(userCode)
@@ -104,12 +104,12 @@ public class ChoreService {
             modified = true;
         }
 
-        if (patchChoreDTO.getCompleted() != null && patchChoreDTO.getCompleted() != chore.getCompleted().get(day)) {
+        if (patchChoreDTO.getCompleted() != null && !patchChoreDTO.getCompleted().equals(chore.getCompleted().get(day))) {
             chore.getCompleted().put(day, patchChoreDTO.getCompleted());
             modified = true;
         }
 
-        if (patchChoreDTO.getHouseCode() != null && patchChoreDTO.getCompleted() != chore.getCompleted().get(day)) {
+        if (patchChoreDTO.getHouseCode() != null && !patchChoreDTO.getHouseCode().equals(chore.getHouseCode())) {
             chore.getCompleted().put(day, patchChoreDTO.getCompleted());
             modified = true;
         }
