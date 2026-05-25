@@ -35,6 +35,7 @@ public class ChoreController {
         } catch (NotFoundException e) {
             return ResponseEntity.notFound().build();
         } catch (Exception e) {
+            log.error(e.toString());
             return ResponseEntity.internalServerError().build();
         }
     }
@@ -50,6 +51,7 @@ public class ChoreController {
         } catch (NotFoundException e) {
             return ResponseEntity.notFound().build();
         } catch (Exception e) {
+            log.error(e.toString());
             return ResponseEntity.internalServerError().build();
         }
     }
@@ -66,6 +68,7 @@ public class ChoreController {
         } catch (IllegalInputException e) {
             return ResponseEntity.badRequest().body(e.getMessage());
         } catch (Exception e) {
+            log.error(e.toString());
             return ResponseEntity.internalServerError().build();
         }
     }
@@ -80,6 +83,7 @@ public class ChoreController {
         } catch (IllegalInputException e) {
             return ResponseEntity.badRequest().body(e.getMessage());
         } catch (Exception e) {
+            log.error(e.toString());
             return ResponseEntity.internalServerError().build();
         }
     }
