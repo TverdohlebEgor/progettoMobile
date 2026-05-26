@@ -21,7 +21,7 @@ interface PortfolioApiClient {
     @GET("api/debt/{userCode}/total")
     suspend fun getUserTotalDebt(@Path("userCode") userCode: String): Response<Float>
 
-    @GET("api/credits/{userCode}/total")
+    @GET("api/debt/credits/{userCode}/total")
     suspend fun getUserTotalCredits(@Path("userCode") userCode: String): Response<Float>
 
     @PATCH("api/portafolio/money/move")

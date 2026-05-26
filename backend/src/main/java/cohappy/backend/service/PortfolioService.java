@@ -35,8 +35,9 @@ public class PortfolioService {
         UserAccount userAccount = userRepository.findByUserCode(userCode)
                 .orElseThrow(() -> new NotFoundException(USER_NOT_FOUND.formatted(userCode)));
 
-        List<DebtDTO> debts = debtRepository.findByCreditorUserCode(userCode).stream()
+        List<DebtDTO> debts = debtRepository.findByUserCodeInDebtors(userCode).stream()
                 .map(debtMapper::debtToDTO)
+                .distinct()
                 .toList();
 
         return mapper.portfolioToDTO(userAccount.getPortfolio(), debts);

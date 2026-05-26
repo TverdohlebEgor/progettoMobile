@@ -19,7 +19,7 @@ import java.util.List;
 import static cohappy.backend.model.OperationResultMessages.OPERATION_COMPLETED;
 
 @RestController
-@RequestMapping("/api/debts")
+@RequestMapping("/api/debt")
 @Slf4j
 public class DebtController {
     private final DebtService debtService;
