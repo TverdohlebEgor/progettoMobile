@@ -91,7 +91,10 @@ public class DebtController {
         try {
             return ResponseEntity.ok(
                     (float) debtRepository.findAll().stream()
-                            .filter(d -> d.getDebtorsCode().containsKey(userCode))
+                            .filter(
+                                    d -> d.getDebtorsCode().containsKey(userCode)
+                                    && d.getDebtorsCode().get(userCode) == false
+                            )
                             .mapToDouble(d -> d.getAmount())
                             .sum()
             );

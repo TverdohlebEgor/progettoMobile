@@ -16,7 +16,8 @@ public interface DebtRepository extends MongoRepository<Debt, String> {
     long deleteByDebtId(String userCode);
 
     List<Debt> findByCreditorUserCode(String userCode);
-    
-    @Query("{ 'debtorsCode.?0' : { $exists: true } }")
+
+
+    @Query("{ 'debtorsCode.?#{[0]}' : { $exists: true } }")
     List<Debt> findByUserCodeInDebtors(String userCode);
 }

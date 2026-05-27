@@ -59,17 +59,17 @@ public class DebtControllerIT extends BaseIT {
                 DebtType.OTHER
         );
 
-        mockMvc.perform(post("/api/debts/create")
+        mockMvc.perform(post("/api/debt/create")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isOk());
 
-        var debts = debtRepository.findAll();
+        var debt = debtRepository.findAll();
 
-        assertThat(debts.size()).isEqualTo(1);
-        assertThat(debts.getFirst().getCreditorUserCode()).isEqualTo(USER_CODE);
-        assertThat(debts.getFirst().getDebtorsCode().containsKey(USER_CODE_2)).isTrue();
-        assertThat(debts.getFirst().getAmount()).isEqualTo(50);
+        assertThat(debt.size()).isEqualTo(1);
+        assertThat(debt.getFirst().getCreditorUserCode()).isEqualTo(USER_CODE);
+        assertThat(debt.getFirst().getDebtorsCode().containsKey(USER_CODE_2)).isTrue();
+        assertThat(debt.getFirst().getAmount()).isEqualTo(50);
     }
 
     @Test
@@ -86,7 +86,7 @@ public class DebtControllerIT extends BaseIT {
                 DebtType.DELIVERY_AND_EATING_OUT
         );
 
-        mockMvc.perform(post("/api/debts/create")
+        mockMvc.perform(post("/api/debt/create")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isNotFound());
@@ -106,7 +106,7 @@ public class DebtControllerIT extends BaseIT {
                 DebtType.DELIVERY_AND_EATING_OUT
         );
 
-        mockMvc.perform(post("/api/debts/create")
+        mockMvc.perform(post("/api/debt/create")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isNotFound());
@@ -126,7 +126,7 @@ public class DebtControllerIT extends BaseIT {
                 DebtType.OTHER
         );
 
-        mockMvc.perform(post("/api/debts/create")
+        mockMvc.perform(post("/api/debt/create")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isBadRequest());
@@ -149,31 +149,31 @@ public class DebtControllerIT extends BaseIT {
                 "",
                 DebtType.OTHER
         );
-        mockMvc.perform(post("/api/debts/create")
+        mockMvc.perform(post("/api/debt/create")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isOk());
 
-        var debts = debtRepository.findAll();
-        assertThat(debts.size()).isEqualTo(1);
+        var debt = debtRepository.findAll();
+        assertThat(debt.size()).isEqualTo(1);
 
-        mockMvc.perform(delete("/api/debts/delete/" + debts.getFirst().getDebtId())
+        mockMvc.perform(delete("/api/debt/delete/" + debt.getFirst().getDebtId())
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk());
 
-        debts = debtRepository.findAll();
-        assertThat(debts.size()).isEqualTo(0);
+        debt = debtRepository.findAll();
+        assertThat(debt.size()).isEqualTo(0);
     }
 
     @Test
     void shouldFailNotFoundDeleteDebt() throws Exception {
-        mockMvc.perform(delete("/api/debts/delete/NOTEXISTING")
+        mockMvc.perform(delete("/api/debt/delete/NOTEXISTING")
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isNotFound());
     }
 
     /* ########################################
-                  Get all debts
+                  Get all debt
      ########################################*/
     @Test
     void shouldGetAllDebts() throws Exception {
@@ -188,25 +188,28 @@ public class DebtControllerIT extends BaseIT {
                 "",
                 DebtType.OTHER
         );
-        mockMvc.perform(post("/api/debts/create")
+        mockMvc.perform(post("/api/debt/create")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isOk());
 
-        mockMvc.perform(get("/api/debts/all")
+        mockMvc.perform(get("/api/debt/all")
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.size()").value(1));
     }
 
     /* ########################################
-                Get total debts
+                Get total debt
      ########################################*/
 
     @Test
     void shouldGetUserTotalDebt() throws Exception {
         saveDefaultUser();
         saveDefaultUser2();
+        var us2 = createDefaultUser();
+        us2.setUserCode("random");
+        userRepository.save(us2);
 
         CreateDebtDTO request = new CreateDebtDTO(
                 USER_CODE,
@@ -216,12 +219,26 @@ public class DebtControllerIT extends BaseIT {
                 "",
                 DebtType.OTHER
         );
-        mockMvc.perform(post("/api/debts/create")
+
+        CreateDebtDTO request2 = new CreateDebtDTO(
+                "random",
+                Map.of(USER_CODE_2, Boolean.FALSE),
+                Boolean.TRUE,
+                50,
+                "",
+                DebtType.OTHER
+        );
+        mockMvc.perform(post("/api/debt/create")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isOk());
 
-        mockMvc.perform(get("/api/debts/" + USER_CODE_2 + "/total")
+        mockMvc.perform(post("/api/debt/create")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(request2)))
+                .andExpect(status().isOk());
+
+        mockMvc.perform(get("/api/debt/" + USER_CODE_2 + "/total")
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$").value(50));
@@ -243,12 +260,12 @@ public class DebtControllerIT extends BaseIT {
                 "",
                 DebtType.OTHER
         );
-        mockMvc.perform(post("/api/debts/create")
+        mockMvc.perform(post("/api/debt/create")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isOk());
 
-        mockMvc.perform(get("/api/debts/credits/" + USER_CODE + "/total")
+        mockMvc.perform(get("/api/debt/credits/" + USER_CODE + "/total")
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$").value(50));

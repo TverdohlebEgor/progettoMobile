@@ -103,6 +103,9 @@ public class PortfolioController {
         try {
             return ResponseEntity.ok(
                     portafolioService.findByUserCodeInDebtors(userCode).stream()
+                            .filter(
+                                    d -> d.getDebtorsCode().get(userCode) == false
+                            )
                             .map(d -> d.getAmount())
                             .reduce((a1, a2) -> a1 + a2)
                             .get()
