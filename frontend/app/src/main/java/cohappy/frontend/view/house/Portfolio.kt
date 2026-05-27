@@ -272,6 +272,7 @@ fun TransactionItem(
 
     val iconTint = if (transaction.isDebt) Color(0xFFFF6961) else Color(0xFF34D399)
 
+    val isPaid = transaction.isPaidByUser
     val allPaid = transaction.shares.isNotEmpty() && transaction.shares.all { it.isPaid }
 
     Surface(
@@ -319,7 +320,7 @@ fun TransactionItem(
                         color = titleColor,
                         fontWeight = FontWeight.Bold,
                         fontSize = 16.sp,
-                        textDecoration = if (allPaid) TextDecoration.LineThrough else TextDecoration.None,
+                        textDecoration = if (isPaid) TextDecoration.LineThrough else TextDecoration.None,
                         maxLines = 1,
                         overflow = TextOverflow.Ellipsis
                     )
@@ -336,9 +337,10 @@ fun TransactionItem(
 
                 Text(
                     text = "$sign $amountFormatted €",
-                    color = amountColor,
+                    color = if (isPaid) Color.Gray else amountColor,
                     fontWeight = FontWeight.Black,
-                    fontSize = 18.sp
+                    fontSize = 18.sp,
+                    textDecoration = if (isPaid) TextDecoration.LineThrough else TextDecoration.None
                 )
 
                 Icon(
@@ -405,7 +407,7 @@ fun TransactionItem(
                         }
                     }
 
-                    if (transaction.isDebt && !allPaid) {
+                    if (transaction.isDebt && !isPaid) {
                         Spacer(modifier = Modifier.height(16.dp))
                         Button(
                             onClick = onSettleClick,

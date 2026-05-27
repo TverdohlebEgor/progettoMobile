@@ -10,9 +10,7 @@ import cohappy.frontend.client.dto.enum.DebtType
 import cohappy.frontend.client.dto.request.CreateDebtDTO
 import cohappy.frontend.client.dto.response.DebtDTO
 import cohappy.frontend.repository.PortfolioRepository
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 import java.util.UUID
 
 data class TransactionShare(
@@ -32,7 +30,8 @@ data class PortfolioTransaction(
     val category: DebtType?,
     val shares: List<TransactionShare> = emptyList(),
     val beneficiaryName: String = "",
-    val totalAmount: Double = 0.0
+    val totalAmount: Double = 0.0,
+    val isPaidByUser: Boolean = false
 )
 
 data class Roommate(
@@ -84,22 +83,14 @@ class PortfolioViewModel(
                 val tokenPulito = userToken.clean()
                 currentUserCode = tokenPulito
 
-                // 1. Recupero Totali
-                val resDebt = repository.fetchTotalDebt(tokenPulito)
-                totalDebts = resDebt.getOrNull()?.toDouble() ?: 0.0
-
-                val resCredits = repository.fetchTotalCredits(tokenPulito)
-                totalCredits = resCredits.getOrNull()?.toDouble() ?: 0.0
-
-                // 2. Mappa coinquilini (per mostrare nomi invece di codici)
-                val roommatesMap = mutableMapOf<String, String>()
-                val roommatesList = mutableListOf<Roommate>()
-
+                // 1. Recupero Profilo e Mappa coinquilini
                 val profileRes = repository.fetchUserProfile(tokenPulito)
                 val myProfile = profileRes.getOrNull()
                 val actualUserCode = (myProfile?.userCode ?: tokenPulito).clean()
                 currentUserCode = actualUserCode
 
+                val roommatesMap = mutableMapOf<String, String>()
+                val roommatesList = mutableListOf<Roommate>()
                 roommatesMap[actualUserCode] = "Tu"
                 roommatesList.add(Roommate(actualUserCode, "Tu"))
 
@@ -126,7 +117,7 @@ class PortfolioViewModel(
                 }
                 availableRoommates = roommatesList
 
-                // 3. Recupero Portfolio e Mapping
+                // 2. Recupero Portfolio e Mapping
                 val resultPortfolio = repository.fetchUserPortfolio(tokenPulito)
                 val portfolio = resultPortfolio.getOrNull()
                 if (resultPortfolio.isSuccess && portfolio != null) {
@@ -134,61 +125,80 @@ class PortfolioViewModel(
                     val mappedList = mutableListOf<PortfolioTransaction>()
 
                     for (debt in rawDebts) {
-                        val creditorCode = (debt.creditorUserCode ?: "").clean()
+                        val creditor = (debt.creditorUserCode ?: "").clean()
                         val debtors = debt.debtorsUserCode ?: emptyMap()
+                        val amount = (debt.amount ?: 0f).toDouble()
                         
-                        val isMyCredit = creditorCode == currentUserCode
-                        val amIDebtor = debtors.containsKey(currentUserCode)
-
-                        if (isMyCredit || amIDebtor) {
-                            val totalDebtorsCount = debtors.size
-                            val singleShare = if (totalDebtorsCount > 0) (debt.amount ?: 0f).toDouble() / totalDebtorsCount else 0.0
-                            val category = debt.debtType
-
-                            if (isMyCredit) {
-                                // Sono il creditore: mostro una riga per ogni debitore nella mappa
-                                debtors.forEach { (dCode, hasPaid) ->
-                                    val cleanDCode = dCode.clean()
-                                    if (cleanDCode != currentUserCode) {
-                                        val otherName = roommatesMap[cleanDCode] ?: "Utente ${cleanDCode.take(4)}"
-                                        mappedList.add(
-                                            PortfolioTransaction(
-                                                id = debt.debtId ?: UUID.randomUUID().toString(),
-                                                myDebtId = null,
-                                                isDebt = false,
-                                                title = debt.description ?: "Spesa",
-                                                subtitle = "Credito verso $otherName" + (if (hasPaid) " (Pagato)" else ""),
-                                                amount = singleShare,
-                                                category = category,
-                                                beneficiaryName = "Tu"
-                                            )
-                                        )
-                                    }
-                                }
-                            } else {
-                                // Sono un debitore: mostro solo la mia quota
-                                val hasPaid = debtors[currentUserCode] ?: false
-                                val otherName = roommatesMap[creditorCode] ?: "Utente ${creditorCode.take(4)}"
-                                mappedList.add(
-                                    PortfolioTransaction(
-                                        id = debt.debtId ?: UUID.randomUUID().toString(),
-                                        myDebtId = debt.debtId,
-                                        isDebt = true,
-                                        title = debt.description ?: "Spesa",
-                                        subtitle = "Devi a $otherName" + (if (hasPaid) " (Pagato)" else ""),
-                                        amount = singleShare,
-                                        category = category,
-                                        beneficiaryName = otherName
-                                    )
+                        // CHI HA PAGATO VEDE IL + (Creditor)
+                        if (creditor == actualUserCode) {
+                            val share = if (debtors.isNotEmpty()) amount / debtors.size else 0.0
+                            val shares = debtors.map { (dCode, paid) ->
+                                TransactionShare(
+                                    userCode = dCode.clean(),
+                                    userName = roommatesMap[dCode.clean()] ?: "Utente ${dCode.take(4)}",
+                                    amount = share,
+                                    isPaid = paid
                                 )
                             }
+
+                            // Vedo come saldo solo quello che mi devono ancora
+                            val totalCreditAmount = shares.sumOf { it.amount }
+                            val allPaid = shares.isNotEmpty() && shares.all { it.isPaid }
+
+                            mappedList.add(
+                                PortfolioTransaction(
+                                    id = debt.debtId ?: UUID.randomUUID().toString(),
+                                    isDebt = false, // Segno +
+                                    title = debt.description ?: "Credito",
+                                    subtitle = if (shares.size == 1) "Da ${shares[0].userName}" else "Da ${shares.size} persone",
+                                    amount = totalCreditAmount,
+                                    category = debt.debtType,
+                                    shares = shares,
+                                    beneficiaryName = "Tu",
+                                    totalAmount = amount,
+                                    isPaidByUser = allPaid
+                                )
+                            )
+                        } 
+                        // CHI DEVE PAGARE VEDE IL - (Debtor)
+                        else if (debtors.containsKey(actualUserCode)) {
+                            val hasPaid = debtors[actualUserCode] ?: false
+                            val creditorName = roommatesMap[creditor] ?: "Utente ${creditor.take(4)}"
+                            val sharePerPerson = if (debtors.isNotEmpty()) amount / debtors.size else amount
+                            
+                            val shares = debtors.map { (dCode, paid) ->
+                                TransactionShare(
+                                    userCode = dCode.clean(),
+                                    userName = roommatesMap[dCode.clean()] ?: "Utente ${dCode.take(4)}",
+                                    amount = sharePerPerson,
+                                    isPaid = paid
+                                )
+                            }
+
+                            mappedList.add(
+                                PortfolioTransaction(
+                                    id = debt.debtId ?: UUID.randomUUID().toString(),
+                                    myDebtId = debt.debtId,
+                                    isDebt = true, // Segno -
+                                    title = debt.description ?: "Debito",
+                                    subtitle = "A $creditorName" + if (hasPaid) " (Pagato)" else "",
+                                    amount = sharePerPerson,
+                                    category = debt.debtType,
+                                    shares = shares,
+                                    beneficiaryName = creditorName,
+                                    totalAmount = amount,
+                                    isPaidByUser = hasPaid
+                                )
+                            )
                         }
                     }
                     transactions = mappedList.reversed()
                     
-                    // Ricalcoliamo i totali in base ai debiti/crediti effettivamente mappati
-                    totalCredits = mappedList.filter { !it.isDebt }.sumOf { it.amount }
-                    totalDebts = mappedList.filter { it.isDebt }.sumOf { it.amount }
+                    // Ricalcoliamo i totali in base ai debiti/crediti effettivamente mappati (non pagati)
+                    totalCredits = mappedList.filter { !it.isDebt }.sumOf { tx -> 
+                        tx.shares.filter { !it.isPaid }.sumOf { it.amount }
+                    }
+                    totalDebts = mappedList.filter { it.isDebt && !it.isPaidByUser }.sumOf { it.amount }
                 } else {
                     transactions = emptyList()
                     totalDebts = 0.0
@@ -251,25 +261,25 @@ class PortfolioViewModel(
                 val myCode = currentUserCode.clean()
                 val isMeSelected = selectedRoommates.any { it.clean() == myCode }
                 
-                // Mappa dei debitori: escludo me stesso (il creditore)
+                // Mappa dei debitori: chi deve vedere il segno -
                 val othersSelected = selectedRoommates.filter { it.clean() != myCode }
                 val debtorsMap = mutableMapOf<String, Boolean>()
                 othersSelected.forEach { 
-                    debtorsMap[it.clean()] = false
+                    debtorsMap[it.clean()] = false // Inizialmente NON PAGATO (false)
                 }
 
                 if (debtorsMap.isNotEmpty()) {
                     val numParticipants = selectedRoommates.size
+                    // Se sono incluso, la somma che gli altri mi devono è (Totale - mia quota)
                     val amountToStore = if (isMeSelected) {
-                        val quota = totalAmount / numParticipants
-                        totalAmount - quota
+                        totalAmount - (totalAmount / numParticipants)
                     } else {
                         totalAmount
                     }
 
                     val requestDto = CreateDebtDTO(
-                        creditorCode = myCode,
-                        receiverCode = debtorsMap,
+                        creditorCode = myCode, // Chi vede il segno +
+                        receiverCode = debtorsMap, // Chi vede il segno -
                         isCreatorIncluded = isMeSelected,
                         amount = amountToStore.toFloat(),
                         description = newDebtTitle,
@@ -293,7 +303,6 @@ class PortfolioViewModel(
         isSettlingDebt = true
         viewModelScope.launch {
             try {
-                // Usiamo patchDebtPaid per segnare come pagato invece di cancellare
                 val result = repository.patchDebtPaid(debtId, currentUserCode, true)
                 if (result.isSuccess) {
                     loadPortfolio(userToken)

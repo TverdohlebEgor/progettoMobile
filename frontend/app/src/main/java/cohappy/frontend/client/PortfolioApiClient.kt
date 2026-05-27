@@ -30,7 +30,7 @@ interface PortfolioApiClient {
     @PATCH("api/portafolio/money/send")
     suspend fun sendMoney(@Body request: SendMoneyDTO): Response<String>
 
-    @PATCH("api/portfolio/debt/patch/paid")
+    @PATCH("api/portafolio/debt/patch/paid")
     suspend fun patchDebtPaid(@Body patchDebtPaidDTO: PatchDebtPaidDTO): Response<String>
     @POST("api/portafolio/debt/create")
     suspend fun createDebt(@Body request: CreateDebtDTO): Response<String>
