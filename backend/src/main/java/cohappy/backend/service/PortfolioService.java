@@ -18,6 +18,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
+import java.util.stream.Stream;
 
 import static cohappy.backend.model.OperationResultMessages.*;
 
@@ -35,12 +36,15 @@ public class PortfolioService {
         UserAccount userAccount = userRepository.findByUserCode(userCode)
                 .orElseThrow(() -> new NotFoundException(USER_NOT_FOUND.formatted(userCode)));
 
-        List<DebtDTO> debts = debtRepository.findByUserCodeInDebtors(userCode).stream()
+        Stream<DebtDTO> debts = debtRepository.findByUserCodeInDebtors(userCode).stream()
                 .map(debtMapper::debtToDTO)
-                .distinct()
-                .toList();
+                .distinct();
 
-        return mapper.portfolioToDTO(userAccount.getPortfolio(), debts);
+        Stream<DebtDTO> credits = debtRepository.findByCreditorUserCode(userCode).stream()
+                .map(debtMapper::debtToDTO)
+                .distinct();
+
+        return mapper.portfolioToDTO(userAccount.getPortfolio(), Stream.concat(debts,credits).toList());
     }
 
     public void addMoneyToPortfolio(MoveMoneyDTO moveMoneyDTO) {
