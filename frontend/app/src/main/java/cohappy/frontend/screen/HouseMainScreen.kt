@@ -41,6 +41,7 @@ fun HouseMainScreen(
     sharedPref: SharedPreferences? = null
 ) {
     var activeTab by remember { mutableStateOf("home") }
+    var walletFilter by remember { mutableStateOf("ALL") }
     var currentHouseCode by remember { 
         mutableStateOf(sharedPref?.getString("HOUSE_CODE", "") ?: "") 
     }
@@ -53,7 +54,10 @@ fun HouseMainScreen(
             FloatingBottomBar(hazeState = hazeState) {
                 MenuGestionaleUtente(
                     currentTab = activeTab,
-                    onTabSelected = { nuovaTab -> activeTab = nuovaTab }
+                    onTabSelected = { nuovaTab -> 
+                        if (nuovaTab == "wallet") walletFilter = "ALL"
+                        activeTab = nuovaTab 
+                    }
                 )
             }
         },
@@ -72,6 +76,12 @@ fun HouseMainScreen(
                         HouseDashboardScreen(
                             userToken = userToken ?: "",
                             houseCode = sharedPref?.getString("HOUSE_CODE", "") ?: "",
+                            onProfileClick = { activeTab = "profilo" },
+                            onWalletClick = { 
+                                walletFilter = "DEBTS"
+                                activeTab = "wallet" 
+                            },
+                            onChoreClick = { activeTab = "chore" }
                         )
                     }
                 }
@@ -92,7 +102,8 @@ fun HouseMainScreen(
                         .fillMaxSize()
                         .padding(top = 16.dp)) {
                         PortfolioScreen(
-                            userToken = userToken ?: ""
+                            userToken = userToken ?: "",
+                            initialFilter = walletFilter
                         )
                     }
                 }

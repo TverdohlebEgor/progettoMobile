@@ -10,6 +10,9 @@ import cohappy.frontend.viewmodel.HouseDashboardViewModel
 fun HouseDashboardScreen(
     userToken: String?,
     houseCode: String,
+    onProfileClick: () -> Unit,
+    onChoreClick: () -> Unit = {},
+    onWalletClick: () -> Unit = {},
     viewModel: HouseDashboardViewModel = viewModel()
 ) {
     val cleanToken = userToken ?: ""
@@ -30,6 +33,9 @@ fun HouseDashboardScreen(
         nextChoreName = viewModel.nextChoreName,
         nextChoreDeadline = viewModel.nextChoreDeadline,
         totalDebtAmount = viewModel.totalDebtAmount,
+        onProfileClick = onProfileClick,
+        onChoreClick = onChoreClick,
+        onWalletClick = onWalletClick,
         onAddClick = { }
     )
 }

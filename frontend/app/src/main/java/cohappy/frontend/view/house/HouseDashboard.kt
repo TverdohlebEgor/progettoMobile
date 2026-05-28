@@ -61,6 +61,7 @@ fun HouseDashboardView(
     totalDebtAmount: String,
     onChoreClick: () -> Unit = {},
     onWalletClick: () -> Unit = {},
+    onProfileClick: () -> Unit = {},
     nextChoreDeadline: String
 ) {
     val isDark = isSystemInDarkTheme()
@@ -105,7 +106,9 @@ fun HouseDashboardView(
 
                         Spacer(modifier = Modifier.width(16.dp))
 
-                        ProfileAvatar(imageBitmap = profileBitmap, size = 64)
+                        Box(modifier = Modifier.clickable { onProfileClick() }) {
+                            ProfileAvatar(imageBitmap = profileBitmap, size = 64)
+                        }
                     }
 
                     Spacer(modifier = Modifier.height(24.dp))
@@ -114,6 +117,8 @@ fun HouseDashboardView(
                         nextChoreName = nextChoreName,
                         totalDebtAmount = totalDebtAmount,
                         nextChoreDeadline = nextChoreDeadline,
+                        onWalletClick = onWalletClick,
+                        onChoreClick = onChoreClick,
                         modifier = Modifier.padding(horizontal = 24.dp)
                     )
 
@@ -195,6 +200,8 @@ fun SummRow(
     nextChoreName: String,
     nextChoreDeadline: String,
     totalDebtAmount: String,
+    onWalletClick: () -> Unit = {},
+    onChoreClick: () -> Unit = {},
     modifier: Modifier = Modifier
 ) {
     val isDark = isSystemInDarkTheme()
@@ -212,6 +219,7 @@ fun SummRow(
             icon = Icons.Default.Wallet, backgroundColor = box1Bg,
             title = "Da dare",
             amount = totalDebtAmount,
+            onClick = onWalletClick,
             modifier = Modifier.weight(1f)
         )
         SummBox(
@@ -219,6 +227,7 @@ fun SummRow(
             icon = Icons.Default.WaterDrop, backgroundColor = box2Bg,
             title = nextChoreDeadline,
             amount = nextChoreName,
+            onClick = onChoreClick,
             modifier = Modifier.weight(1f)
         )
     }

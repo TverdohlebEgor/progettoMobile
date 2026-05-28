@@ -62,9 +62,14 @@ import cohappy.frontend.viewmodel.PortfolioViewModel
 @Composable
 fun PortfolioScreen(
     userToken: String?,
+    initialFilter: String = "ALL",
     viewModel: PortfolioViewModel = viewModel()
 ) {
     val cleanToken = userToken ?: ""
+
+    LaunchedEffect(initialFilter) {
+        viewModel.setFilter(initialFilter)
+    }
 
     LaunchedEffect(cleanToken) {
         if (cleanToken.isNotBlank()) {
