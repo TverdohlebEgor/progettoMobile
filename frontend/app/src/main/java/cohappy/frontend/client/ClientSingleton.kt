@@ -31,11 +31,11 @@ class ByteArrayAdapter {
 }
 object ClientSingleton {
     //PER PC
-    //private const val BASE_URL = "http://10.0.2.2:8080/"
+    private const val BASE_URL = "http://10.0.2.2:8080/"
 
 
     //PER MOBILE
-    private const val BASE_URL ="http://192.168.1.28:8080/"/*"http://192.168.1.8:8080/"*/
+//    private const val BASE_URL ="http://192.168.1.28:8080/"/*"http://192.168.1.8:8080/"*/
 
     private val moshi = Moshi.Builder()
         .add(LocalDateAdapter())

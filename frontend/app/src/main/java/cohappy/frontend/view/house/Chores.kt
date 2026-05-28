@@ -20,6 +20,7 @@ import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
@@ -70,6 +71,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextDecoration
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
@@ -115,13 +117,13 @@ fun ChoresView(
 
     var calendarMode by remember { mutableStateOf(initialCalendarMode) }
     val listState = rememberLazyListState()
-    
+
     var showAddMenu by remember { mutableStateOf(false) }
     var showCreateSheet by remember { mutableStateOf(false) }
     var isRecursiveCreation by remember { mutableStateOf(false) }
-    
+
     var choreToAssign by remember { mutableStateOf<String?>(null) }
-    
+
     val scope = rememberCoroutineScope()
 
     if (showCreateSheet) {
@@ -222,9 +224,9 @@ fun ChoresView(
                                         .size(28.dp)
                                         .clip(CircleShape)
                                         .clickable {
-                                            val newDate = if (calendarMode == CalendarMode.WEEK) 
-                                                selectedDate.minusWeeks(1) 
-                                            else 
+                                            val newDate = if (calendarMode == CalendarMode.WEEK)
+                                                selectedDate.minusWeeks(1)
+                                            else
                                                 selectedDate.minusMonths(1)
                                             onDateSelected(newDate)
                                         }
@@ -246,9 +248,9 @@ fun ChoresView(
                                         .size(28.dp)
                                         .clip(CircleShape)
                                         .clickable {
-                                            val newDate = if (calendarMode == CalendarMode.WEEK) 
-                                                selectedDate.plusWeeks(1) 
-                                            else 
+                                            val newDate = if (calendarMode == CalendarMode.WEEK)
+                                                selectedDate.plusWeeks(1)
+                                            else
                                                 selectedDate.plusMonths(1)
                                             onDateSelected(newDate)
                                         }
@@ -305,7 +307,7 @@ fun ChoresView(
                             // Calcolo del testo dell'assegnatario
                             val displayAssignee = when {
                                 chore.isCompleted -> "Completata da ${chore.assigneeName ?: "qualcuno"}"
-                                chore.assignedToCode == currentUserCode -> "È il tuo turno"
+                                chore.assignedToCode == currentUserCode -> "Tocca a te"
                                 chore.assignedToCode.isNullOrBlank() || chore.assignedToCode == "null" -> "Aperta a tutti"
                                 else -> chore.assigneeName ?: "Aperta a tutti"
                             }
@@ -345,14 +347,28 @@ fun ChoresView(
                                                 onAssignChore(choreToAssign!!, code)
                                                 choreToAssign = null
                                             }
-                                            .padding(16.dp),
+                                            .padding(horizontal = 24.dp, vertical = 12.dp),
                                         verticalAlignment = Alignment.CenterVertically
                                     ) {
-                                        Box(modifier = Modifier.size(32.dp).clip(CircleShape).background(Color(0xFF6B53A4).copy(alpha = 0.2f)), contentAlignment = Alignment.Center) {
-                                            Text(name.take(1).uppercase(), color = Color(0xFF6B53A4), fontWeight = FontWeight.Bold)
+                                        Box(
+                                            modifier = Modifier
+                                                .widthIn(min = 100.dp)
+                                                .height(48.dp)
+                                                .clip(RoundedCornerShape(24.dp))
+                                                .background(Color(0xFF6B53A4).copy(alpha = 0.15f)),
+                                            contentAlignment = Alignment.Center
+                                        ) {
+                                            Text(
+                                                text = name,
+                                                color = contentColor,
+                                                fontWeight = FontWeight.Bold,
+                                                fontSize = 14.sp,
+                                                textAlign = TextAlign.Center,
+                                                maxLines = 1,
+                                                overflow = TextOverflow.Ellipsis,
+                                                modifier = Modifier.padding(horizontal = 16.dp)
+                                            )
                                         }
-                                        Spacer(modifier = Modifier.width(16.dp))
-                                        Text(name, fontSize = 16.sp, color = contentColor)
                                     }
                                 }
                             }
@@ -390,14 +406,14 @@ fun ChoresView(
                                     color = contentColor
                                 )
                                 Spacer(modifier = Modifier.height(24.dp))
-                                
+
                                 // Opzione 1: Faccenda Singola
                                 Box(
                                     modifier = Modifier
                                         .fillMaxWidth()
                                         .clip(RoundedCornerShape(16.dp))
                                         .background(if (isDark) Color.Black.copy(alpha = 0.4f) else Color(0xFFF5F5F5))
-                                        .clickable { 
+                                        .clickable {
                                             showAddMenu = false
                                             isRecursiveCreation = false
                                             showCreateSheet = true
@@ -413,16 +429,16 @@ fun ChoresView(
                                         }
                                     }
                                 }
-                                
+
                                 Spacer(modifier = Modifier.height(12.dp))
-                                
+
                                 // Opzione 2: Faccenda di Casa (ex ricorsiva)
                                 Box(
                                     modifier = Modifier
                                         .fillMaxWidth()
                                         .clip(RoundedCornerShape(16.dp))
                                         .background(if (isDark) Color.Black.copy(alpha = 0.4f) else Color(0xFFF5F5F5))
-                                        .clickable { 
+                                        .clickable {
                                             showAddMenu = false
                                             isRecursiveCreation = true
                                             showCreateSheet = true
@@ -465,7 +481,7 @@ fun CreateChoreSheet(
     var selectedDate by remember { mutableStateOf(LocalDate.now()) }
     var selectedDays by remember { mutableStateOf(setOf<DayOfWeek>()) }
     var selectedUserCode by remember { mutableStateOf<String?>(null) }
-    
+
     var showDatePicker by remember { mutableStateOf(false) }
     var showUserPicker by remember { mutableStateOf(false) }
 
@@ -641,7 +657,7 @@ fun CreateChoreSheet(
         ) {
             Text("Crea Faccenda", fontWeight = FontWeight.Black, fontSize = 18.sp)
         }
-        
+
         Spacer(modifier = Modifier.height(40.dp))
     }
 
@@ -696,26 +712,32 @@ fun CreateChoreSheet(
                                     selectedUserCode = code
                                     showUserPicker = false
                                 }
-                                .padding(16.dp),
+                                .padding(horizontal = 24.dp, vertical = 12.dp),
                             verticalAlignment = Alignment.CenterVertically
                         ) {
                             if (code.isNotBlank()) {
                                 Box(
                                     modifier = Modifier
-                                        .size(32.dp)
-                                        .clip(CircleShape)
-                                        .background(accentColor.copy(alpha = 0.2f)),
+                                        .widthIn(min = 100.dp)
+                                        .height(48.dp)
+                                        .clip(RoundedCornerShape(24.dp))
+                                        .background(accentColor.copy(alpha = 0.15f)),
                                     contentAlignment = Alignment.Center
                                 ) {
                                     Text(
-                                        name.take(1).uppercase(),
-                                        color = accentColor,
-                                        fontWeight = FontWeight.Bold
+                                        text = name,
+                                        color = contentColor,
+                                        fontWeight = FontWeight.Bold,
+                                        fontSize = 14.sp,
+                                        textAlign = TextAlign.Center,
+                                        maxLines = 1,
+                                        overflow = TextOverflow.Ellipsis,
+                                        modifier = Modifier.padding(horizontal = 16.dp)
                                     )
                                 }
-                                Spacer(modifier = Modifier.width(16.dp))
+                            } else {
+                                Text(name, fontSize = 16.sp, fontWeight = FontWeight.Medium, color = contentColor)
                             }
-                            Text(name, fontSize = 16.sp, fontWeight = FontWeight.Medium, color = contentColor)
                         }
                     }
                 }
@@ -906,10 +928,27 @@ fun ChoreCard(
     val isDark = isSystemInDarkTheme()
     val cardBg = if (isDark) Color(0xFF1E1E1E) else Color(0xFFF8F8F8)
     val accentColor = Color(0xFF6B53A4)
+    val contentColor = if (isDark) Color.White else Color.Black
+
+    var showDescriptionDialog by remember { mutableStateOf(false) }
+
+    if (showDescriptionDialog) {
+        AlertDialog(
+            onDismissRequest = { showDescriptionDialog = false },
+            title = { Text(text = title, fontWeight = FontWeight.Bold, color = contentColor) },
+            text = { Text(text = description ?: "Nessuna descrizione disponibile", color = contentColor) },
+            confirmButton = {
+                TextButton(onClick = { showDescriptionDialog = false }) {
+                    Text("Ok", color = accentColor)
+                }
+            },
+            containerColor = if (isDark) Color(0xFF1E1E1E) else Color.White
+        )
+    }
 
     // Può completare se: è aperta a tutti, è assegnata a lui, o è già completata
-    val canToggle = !isCompleted && (assignedToCode.isNullOrBlank() || assignedToCode == "null" || assignedToCode == currentUserCode) 
-                    || isCompleted
+    val canToggle = !isCompleted && (assignedToCode.isNullOrBlank() || assignedToCode == "null" || assignedToCode == currentUserCode)
+            || isCompleted
 
     Row(
         modifier = Modifier
@@ -924,7 +963,7 @@ fun ChoreCard(
                 .size(32.dp)
                 .clip(RoundedCornerShape(10.dp))
                 .background(
-                    if (isCompleted) accentColor 
+                    if (isCompleted) accentColor
                     else if (canToggle) accentColor.copy(alpha = 0.1f)
                     else Color.Gray.copy(alpha = 0.1f)
                 )
@@ -965,16 +1004,30 @@ fun ChoreCard(
             }
         }
 
-        // Tasto per assegnare (mostrato sempre se la faccenda non è completata)
-        if (!isCompleted) {
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            // Tasto per assegnare: mostrato solo se la faccenda non è completata ed è "aperta a tutti" (non ancora assegnata)
+            if (!isCompleted && (assignedToCode.isNullOrBlank() || assignedToCode == "null")) {
+                Icon(
+                    imageVector = Icons.Default.Person,
+                    contentDescription = "Assegna",
+                    tint = accentColor,
+                    modifier = Modifier
+                        .size(28.dp)
+                        .clip(CircleShape)
+                        .clickable { onAssignClick() }
+                        .padding(4.dp)
+                )
+            }
+
+            // Tasto Info
             Icon(
-                imageVector = Icons.Default.Person,
-                contentDescription = "Assegna",
+                imageVector = Icons.Default.Info,
+                contentDescription = "Info",
                 tint = accentColor,
                 modifier = Modifier
                     .size(28.dp)
                     .clip(CircleShape)
-                    .clickable { onAssignClick() }
+                    .clickable { showDescriptionDialog = true }
                     .padding(4.dp)
             )
         }

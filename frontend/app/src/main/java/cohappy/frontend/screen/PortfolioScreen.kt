@@ -13,13 +13,25 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.AttachMoney
+import androidx.compose.material.icons.filled.Build
+import androidx.compose.material.icons.filled.FlashOn
+import androidx.compose.material.icons.filled.Home
+import androidx.compose.material.icons.filled.LocalPizza
+import androidx.compose.material.icons.filled.PlayArrow
+import androidx.compose.material.icons.filled.ShoppingCart
+import androidx.compose.material.icons.filled.Star
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.Text
@@ -31,9 +43,12 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -67,7 +82,7 @@ fun PortfolioScreen(
             transactions = viewModel.getFilteredTransactions(),
             onFilterChange = { viewModel.setFilter(it) },
             onAddClick = { viewModel.openAddDebtSheet() },
-            onSettleClick = { debtId -> viewModel.settleDebt(cleanToken, debtId) }
+            onSettleClick = { debtId, targetUserCode -> viewModel.settleDebt(cleanToken, debtId, targetUserCode) }
         )
 
         if (viewModel.showAddDebtSheet) {
@@ -154,7 +169,7 @@ fun PortfolioScreen(
 
                     Row(
                         modifier = Modifier.fillMaxWidth().horizontalScroll(rememberScrollState()),
-                        horizontalArrangement = Arrangement.spacedBy(8.dp)
+                        horizontalArrangement = Arrangement.spacedBy(12.dp)
                     ) {
                         viewModel.availableRoommates.forEach { roommate ->
                             val isSelected = viewModel.selectedRoommates.contains(roommate.code)
@@ -163,16 +178,22 @@ fun PortfolioScreen(
 
                             Box(
                                 modifier = Modifier
-                                    .clip(RoundedCornerShape(16.dp))
+                                    .widthIn(min = 100.dp)
+                                    .height(48.dp)
+                                    .clip(RoundedCornerShape(24.dp))
                                     .background(pillBg)
                                     .clickable { viewModel.toggleRoommateSelection(roommate.code) }
-                                    .padding(horizontal = 16.dp, vertical = 8.dp)
+                                    .padding(horizontal = 16.dp),
+                                contentAlignment = Alignment.Center
                             ) {
                                 Text(
                                     text = roommate.fullName,
                                     color = pillText,
                                     fontWeight = FontWeight.Bold,
-                                    fontSize = 12.sp
+                                    fontSize = 13.sp,
+                                    textAlign = TextAlign.Center,
+                                    maxLines = 1,
+                                    overflow = TextOverflow.Ellipsis
                                 )
                             }
                         }
@@ -185,21 +206,65 @@ fun PortfolioScreen(
 
                     Row(
                         modifier = Modifier.fillMaxWidth().horizontalScroll(rememberScrollState()),
-                        horizontalArrangement = Arrangement.spacedBy(8.dp)
+                        horizontalArrangement = Arrangement.spacedBy(16.dp)
                     ) {
                         DebtType.values().forEach { categoria ->
                             val isSelected = viewModel.newDebtCategory == categoria
-                            val pillBg = if (isSelected) MaterialTheme.colorScheme.primary else Color.Transparent
-                            val pillText = if (isSelected) MaterialTheme.colorScheme.onPrimary else Color.Gray
+                            val icon = when (categoria) {
+                                DebtType.GROCERIE -> Icons.Default.ShoppingCart
+                                DebtType.BILL -> Icons.Default.FlashOn
+                                DebtType.RENT -> Icons.Default.Home
+                                DebtType.SUBSCRIPTION -> Icons.Default.PlayArrow
+                                DebtType.DELIVERY_AND_EATING_OUT -> Icons.Default.LocalPizza
+                                DebtType.MAINTENANCE -> Icons.Default.Build
+                                DebtType.ENTERTAINMENT -> Icons.Default.Star
+                                DebtType.OTHER -> Icons.Default.AttachMoney
+                                else -> Icons.Default.AttachMoney
+                            }
 
-                            Box(
-                                modifier = Modifier
-                                    .clip(RoundedCornerShape(16.dp))
-                                    .background(pillBg)
-                                    .clickable { viewModel.updateNewDebtCategory(categoria) }
-                                    .padding(horizontal = 16.dp, vertical = 8.dp)
+                            val backgroundBrush = if (isSelected) {
+                                Brush.radialGradient(
+                                    colors = listOf(
+                                        MaterialTheme.colorScheme.primary.copy(alpha = 0.7f),
+                                        MaterialTheme.colorScheme.primary
+                                    )
+                                )
+                            } else {
+                                Brush.linearGradient(
+                                    colors = listOf(
+                                        Color.Gray.copy(alpha = 0.1f),
+                                        Color.Gray.copy(alpha = 0.1f)
+                                    )
+                                )
+                            }
+                            val iconColor = if (isSelected) MaterialTheme.colorScheme.onPrimary else Color.Gray
+
+                            Column(
+                                horizontalAlignment = Alignment.CenterHorizontally,
+                                modifier = Modifier.clickable { viewModel.updateNewDebtCategory(categoria) }
                             ) {
-                                Text(text = categoria.name.replace("_", " ").lowercase().replaceFirstChar { it.uppercase() }, color = pillText, fontWeight = FontWeight.Bold, fontSize = 12.sp)
+                                Box(
+                                    modifier = Modifier
+                                        .size(64.dp)
+                                        .clip(CircleShape)
+                                        .background(backgroundBrush),
+                                    contentAlignment = Alignment.Center
+                                ) {
+                                    Icon(
+                                        imageVector = icon,
+                                        contentDescription = null,
+                                        tint = iconColor,
+                                        modifier = Modifier.size(32.dp)
+                                    )
+                                }
+                                Spacer(modifier = Modifier.height(6.dp))
+                                Text(
+                                    text = categoria.name.replace("_", " ").lowercase().replaceFirstChar { it.uppercase() },
+                                    color = if (isSelected) MaterialTheme.colorScheme.primary else Color.Gray,
+                                    fontSize = 11.sp,
+                                    fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Medium,
+                                    textAlign = TextAlign.Center
+                                )
                             }
                         }
                     }
