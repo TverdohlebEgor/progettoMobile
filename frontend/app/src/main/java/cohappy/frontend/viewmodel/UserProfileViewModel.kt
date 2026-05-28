@@ -92,6 +92,40 @@ class UserProfileViewModel : ViewModel() {
                 val result = repository.joinHouse(codicePulito, tokenPulito)
 
                 if (result.isSuccess) {
+                    // Quando l'utente entra in una casa, creiamo una chat privata con ogni coinquilino
+                    try {
+                        val houseRes = cohappy.frontend.client.ClientSingleton.houseApi.getHouse(codicePulito)
+                        if (houseRes.isSuccessful) {
+                            val house = houseRes.body()
+                            val roommates = (house?.admins.orEmpty() + house?.users.orEmpty()).distinct()
+
+                            val chatRepository = cohappy.frontend.repository.ChatListRepository()
+
+                            for (roommateCode in roommates) {
+                                val cleanRoommateCode = roommateCode.replace("\"", "").trim()
+                                if (cleanRoommateCode == tokenPulito) continue
+
+                                // Recuperiamo il profilo del coinquilino per dare un nome alla chat
+                                val rProfileRes = repository.fetchUserProfile(cleanRoommateCode)
+                                val rProfile = rProfileRes.getOrNull()
+                                val chatName = if (rProfile != null) {
+                                    "${rProfile.name ?: ""} ${rProfile.surname ?: ""}".trim()
+                                } else {
+                                    "Chat con ${cleanRoommateCode.take(5)}"
+                                }
+
+                                chatRepository.createChat(
+                                    cohappy.frontend.client.dto.request.CreateChatDTO(
+                                        participating = listOf(tokenPulito, cleanRoommateCode),
+                                        name = chatName.ifBlank { "Coinquilino" }
+                                    )
+                                )
+                            }
+                        }
+                    } catch (e: Exception) {
+                        Log.e("UserProfileVM", "Errore creazione chat automatiche", e)
+                    }
+
                     joinedHouseCode = codicePulito
                     navigateToHouse = true
                 } else {

@@ -50,7 +50,7 @@ class ChoreViewModel(
     fun onDateSelected(date: LocalDate, userToken: String) {
         val oldDate = selectedDate
         selectedDate = date
-        
+
         val hCode = houseCode
         if (hCode != null) {
             viewModelScope.launch {
@@ -83,12 +83,12 @@ class ChoreViewModel(
                         nomeUtente = userData.name ?: "Utente"
                         currentUserCode = userData.userCode
                         houseCode = userData.houseCode
-                        
+
                         val hCode = houseCode
                         if (!hCode.isNullOrBlank()) {
                             // Avviamo il caricamento dei giorni impegnati in parallelo (non blocca le faccende)
                             launch { loadDaysWithChores(hCode) }
-                            
+
                             // Carichiamo prima i coinquilini, poi le faccende per avere i nomi corretti
                             loadHouseRoommates(hCode)
                             refreshChoresInternal(hCode)
@@ -252,7 +252,7 @@ class ChoreViewModel(
         val TAG = "ChoreViewModel"
         Log.d(TAG, "--- INIZIO PROCESSO CREAZIONE FACCENDA ---")
         Log.d(TAG, "Dati ricevuti: nome='$name', desc='$description', numero_date=${dates?.size}, assegnato_a='$assignedTo', ricorsiva=$isRecursive")
-        
+
         isLoading = true
         viewModelScope.launch {
             try {
@@ -282,7 +282,7 @@ class ChoreViewModel(
                         val expanded = mutableListOf<LocalDate>()
                         val baseDate = LocalDate.now()
                         val limitDate = baseDate.plusMonths(6)
-                        
+
                         dates.forEach { startDate ->
                             var current = startDate
                             // Se la data selezionata è nel passato, partiamo da oggi o dalla prossima occorrenza
@@ -303,7 +303,7 @@ class ChoreViewModel(
                     // Se l'utente ha selezionato qualcuno (assignedTo), usiamo quello per tutte le date.
                     // Se è una faccenda singola (non ricorsiva) e non ha scelto nessuno, usiamo il creatore.
                     // Se è una faccenda ricorsiva (di casa) e non ha scelto nessuno, la lasciamo "Aperta a tutti" ("null").
-                    
+
                     val assignmentMap = if (!finalDates.isNullOrEmpty()) {
                         val map = mutableMapOf<LocalDate, String>()
                         finalDates.forEach { date ->
@@ -330,7 +330,7 @@ class ChoreViewModel(
 
                     Log.d(TAG, "INVIO RICHIESTA AL SERVER -> POST /api/chore/create")
                     Log.d(TAG, "Payload: $request")
-                    
+
                     val response = repository.createChore(request)
                     if (response.isSuccessful) {
                         Log.d(TAG, "SERVER SUCCESS: Faccenda creata correttamente")

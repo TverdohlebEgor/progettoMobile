@@ -91,7 +91,7 @@ fun PortfolioView(
     transactions: List<PortfolioTransaction>,
     onFilterChange: (String) -> Unit,
     onAddClick: () -> Unit = {},
-    onSettleClick: (String) -> Unit = {}
+    onSettleClick: (String, String?) -> Unit = { _, _ -> }
 ) {
     val isDark = isSystemInDarkTheme()
     val bgColor = if (isDark) Color.Black else Color.White
@@ -172,7 +172,7 @@ fun PortfolioView(
                         items(transactions) { tx ->
                             TransactionItem(
                                 transaction = tx,
-                                onSettleClick = { tx.myDebtId?.let { onSettleClick(it) } },
+                                onSettleClick = { userCode -> onSettleClick(tx.id, userCode) },
                             )
                         }
                     }
@@ -239,7 +239,7 @@ fun FilterPill(
 @Composable
 fun TransactionItem(
     transaction: PortfolioTransaction,
-    onSettleClick: () -> Unit = {},
+    onSettleClick: (String?) -> Unit = {},
     isInitiallyExpanded: Boolean = false,
     modifier: Modifier = Modifier
 ) {
@@ -397,12 +397,25 @@ fun TransactionItem(
 
                             if (!share.isPaid) {
                                 val shareAmount = String.format(LocalLocale.current.platformLocale, "%.2f", share.amount).replace(".", ",")
-                                Text(
-                                    text = "$shareAmount €",
-                                    color = titleColor.copy(alpha = 0.8f),
-                                    fontWeight = FontWeight.Medium,
-                                    fontSize = 14.sp
-                                )
+                                Row(verticalAlignment = Alignment.CenterVertically) {
+                                    Text(
+                                        text = "$shareAmount €",
+                                        color = titleColor.copy(alpha = 0.8f),
+                                        fontWeight = FontWeight.Medium,
+                                        fontSize = 14.sp
+                                    )
+                                    if (!transaction.isDebt) {
+                                        Spacer(modifier = Modifier.width(8.dp))
+                                        Icon(
+                                            imageVector = Icons.Default.CheckCircle,
+                                            contentDescription = "Saldato",
+                                            tint = Color(0xFF34D399).copy(alpha = 0.6f),
+                                            modifier = Modifier
+                                                .size(20.dp)
+                                                .clickable { onSettleClick(share.userCode) }
+                                        )
+                                    }
+                                }
                             }
                         }
                     }
@@ -410,7 +423,7 @@ fun TransactionItem(
                     if (transaction.isDebt && !isPaid) {
                         Spacer(modifier = Modifier.height(16.dp))
                         Button(
-                            onClick = onSettleClick,
+                            onClick = { onSettleClick(null) },
                             modifier = Modifier.fillMaxWidth(),
                             colors = ButtonDefaults.buttonColors(
                                 containerColor = Color(0xFF34D399),

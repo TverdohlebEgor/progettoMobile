@@ -117,13 +117,13 @@ fun ChoresView(
 
     var calendarMode by remember { mutableStateOf(initialCalendarMode) }
     val listState = rememberLazyListState()
-    
+
     var showAddMenu by remember { mutableStateOf(false) }
     var showCreateSheet by remember { mutableStateOf(false) }
     var isRecursiveCreation by remember { mutableStateOf(false) }
-    
+
     var choreToAssign by remember { mutableStateOf<String?>(null) }
-    
+
     val scope = rememberCoroutineScope()
 
     if (showCreateSheet) {
@@ -224,9 +224,9 @@ fun ChoresView(
                                         .size(28.dp)
                                         .clip(CircleShape)
                                         .clickable {
-                                            val newDate = if (calendarMode == CalendarMode.WEEK) 
-                                                selectedDate.minusWeeks(1) 
-                                            else 
+                                            val newDate = if (calendarMode == CalendarMode.WEEK)
+                                                selectedDate.minusWeeks(1)
+                                            else
                                                 selectedDate.minusMonths(1)
                                             onDateSelected(newDate)
                                         }
@@ -248,9 +248,9 @@ fun ChoresView(
                                         .size(28.dp)
                                         .clip(CircleShape)
                                         .clickable {
-                                            val newDate = if (calendarMode == CalendarMode.WEEK) 
-                                                selectedDate.plusWeeks(1) 
-                                            else 
+                                            val newDate = if (calendarMode == CalendarMode.WEEK)
+                                                selectedDate.plusWeeks(1)
+                                            else
                                                 selectedDate.plusMonths(1)
                                             onDateSelected(newDate)
                                         }
@@ -406,14 +406,14 @@ fun ChoresView(
                                     color = contentColor
                                 )
                                 Spacer(modifier = Modifier.height(24.dp))
-                                
+
                                 // Opzione 1: Faccenda Singola
                                 Box(
                                     modifier = Modifier
                                         .fillMaxWidth()
                                         .clip(RoundedCornerShape(16.dp))
                                         .background(if (isDark) Color.Black.copy(alpha = 0.4f) else Color(0xFFF5F5F5))
-                                        .clickable { 
+                                        .clickable {
                                             showAddMenu = false
                                             isRecursiveCreation = false
                                             showCreateSheet = true
@@ -429,16 +429,16 @@ fun ChoresView(
                                         }
                                     }
                                 }
-                                
+
                                 Spacer(modifier = Modifier.height(12.dp))
-                                
+
                                 // Opzione 2: Faccenda di Casa (ex ricorsiva)
                                 Box(
                                     modifier = Modifier
                                         .fillMaxWidth()
                                         .clip(RoundedCornerShape(16.dp))
                                         .background(if (isDark) Color.Black.copy(alpha = 0.4f) else Color(0xFFF5F5F5))
-                                        .clickable { 
+                                        .clickable {
                                             showAddMenu = false
                                             isRecursiveCreation = true
                                             showCreateSheet = true
@@ -481,7 +481,7 @@ fun CreateChoreSheet(
     var selectedDate by remember { mutableStateOf(LocalDate.now()) }
     var selectedDays by remember { mutableStateOf(setOf<DayOfWeek>()) }
     var selectedUserCode by remember { mutableStateOf<String?>(null) }
-    
+
     var showDatePicker by remember { mutableStateOf(false) }
     var showUserPicker by remember { mutableStateOf(false) }
 
@@ -657,7 +657,7 @@ fun CreateChoreSheet(
         ) {
             Text("Crea Faccenda", fontWeight = FontWeight.Black, fontSize = 18.sp)
         }
-        
+
         Spacer(modifier = Modifier.height(40.dp))
     }
 
@@ -947,8 +947,8 @@ fun ChoreCard(
     }
 
     // Può completare se: è aperta a tutti, è assegnata a lui, o è già completata
-    val canToggle = !isCompleted && (assignedToCode.isNullOrBlank() || assignedToCode == "null" || assignedToCode == currentUserCode) 
-                    || isCompleted
+    val canToggle = !isCompleted && (assignedToCode.isNullOrBlank() || assignedToCode == "null" || assignedToCode == currentUserCode)
+            || isCompleted
 
     Row(
         modifier = Modifier
@@ -963,7 +963,7 @@ fun ChoreCard(
                 .size(32.dp)
                 .clip(RoundedCornerShape(10.dp))
                 .background(
-                    if (isCompleted) accentColor 
+                    if (isCompleted) accentColor
                     else if (canToggle) accentColor.copy(alpha = 0.1f)
                     else Color.Gray.copy(alpha = 0.1f)
                 )

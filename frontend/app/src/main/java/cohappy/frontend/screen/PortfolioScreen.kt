@@ -82,7 +82,7 @@ fun PortfolioScreen(
             transactions = viewModel.getFilteredTransactions(),
             onFilterChange = { viewModel.setFilter(it) },
             onAddClick = { viewModel.openAddDebtSheet() },
-            onSettleClick = { debtId -> viewModel.settleDebt(cleanToken, debtId) }
+            onSettleClick = { debtId, targetUserCode -> viewModel.settleDebt(cleanToken, debtId, targetUserCode) }
         )
 
         if (viewModel.showAddDebtSheet) {

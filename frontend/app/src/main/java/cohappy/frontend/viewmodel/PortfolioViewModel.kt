@@ -129,20 +129,22 @@ class PortfolioViewModel(
                         val debtors = debt.debtorsUserCode ?: emptyMap()
                         val amount = (debt.amount ?: 0f).toDouble()
                         
+                        // Puliamo le chiavi della mappa debtors
+                        val cleanDebtors = debtors.mapKeys { it.key.clean() }
+                        
                         // CHI HA PAGATO VEDE IL + (Creditor)
                         if (creditor == actualUserCode) {
-                            val share = if (debtors.isNotEmpty()) amount / debtors.size else 0.0
-                            val shares = debtors.map { (dCode, paid) ->
+                            val share = if (cleanDebtors.isNotEmpty()) amount / cleanDebtors.size else amount
+                            val shares = cleanDebtors.map { (dCode, paid) ->
                                 TransactionShare(
-                                    userCode = dCode.clean(),
-                                    userName = roommatesMap[dCode.clean()] ?: "Utente ${dCode.take(4)}",
+                                    userCode = dCode,
+                                    userName = roommatesMap[dCode] ?: "Utente ${dCode.take(4)}",
                                     amount = share,
                                     isPaid = paid
                                 )
                             }
 
-                            // Vedo come saldo solo quello che mi devono ancora
-                            val totalCreditAmount = shares.sumOf { it.amount }
+                            val totalRemainingCredit = shares.filter { !it.isPaid }.sumOf { it.amount }
                             val allPaid = shares.isNotEmpty() && shares.all { it.isPaid }
 
                             mappedList.add(
@@ -151,7 +153,7 @@ class PortfolioViewModel(
                                     isDebt = false, // Segno +
                                     title = debt.description ?: "Credito",
                                     subtitle = if (shares.size == 1) "Da ${shares[0].userName}" else "Da ${shares.size} persone",
-                                    amount = totalCreditAmount,
+                                    amount = if (allPaid) amount else totalRemainingCredit,
                                     category = debt.debtType,
                                     shares = shares,
                                     beneficiaryName = "Tu",
@@ -161,15 +163,15 @@ class PortfolioViewModel(
                             )
                         } 
                         // CHI DEVE PAGARE VEDE IL - (Debtor)
-                        else if (debtors.containsKey(actualUserCode)) {
-                            val hasPaid = debtors[actualUserCode] ?: false
+                        else if (cleanDebtors.containsKey(actualUserCode)) {
+                            val hasPaid = cleanDebtors[actualUserCode] ?: false
                             val creditorName = roommatesMap[creditor] ?: "Utente ${creditor.take(4)}"
-                            val sharePerPerson = if (debtors.isNotEmpty()) amount / debtors.size else amount
+                            val sharePerPerson = if (cleanDebtors.isNotEmpty()) amount / cleanDebtors.size else amount
                             
-                            val shares = debtors.map { (dCode, paid) ->
+                            val shares = cleanDebtors.map { (dCode, paid) ->
                                 TransactionShare(
-                                    userCode = dCode.clean(),
-                                    userName = roommatesMap[dCode.clean()] ?: "Utente ${dCode.take(4)}",
+                                    userCode = dCode,
+                                    userName = roommatesMap[dCode] ?: "Utente ${dCode.take(4)}",
                                     amount = sharePerPerson,
                                     isPaid = paid
                                 )
@@ -298,12 +300,13 @@ class PortfolioViewModel(
         }
     }
 
-    fun settleDebt(userToken: String, debtId: String) {
+    fun settleDebt(userToken: String, debtId: String, targetUserCode: String? = null) {
         if (isSettlingDebt) return
         isSettlingDebt = true
         viewModelScope.launch {
             try {
-                val result = repository.patchDebtPaid(debtId, currentUserCode, true)
+                val userToSettle = targetUserCode ?: currentUserCode
+                val result = repository.patchDebtPaid(debtId, userToSettle, true)
                 if (result.isSuccess) {
                     loadPortfolio(userToken)
                 }
