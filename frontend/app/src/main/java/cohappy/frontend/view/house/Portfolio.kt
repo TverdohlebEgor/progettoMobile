@@ -50,6 +50,7 @@ import androidx.compose.material.icons.filled.Star
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Surface
@@ -80,16 +81,19 @@ import cohappy.frontend.components.Titoli
 import cohappy.frontend.viewmodel.PortfolioTransaction
 import cohappy.frontend.viewmodel.TransactionShare
 
-@OptIn(ExperimentalFoundationApi::class)
+@OptIn(ExperimentalFoundationApi::class, ExperimentalMaterial3Api::class)
 @Composable
 fun PortfolioView(
+    modifier: Modifier = Modifier,
     userToken: String = "",
     isLoading: Boolean,
+    isRefreshing: Boolean = false,
     totalDebts: Double,
     totalCredits: Double,
     activeFilter: String,
     transactions: List<PortfolioTransaction>,
     onFilterChange: (String) -> Unit,
+    onRefresh: () -> Unit = {},
     onAddClick: () -> Unit = {},
     onSettleClick: (String, String?) -> Unit = { _, _ -> }
 ) {
@@ -97,94 +101,100 @@ fun PortfolioView(
     val bgColor = if (isDark) Color.Black else Color.White
     val contentColor = if (isDark) Color.White else Color.Black
 
-    Surface(modifier = Modifier.fillMaxSize(), color = bgColor, contentColor = contentColor) {
+    Surface(modifier = modifier.fillMaxSize(), color = bgColor, contentColor = contentColor) {
         if (isLoading) {
             Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
                 CircularProgressIndicator(color = Color(0xFF6B53A4))
             }
         } else {
-            Box(modifier = Modifier.fillMaxSize()) {
-                LazyColumn(
-                    modifier = Modifier.fillMaxSize(),
-                    contentPadding = PaddingValues(bottom = 120.dp),
-                    verticalArrangement = Arrangement.spacedBy(12.dp)
-                ) {
-                    item {
-                        Column(modifier = Modifier.padding(horizontal = 24.dp)) {
-                            Titoli(
-                                titolo1 = "Spese",
-                                color = contentColor
-                            )
-
-                            Spacer(modifier = Modifier.height(8.dp))
-
-                            FlipBalanceCard(
-                                totalDebts = totalDebts,
-                                totalCredits = totalCredits
-                            )
-
-                            Spacer(modifier = Modifier.height(12.dp))
-                        }
-                    }
-
-                    stickyHeader {
-                        Surface(
-                            color = bgColor,
-                            modifier = Modifier.fillMaxWidth()
-                        ) {
-                            Row(
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .horizontalScroll(rememberScrollState())
-                                    .padding(horizontal = 24.dp, vertical = 8.dp),
-                                horizontalArrangement = Arrangement.spacedBy(8.dp)
-                            ) {
-                                FilterPill(
-                                    text = "Tutte le spese",
-                                    isSelected = activeFilter == "ALL",
-                                    onClick = { onFilterChange("ALL") }
-                                )
-                                FilterPill(
-                                    text = "Da saldare",
-                                    icon = Icons.Default.ArrowDownward,
-                                    iconTint = Color(0xFFFF6961),
-                                    isSelected = activeFilter == "DEBTS",
-                                    onClick = { onFilterChange("DEBTS") }
-                                )
-                                FilterPill(
-                                    text = "Crediti",
-                                    icon = Icons.Default.ArrowUpward,
-                                    iconTint = Color(0xFF34D399),
-                                    isSelected = activeFilter == "CREDITS",
-                                    onClick = { onFilterChange("CREDITS") }
-                                )
-                            }
-                        }
-                    }
-
-                    if (transactions.isEmpty()) {
+            androidx.compose.material3.pulltorefresh.PullToRefreshBox(
+                isRefreshing = isRefreshing,
+                onRefresh = onRefresh,
+                modifier = Modifier.fillMaxSize()
+            ) {
+                Box(modifier = Modifier.fillMaxSize()) {
+                    LazyColumn(
+                        modifier = Modifier.fillMaxSize(),
+                        contentPadding = PaddingValues(bottom = 120.dp),
+                        verticalArrangement = Arrangement.spacedBy(12.dp)
+                    ) {
                         item {
-                            Box(modifier = Modifier.fillMaxWidth().padding(32.dp), contentAlignment = Alignment.Center) {
-                                Text("Nessuna spesa trovata", color = Color.Gray, fontSize = 16.sp)
+                            Column(modifier = Modifier.padding(horizontal = 24.dp)) {
+                                Titoli(
+                                    titolo1 = "Spese",
+                                    color = contentColor
+                                )
+
+                                Spacer(modifier = Modifier.height(8.dp))
+
+                                FlipBalanceCard(
+                                    totalDebts = totalDebts,
+                                    totalCredits = totalCredits
+                                )
+
+                                Spacer(modifier = Modifier.height(12.dp))
                             }
                         }
-                    } else {
-                        items(transactions) { tx ->
-                            TransactionItem(
-                                transaction = tx,
-                                onSettleClick = { userCode -> onSettleClick(tx.id, userCode) },
-                            )
+
+                        stickyHeader {
+                            Surface(
+                                color = bgColor,
+                                modifier = Modifier.fillMaxWidth()
+                            ) {
+                                Row(
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .horizontalScroll(rememberScrollState())
+                                        .padding(horizontal = 24.dp, vertical = 8.dp),
+                                    horizontalArrangement = Arrangement.spacedBy(8.dp)
+                                ) {
+                                    FilterPill(
+                                        text = "Tutte le spese",
+                                        isSelected = activeFilter == "ALL",
+                                        onClick = { onFilterChange("ALL") }
+                                    )
+                                    FilterPill(
+                                        text = "Da saldare",
+                                        icon = Icons.Default.ArrowDownward,
+                                        iconTint = Color(0xFFFF6961),
+                                        isSelected = activeFilter == "DEBTS",
+                                        onClick = { onFilterChange("DEBTS") }
+                                    )
+                                    FilterPill(
+                                        text = "Crediti",
+                                        icon = Icons.Default.ArrowUpward,
+                                        iconTint = Color(0xFF34D399),
+                                        isSelected = activeFilter == "CREDITS",
+                                        onClick = { onFilterChange("CREDITS") }
+                                    )
+                                }
+                            }
+                        }
+
+                        if (transactions.isEmpty()) {
+                            item {
+                                Box(modifier = Modifier.fillMaxWidth().padding(32.dp), contentAlignment = Alignment.Center) {
+                                    Text("Nessuna spesa trovata", color = Color.Gray, fontSize = 16.sp)
+                                }
+                            }
+                        } else {
+                            items(transactions) { tx ->
+                                TransactionItem(
+                                    transaction = tx,
+                                    onSettleClick = { userCode -> onSettleClick(tx.id, userCode) },
+                                )
+                            }
                         }
                     }
-                }
 
-                CustomIconButton(
-                    icon = Icons.Default.Add,
-                    onClick = onAddClick,
-                    modifier = Modifier
-                        .align(Alignment.BottomEnd)
-                        .padding(start = 24.dp, bottom = 120.dp, end=24.dp)
-                )
+                    CustomIconButton(
+                        icon = Icons.Default.Add,
+                        onClick = onAddClick,
+                        modifier = Modifier
+                            .align(Alignment.BottomEnd)
+                            .padding(start = 24.dp, bottom = 120.dp, end = 24.dp)
+                    )
+                }
             }
         }
     }

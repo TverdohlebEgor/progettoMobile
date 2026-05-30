@@ -12,10 +12,7 @@ import java.time.LocalDate
 fun ChoresPreviewLoading() {
     ProgettoMobileTheme {
         ChoresView(
-            nomeUtente = "Ale",
-            imageBytes = null,
             isLoading = true,
-            userToken = "my_token",
             selectedDate = LocalDate.now(),
             onDateSelected = {},
             chores = emptyList(),
@@ -31,10 +28,7 @@ fun ChoresPreviewLoading() {
 fun ChoresPreviewEmpty() {
     ProgettoMobileTheme {
         ChoresView(
-            nomeUtente = "Ale",
-            imageBytes = null,
             isLoading = false,
-            userToken = "my_token",
             selectedDate = LocalDate.now(),
             onDateSelected = {},
             chores = emptyList(),
@@ -86,10 +80,7 @@ fun ChoresPreviewPopulated() {
 
     ProgettoMobileTheme {
         ChoresView(
-            nomeUtente = "Ale",
-            imageBytes = null,
             isLoading = false,
-            userToken = "my_token",
             selectedDate = LocalDate.now(),
             onDateSelected = {},
             chores = mockChores,
@@ -122,10 +113,7 @@ fun ChoresPreviewMonthly() {
 
     ProgettoMobileTheme {
         ChoresView(
-            nomeUtente = "Ale",
-            imageBytes = null,
             isLoading = false,
-            userToken = "my_token",
             selectedDate = LocalDate.now(),
             onDateSelected = {},
             chores = mockChores,

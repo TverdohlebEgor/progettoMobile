@@ -10,6 +10,8 @@ import cohappy.frontend.client.dto.enum.DebtType
 import cohappy.frontend.client.dto.request.CreateDebtDTO
 import cohappy.frontend.client.dto.response.DebtDTO
 import cohappy.frontend.repository.PortfolioRepository
+import kotlinx.coroutines.async
+import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.launch
 import java.util.UUID
 
@@ -45,6 +47,8 @@ class PortfolioViewModel(
 
     var isLoading by mutableStateOf(true)
         private set
+    var isRefreshing by mutableStateOf(false)
+        private set
     var totalDebts by mutableStateOf(0.0)
         private set
     var totalCredits by mutableStateOf(0.0)
@@ -76,15 +80,18 @@ class PortfolioViewModel(
 
     private fun String.clean() = this.replace("\"", "").trim()
 
-    fun loadPortfolio(userToken: String) {
-        isLoading = true
+    fun loadPortfolio(userToken: String, isRefresh: Boolean = false) {
+        if (isRefresh) isRefreshing = true else isLoading = true
         viewModelScope.launch {
             try {
                 val tokenPulito = userToken.clean()
                 currentUserCode = tokenPulito
 
-                // 1. Recupero Profilo e Mappa coinquilini
-                val profileRes = repository.fetchUserProfile(tokenPulito)
+                // parallel fetching of user profile and portfolio
+                val profileDeferred = async { repository.fetchUserProfile(tokenPulito) }
+                val portfolioDeferred = async { repository.fetchUserPortfolio(tokenPulito) }
+
+                val profileRes = profileDeferred.await()
                 val myProfile = profileRes.getOrNull()
                 val actualUserCode = (myProfile?.userCode ?: tokenPulito).clean()
                 currentUserCode = actualUserCode
@@ -100,25 +107,33 @@ class PortfolioViewModel(
                     if (houseRes?.isSuccessful == true) {
                         val house = houseRes.body()
                         val allCodes = (house?.admins.orEmpty() + house?.users.orEmpty()).distinct()
-                        for (code in allCodes) {
-                            val c = code.clean()
-                            if (c == actualUserCode) continue
 
-                            val uRes = try { ClientSingleton.userApi.getUserProfile(c) } catch(e: Exception) { null }
-                            if (uRes?.isSuccessful == true) {
-                                val u = uRes.body()
-                                val name = "${u?.name ?: ""} ${u?.surname ?: ""}".trim()
-                                val displayName = if (name.isEmpty()) "Utente ${c.take(4)}" else name
-                                roommatesMap[c] = displayName
-                                roommatesList.add(Roommate(c, displayName))
-                            }
+                        // Parallel fetching of roommates profiles
+                        val roommateDeferreds = allCodes.map { code ->
+                            val c = code.clean()
+                            if (c != actualUserCode) {
+                                async {
+                                    val uRes = try { ClientSingleton.userApi.getUserProfile(c) } catch(e: Exception) { null }
+                                    if (uRes?.isSuccessful == true) {
+                                        val u = uRes.body()
+                                        val name = "${u?.name ?: ""} ${u?.surname ?: ""}".trim()
+                                        val displayName = if (name.isEmpty()) "Utente ${c.take(4)}" else name
+                                        Roommate(c, displayName)
+                                    } else null
+                                }
+                            } else null
+                        }.filterNotNull()
+
+                        val resolvedRoommates = roommateDeferreds.awaitAll().filterNotNull()
+                        resolvedRoommates.forEach { roommate ->
+                            roommatesMap[roommate.code] = roommate.fullName
+                            roommatesList.add(roommate)
                         }
                     }
                 }
                 availableRoommates = roommatesList
 
-                // 2. Recupero Portfolio e Mapping
-                val resultPortfolio = repository.fetchUserPortfolio(tokenPulito)
+                val resultPortfolio = portfolioDeferred.await()
                 val portfolio = resultPortfolio.getOrNull()
                 if (resultPortfolio.isSuccess && portfolio != null) {
                     val rawDebts = portfolio.debts ?: emptyList()
@@ -210,6 +225,7 @@ class PortfolioViewModel(
                 transactions = emptyList()
             } finally {
                 isLoading = false
+                isRefreshing = false
             }
         }
     }

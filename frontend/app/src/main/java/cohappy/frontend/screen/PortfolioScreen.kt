@@ -81,11 +81,13 @@ fun PortfolioScreen(
         PortfolioView(
             userToken = cleanToken,
             isLoading = viewModel.isLoading,
+            isRefreshing = viewModel.isRefreshing,
             totalDebts = viewModel.totalDebts,
             totalCredits = viewModel.totalCredits,
             activeFilter = viewModel.activeFilter,
             transactions = viewModel.getFilteredTransactions(),
             onFilterChange = { viewModel.setFilter(it) },
+            onRefresh = { viewModel.loadPortfolio(cleanToken, isRefresh = true) },
             onAddClick = { viewModel.openAddDebtSheet() },
             onSettleClick = { debtId, targetUserCode -> viewModel.settleDebt(cleanToken, debtId, targetUserCode) }
         )

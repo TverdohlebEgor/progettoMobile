@@ -1,9 +1,9 @@
 package cohappy.frontend.view.house
 
-import androidx.compose.animation.animateContentSize
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -11,7 +11,6 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -22,7 +21,6 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
@@ -31,7 +29,8 @@ import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
-import androidx.compose.material.icons.filled.ArrowForwardIos
+import androidx.compose.material.icons.automirrored.filled.ArrowForwardIos
+import androidx.compose.material3.pulltorefresh.PullToRefreshBox
 import androidx.compose.material.icons.filled.CalendarMonth
 import androidx.compose.material.icons.filled.CalendarToday
 import androidx.compose.material.icons.filled.Check
@@ -39,9 +38,9 @@ import androidx.compose.material.icons.filled.ChevronLeft
 import androidx.compose.material.icons.filled.ChevronRight
 import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.Person
+import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material.icons.filled.ViewWeek
 import androidx.compose.material3.AlertDialog
-import androidx.compose.material3.BottomSheetDefaults
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CircularProgressIndicator
@@ -50,22 +49,18 @@ import androidx.compose.material3.DatePickerDialog
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.LocalTextStyle
-import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.rememberDatePickerState
-import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
@@ -79,7 +74,6 @@ import androidx.compose.ui.window.DialogProperties
 import cohappy.frontend.components.CustomIconButton
 import cohappy.frontend.components.Titoli
 import cohappy.frontend.model.Chore
-import kotlinx.coroutines.launch
 import java.time.DayOfWeek
 import java.time.Instant
 import java.time.LocalDate
@@ -95,12 +89,12 @@ enum class CalendarMode { WEEK, MONTH }
 @OptIn(ExperimentalFoundationApi::class, ExperimentalMaterial3Api::class)
 @Composable
 fun ChoresView(
-    nomeUtente: String,
-    imageBytes: ByteArray?,
+    modifier: Modifier = Modifier,
     isLoading: Boolean,
-    userToken: String,
+    isRefreshing: Boolean = false,
     selectedDate: LocalDate,
     onDateSelected: (LocalDate) -> Unit,
+    onRefresh: () -> Unit = {},
     chores: List<Chore>,
     onChoreToggle: (String, String?, Boolean) -> Unit,
     onAddChoreConfirm: (String, String, List<LocalDate>?, String?, Boolean) -> Unit,
@@ -113,7 +107,7 @@ fun ChoresView(
     val isDark = isSystemInDarkTheme()
     val bgColor = if (isDark) Color.Black else Color.White
     val contentColor = if (isDark) Color.White else Color.Black
-    val cleanToken = userToken.replace("\"", "").trim()
+    val accentColor = Color(0xFF6B53A4)
 
     var calendarMode by remember { mutableStateOf(initialCalendarMode) }
     val listState = rememberLazyListState()
@@ -123,8 +117,6 @@ fun ChoresView(
     var isRecursiveCreation by remember { mutableStateOf(false) }
 
     var choreToAssign by remember { mutableStateOf<String?>(null) }
-
-    val scope = rememberCoroutineScope()
 
     if (showCreateSheet) {
         Dialog(
@@ -143,7 +135,6 @@ fun ChoresView(
                 CreateChoreSheet(
                     isRecursive = isRecursiveCreation,
                     roommates = roommates,
-                    onDismiss = { showCreateSheet = false },
                     onConfirm = { name, desc, date, user ->
                         onAddChoreConfirm(name, desc, date, user, isRecursiveCreation)
                         showCreateSheet = false
@@ -160,18 +151,23 @@ fun ChoresView(
         }
     }
 
-    Surface(modifier = Modifier.fillMaxSize(), color = bgColor, contentColor = contentColor) {
+    Surface(modifier = modifier.fillMaxSize(), color = bgColor, contentColor = contentColor) {
         if (isLoading) {
             Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
                 CircularProgressIndicator(color = Color(0xFF6B53A4))
             }
         } else {
-            Box(modifier = Modifier.fillMaxSize()) {
-                LazyColumn(
-                    state = listState,
-                    modifier = Modifier.fillMaxSize(),
-                    contentPadding = PaddingValues(bottom = 120.dp)
-                ) {
+            PullToRefreshBox(
+                isRefreshing = isRefreshing,
+                onRefresh = onRefresh,
+                modifier = Modifier.fillMaxSize()
+            ) {
+                Box(modifier = Modifier.fillMaxSize()) {
+                    LazyColumn(
+                        state = listState,
+                        modifier = Modifier.fillMaxSize(),
+                        contentPadding = PaddingValues(bottom = 120.dp)
+                    ) {
                     item {
                         Column(
                             modifier = Modifier
@@ -193,22 +189,43 @@ fun ChoresView(
                                     )
                                 }
 
-                                Box(
-                                    modifier = Modifier
-                                        .padding(top = 16.dp)
-                                        .clip(RoundedCornerShape(12.dp))
-                                        .background(if (isDark) Color(0xFF1E1E1E) else Color(0xFFF0F0F0))
-                                        .clickable {
-                                            calendarMode = if (calendarMode == CalendarMode.WEEK) CalendarMode.MONTH else CalendarMode.WEEK
-                                        }
-                                        .padding(8.dp)
+                                Row(
+                                    modifier = Modifier.padding(top = 16.dp),
+                                    horizontalArrangement = Arrangement.spacedBy(8.dp)
                                 ) {
-                                    Icon(
-                                        imageVector = if (calendarMode == CalendarMode.WEEK) Icons.Default.CalendarMonth else Icons.Default.ViewWeek,
-                                        contentDescription = "Toggle Calendar",
-                                        tint = Color(0xFF6B53A4),
-                                        modifier = Modifier.size(24.dp)
-                                    )
+                                    // Pulsante Refresh Manuale
+                                    Box(
+                                        modifier = Modifier
+                                            .clip(RoundedCornerShape(12.dp))
+                                            .background(if (isDark) Color(0xFF1E1E1E) else Color(0xFFF0F0F0))
+                                            .clickable { onRefresh() }
+                                            .padding(8.dp)
+                                    ) {
+                                        Icon(
+                                            imageVector = Icons.Default.Refresh,
+                                            contentDescription = "Refresh",
+                                            tint = Color(0xFF6B53A4),
+                                            modifier = Modifier.size(24.dp)
+                                        )
+                                    }
+
+                                    // Pulsante Toggle Calendario
+                                    Box(
+                                        modifier = Modifier
+                                            .clip(RoundedCornerShape(12.dp))
+                                            .background(if (isDark) Color(0xFF1E1E1E) else Color(0xFFF0F0F0))
+                                            .clickable {
+                                                calendarMode = if (calendarMode == CalendarMode.WEEK) CalendarMode.MONTH else CalendarMode.WEEK
+                                            }
+                                            .padding(8.dp)
+                                    ) {
+                                        Icon(
+                                            imageVector = if (calendarMode == CalendarMode.WEEK) Icons.Default.CalendarMonth else Icons.Default.ViewWeek,
+                                            contentDescription = "Toggle Calendar",
+                                            tint = Color(0xFF6B53A4),
+                                            modifier = Modifier.size(24.dp)
+                                        )
+                                    }
                                 }
                             }
 
@@ -320,7 +337,6 @@ fun ChoresView(
                                 assignedToCode = chore.assignedToCode,
                                 currentUserCode = currentUserCode,
                                 isCompleted = chore.isCompleted,
-                                dayLabel = chore.dayLabel,
                                 onToggleClick = onChoreToggle,
                                 onAssignClick = { choreToAssign = chore.choreCode }
                             )
@@ -337,37 +353,31 @@ fun ChoresView(
                             color = if (isDark) Color(0xFF1E1E1E) else Color.White,
                             tonalElevation = 8.dp
                         ) {
-                            Column(modifier = Modifier.fillMaxWidth().padding(vertical = 16.dp)) {
-                                Text("Assegna a:", modifier = Modifier.padding(16.dp), fontWeight = FontWeight.Bold, fontSize = 20.sp, color = contentColor)
+                            Column(modifier = Modifier.fillMaxWidth().padding(24.dp)) {
+                                Text("Assegna a:", fontWeight = FontWeight.Bold, fontSize = 20.sp, color = contentColor)
+                                Spacer(modifier = Modifier.height(16.dp))
                                 roommates.forEach { (code, name) ->
-                                    Row(
+                                    Box(
                                         modifier = Modifier
                                             .fillMaxWidth()
+                                            .padding(vertical = 6.dp)
+                                            .clip(RoundedCornerShape(16.dp))
+                                            .background(if (isDark) Color.White.copy(alpha = 0.05f) else Color(0xFFF5F5F5))
                                             .clickable {
                                                 onAssignChore(choreToAssign!!, code)
                                                 choreToAssign = null
                                             }
-                                            .padding(horizontal = 24.dp, vertical = 12.dp),
-                                        verticalAlignment = Alignment.CenterVertically
+                                            .padding(16.dp)
                                     ) {
-                                        Box(
-                                            modifier = Modifier
-                                                .widthIn(min = 100.dp)
-                                                .height(48.dp)
-                                                .clip(RoundedCornerShape(24.dp))
-                                                .background(Color(0xFF6B53A4).copy(alpha = 0.15f)),
-                                            contentAlignment = Alignment.Center
-                                        ) {
-                                            Text(
-                                                text = name,
-                                                color = contentColor,
-                                                fontWeight = FontWeight.Bold,
-                                                fontSize = 14.sp,
-                                                textAlign = TextAlign.Center,
-                                                maxLines = 1,
-                                                overflow = TextOverflow.Ellipsis,
-                                                modifier = Modifier.padding(horizontal = 16.dp)
-                                            )
+                                        Row(verticalAlignment = Alignment.CenterVertically) {
+                                            Box(
+                                                modifier = Modifier.size(32.dp).clip(CircleShape).background(accentColor.copy(alpha = 0.2f)),
+                                                contentAlignment = Alignment.Center
+                                            ) {
+                                                Icon(Icons.Default.Person, contentDescription = null, tint = accentColor, modifier = Modifier.size(18.dp))
+                                            }
+                                            Spacer(modifier = Modifier.width(16.dp))
+                                            Text(name, fontWeight = FontWeight.Bold, color = contentColor, fontSize = 16.sp)
                                         }
                                     }
                                 }
@@ -462,13 +472,13 @@ fun ChoresView(
         }
     }
 }
+} // Chiude ChoresView
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun CreateChoreSheet(
     isRecursive: Boolean,
     roommates: List<Pair<String, String>>,
-    onDismiss: () -> Unit,
     onConfirm: (String, String, List<LocalDate>?, String?) -> Unit
 ) {
     val isDark = isSystemInDarkTheme()
@@ -483,7 +493,6 @@ fun CreateChoreSheet(
     var selectedUserCode by remember { mutableStateOf<String?>(null) }
 
     var showDatePicker by remember { mutableStateOf(false) }
-    var showUserPicker by remember { mutableStateOf(false) }
 
     val daysOfWeek = listOf(
         DayOfWeek.MONDAY, DayOfWeek.TUESDAY, DayOfWeek.WEDNESDAY,
@@ -598,14 +607,31 @@ fun CreateChoreSheet(
         Spacer(modifier = Modifier.height(24.dp))
 
         InputFieldLabel("Chi se ne occupa?")
-        val userName = roommates.find { it.first == selectedUserCode }?.second ?: (if (isRecursive) "Aperta a tutti (opzionale)" else "Seleziona coinquilino")
-        SelectorField(
-            text = userName,
-            icon = Icons.Default.Person,
-            onClick = { showUserPicker = true },
-            bgColor = inputBgColor,
-            contentColor = contentColor
-        )
+        Row(
+            modifier = Modifier.fillMaxWidth().horizontalScroll(rememberScrollState()),
+            horizontalArrangement = Arrangement.spacedBy(12.dp)
+        ) {
+            if (isRecursive) {
+                RoommateChip(
+                    name = "Tutti",
+                    isSelected = selectedUserCode == null,
+                    onClick = { selectedUserCode = null },
+                    contentColor = contentColor,
+                    accentColor = accentColor,
+                    unselectedBg = inputBgColor
+                )
+            }
+            roommates.forEach { (code, name) ->
+                RoommateChip(
+                    name = name,
+                    isSelected = selectedUserCode == code,
+                    onClick = { selectedUserCode = code },
+                    contentColor = contentColor,
+                    accentColor = accentColor,
+                    unselectedBg = inputBgColor
+                )
+            }
+        }
 
         if (isRecursive) {
             Spacer(modifier = Modifier.height(12.dp))
@@ -635,7 +661,7 @@ fun CreateChoreSheet(
                 if (nome.isNotBlank()) {
                     val dates = if (isRecursive) {
                         selectedDays.map { day ->
-                            LocalDate.now().with(java.time.temporal.TemporalAdjusters.nextOrSame(day))
+                            LocalDate.now().with(TemporalAdjusters.nextOrSame(day))
                         }
                     } else {
                         listOf(selectedDate)
@@ -679,70 +705,35 @@ fun CreateChoreSheet(
             DatePicker(state = datePickerState)
         }
     }
+}
 
-    if (showUserPicker) {
-        Dialog(onDismissRequest = { showUserPicker = false }) {
-            Surface(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(20.dp),
-                shape = RoundedCornerShape(28.dp),
-                color = if (isDark) Color(0xFF1E1E1E) else Color.White,
-                tonalElevation = 8.dp
-            ) {
-                Column(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(vertical = 16.dp)
-                ) {
-                    Text(
-                        "Assegna a:",
-                        modifier = Modifier.padding(16.dp),
-                        fontWeight = FontWeight.Bold,
-                        fontSize = 20.sp,
-                        color = contentColor
-                    )
-                    roommates.ifEmpty {
-                        listOf("" to "Nessun coinquilino trovato")
-                    }.forEach { (code, name) ->
-                        Row(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .clickable(enabled = code.isNotBlank()) {
-                                    selectedUserCode = code
-                                    showUserPicker = false
-                                }
-                                .padding(horizontal = 24.dp, vertical = 12.dp),
-                            verticalAlignment = Alignment.CenterVertically
-                        ) {
-                            if (code.isNotBlank()) {
-                                Box(
-                                    modifier = Modifier
-                                        .widthIn(min = 100.dp)
-                                        .height(48.dp)
-                                        .clip(RoundedCornerShape(24.dp))
-                                        .background(accentColor.copy(alpha = 0.15f)),
-                                    contentAlignment = Alignment.Center
-                                ) {
-                                    Text(
-                                        text = name,
-                                        color = contentColor,
-                                        fontWeight = FontWeight.Bold,
-                                        fontSize = 14.sp,
-                                        textAlign = TextAlign.Center,
-                                        maxLines = 1,
-                                        overflow = TextOverflow.Ellipsis,
-                                        modifier = Modifier.padding(horizontal = 16.dp)
-                                    )
-                                }
-                            } else {
-                                Text(name, fontSize = 16.sp, fontWeight = FontWeight.Medium, color = contentColor)
-                            }
-                        }
-                    }
-                }
-            }
-        }
+@Composable
+fun RoommateChip(
+    name: String,
+    isSelected: Boolean,
+    onClick: () -> Unit,
+    contentColor: Color,
+    accentColor: Color,
+    unselectedBg: Color
+) {
+    Box(
+        modifier = Modifier
+            .height(48.dp)
+            .widthIn(min = 90.dp)
+            .clip(RoundedCornerShape(24.dp))
+            .background(if (isSelected) accentColor else unselectedBg)
+            .clickable { onClick() }
+            .padding(horizontal = 16.dp),
+        contentAlignment = Alignment.Center
+    ) {
+        Text(
+            text = name,
+            color = if (isSelected) Color.White else contentColor,
+            fontWeight = FontWeight.Bold,
+            fontSize = 14.sp,
+            maxLines = 1,
+            overflow = TextOverflow.Ellipsis
+        )
     }
 }
 
@@ -782,7 +773,7 @@ fun SelectorField(
             Spacer(modifier = Modifier.width(16.dp))
             Text(text = text, color = contentColor, fontSize = 16.sp, fontWeight = FontWeight.Medium)
         }
-        Icon(imageVector = Icons.Default.ArrowForwardIos, contentDescription = null, tint = Color.Gray.copy(alpha = 0.5f), modifier = Modifier.size(16.dp))
+        Icon(imageVector = Icons.AutoMirrored.Filled.ArrowForwardIos, contentDescription = null, tint = Color.Gray.copy(alpha = 0.5f), modifier = Modifier.size(16.dp))
     }
 }
 
@@ -870,13 +861,13 @@ fun MonthlyCalendar(
 
 @Composable
 fun DayItem(
+    modifier: Modifier = Modifier,
     date: LocalDate,
     isSelected: Boolean,
     onDateSelected: () -> Unit,
     hasChores: Boolean = false,
     isToday: Boolean = false,
-    showDayName: Boolean = true,
-    modifier: Modifier = Modifier
+    showDayName: Boolean = true
 ) {
     val isDark = isSystemInDarkTheme()
     Column(
@@ -921,7 +912,6 @@ fun ChoreCard(
     assignedToCode: String?,
     currentUserCode: String,
     isCompleted: Boolean,
-    dayLabel: String,
     onToggleClick: (String, String?, Boolean) -> Unit,
     onAssignClick: () -> Unit = {}
 ) {

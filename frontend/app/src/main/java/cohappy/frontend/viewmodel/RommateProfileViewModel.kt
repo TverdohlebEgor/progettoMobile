@@ -37,6 +37,8 @@ class RommateProfileViewModel : ViewModel() {
         private set
     var hasLeftHouse by mutableStateOf(false)
         private set
+    var leaveHouseError by mutableStateOf<String?>(null)
+        private set
 
     var showRoommatesPopup by mutableStateOf(false)
         private set
@@ -140,15 +142,32 @@ class RommateProfileViewModel : ViewModel() {
 
     fun leaveHouse(userToken: String, houseCode: String) {
         viewModelScope.launch {
+            leaveHouseError = null
             try {
                 val tokenPulito = userToken.replace("\"", "").trim()
+
+                // 1. Controlla se ci sono debiti o crediti residui
+                val debtResponse = ClientSingleton.portfolioApi.getUserTotalDebt(tokenPulito)
+                if (debtResponse.isSuccessful) {
+                    val balance = debtResponse.body() ?: 0f
+                    if (balance != 0f) {
+                        leaveHouseError = "Non puoi uscire dalla casa finché il tuo bilancio non è in pari (Attuale: ${String.format(java.util.Locale.getDefault(), "%.2f", balance)}€)"
+                        return@launch
+                    }
+                }
+
+                // 2. Se il bilancio è 0, procedi con l'uscita
                 val activeCode = currentHouseCode.ifBlank { houseCode }
                 val dto = RemoveUserDTO(houseCode = activeCode, userCode = tokenPulito)
                 val response = ClientSingleton.houseApi.removeUser(dto)
                 if (response.isSuccessful) {
                     hasLeftHouse = true
+                } else {
+                    leaveHouseError = "Errore durante l'operazione di uscita"
                 }
-            } catch (e: Exception) {}
+            } catch (e: Exception) {
+                leaveHouseError = "Errore di rete durante l'operazione di uscita"
+            }
         }
     }
 

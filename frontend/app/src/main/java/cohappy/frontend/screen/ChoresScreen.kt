@@ -18,12 +18,11 @@ fun ChoresScreen(
     }
 
     ChoresView(
-        nomeUtente = viewModel.nomeUtente,
-        imageBytes = null,
         isLoading = viewModel.isLoading,
-        userToken = userToken,
+        isRefreshing = viewModel.isRefreshing,
         selectedDate = viewModel.selectedDate,
         onDateSelected = { viewModel.onDateSelected(it, userToken) },
+        onRefresh = { viewModel.refreshData(userToken) },
         chores = viewModel.chores,
         daysWithChores = viewModel.daysWithChores,
         onChoreToggle = { choreCode, assignedToUser, newStatus ->

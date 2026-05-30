@@ -24,6 +24,9 @@ class ChoreViewModel(
     var isLoading by mutableStateOf(false)
         private set
 
+    var isRefreshing by mutableStateOf(false)
+        private set
+
     var nomeUtente by mutableStateOf("Caricamento...")
         private set
 
@@ -54,9 +57,14 @@ class ChoreViewModel(
         val hCode = houseCode
         if (hCode != null) {
             viewModelScope.launch {
-                refreshChoresInternal(hCode)
-                if (oldDate.month != date.month || oldDate.year != date.year) {
-                    loadDaysWithChores(hCode)
+                isRefreshing = true
+                try {
+                    refreshChoresInternal(hCode)
+                    if (oldDate.month != date.month || oldDate.year != date.year) {
+                        loadDaysWithChores(hCode)
+                    }
+                } finally {
+                    isRefreshing = false
                 }
             }
         } else {
@@ -64,9 +72,32 @@ class ChoreViewModel(
         }
     }
 
-    fun loadUserData(userToken: String) {
+    fun refreshData(userToken: String) {
+        val hCode = houseCode
+        if (hCode == null) {
+            loadUserData(userToken, isRefresh = true)
+        } else {
+            viewModelScope.launch {
+                isRefreshing = true
+                try {
+                    coroutineScope {
+                        val choresJob = async { refreshChoresInternal(hCode) }
+                        val daysJob = async { loadDaysWithChores(hCode) }
+                        val roommatesJob = async { loadHouseRoommates(hCode) }
+                        awaitAll(choresJob, daysJob, roommatesJob)
+                    }
+                } catch (e: Exception) {
+                    Log.e("ChoreViewModel", "Errore durante il refresh dei dati", e)
+                } finally {
+                    isRefreshing = false
+                }
+            }
+        }
+    }
+
+    fun loadUserData(userToken: String, isRefresh: Boolean = false) {
         loadUserJob?.cancel()
-        isLoading = true
+        if (isRefresh) isRefreshing = true else isLoading = true
         loadUserJob = viewModelScope.launch {
             try {
                 val cleanToken = userToken.replace("\"", "").trim()
@@ -109,6 +140,7 @@ class ChoreViewModel(
                 chores = emptyList()
             } finally {
                 isLoading = false
+                isRefreshing = false
             }
         }
     }

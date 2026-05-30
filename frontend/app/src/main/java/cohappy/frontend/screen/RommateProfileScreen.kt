@@ -29,7 +29,6 @@ fun RommateProfileScreen(
     viewModel: RommateProfileViewModel = viewModel()
 ) {
     val context = LocalContext.current
-    val coroutineScope = rememberCoroutineScope()
 
     val photoPickerLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.PickVisualMedia()
@@ -60,6 +59,12 @@ fun RommateProfileScreen(
         }
     }
 
+    LaunchedEffect(viewModel.leaveHouseError) {
+        viewModel.leaveHouseError?.let { error ->
+            Toast.makeText(context, error, Toast.LENGTH_LONG).show()
+        }
+    }
+
     HouseProfileView(
         userName = viewModel.userName,
         userSurname = viewModel.userSurname,
@@ -80,27 +85,7 @@ fun RommateProfileScreen(
             )
         },
         onLeaveHouseClick = {
-            coroutineScope.launch {
-                try {
-                    val tokenPulito = userToken.replace("\"", "").trim()
-                    val activeCode = viewModel.currentHouseCode.ifBlank { houseCode }
-                    val dto = RemoveUserDTO(houseCode = activeCode, userCode = tokenPulito)
-
-                    val response = withContext(Dispatchers.IO) {
-                        ClientSingleton.houseApi.removeUser(dto)
-                    }
-
-
-                    if (response.isSuccessful) {
-                        onLeaveHouseSuccess()
-                    } else {
-
-                        Toast.makeText(context, "Impossibile uscire. Errore: ${response.code()}", Toast.LENGTH_SHORT).show()
-                    }
-                } catch (e: Exception) {
-                    Toast.makeText(context, "Nessuna connessione al server", Toast.LENGTH_SHORT).show()
-                }
-            }
+            viewModel.leaveHouse(userToken, houseCode)
         },
         onLogoutClick = onLogoutClick,
         onRoommatesClick = {

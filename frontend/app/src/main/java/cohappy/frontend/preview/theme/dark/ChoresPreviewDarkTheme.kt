@@ -53,10 +53,7 @@ private val mockRoommatesDark = listOf(
 fun ChoresDarkPreviewLoading() {
     ProgettoMobileTheme {
         ChoresView(
-            nomeUtente = "Ale",
-            imageBytes = null,
             isLoading = true,
-            userToken = "my_token",
             selectedDate = LocalDate.now(),
             onDateSelected = {},
             chores = emptyList(),
@@ -76,10 +73,7 @@ fun ChoresDarkPreviewLoading() {
 fun ChoresDarkPreviewEmpty() {
     ProgettoMobileTheme {
         ChoresView(
-            nomeUtente = "Ale",
-            imageBytes = null,
             isLoading = false,
-            userToken = "my_token",
             selectedDate = LocalDate.now(),
             onDateSelected = {},
             chores = emptyList(),
@@ -99,10 +93,7 @@ fun ChoresDarkPreviewEmpty() {
 fun ChoresDarkPreviewPopulated() {
     ProgettoMobileTheme {
         ChoresView(
-            nomeUtente = "Ale",
-            imageBytes = null,
             isLoading = false,
-            userToken = "my_token",
             selectedDate = LocalDate.now(),
             onDateSelected = {},
             chores = mockChoresDark,
@@ -127,10 +118,7 @@ fun ChoresDarkPreviewPopulated() {
 fun ChoresDarkPreviewMonthly() {
     ProgettoMobileTheme {
         ChoresView(
-            nomeUtente = "Ale",
-            imageBytes = null,
             isLoading = false,
-            userToken = "my_token",
             selectedDate = LocalDate.now(),
             onDateSelected = {},
             chores = mockChoresDark,
