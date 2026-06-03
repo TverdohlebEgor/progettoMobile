@@ -56,7 +56,6 @@ fun RoommateProfilePreviewCodeError() {
             isLoading = false,
             houseAddress = "Via Garibaldi 12",
             houseCode = "COH-1234",
-            codeUpdateError = "Questo codice è già in uso!",
             hasExistingAd = false
         )
     }

@@ -72,13 +72,8 @@ fun RommateProfileScreen(
         isLoading = viewModel.isLoading,
         houseAddress = viewModel.houseAddress,
         houseCode = viewModel.currentHouseCode.ifBlank { houseCode },
-        isUpdatingCode = viewModel.isUpdatingCode,
-        codeUpdateError = viewModel.codeUpdateError,
         isCurrentUserAdmin = viewModel.isCurrentUserAdmin,
         hasExistingAd = viewModel.hasExistingAd,
-        onUpdateCodeClick = { nuovoCodice ->
-            viewModel.updateHouseCode(viewModel.currentHouseCode.ifBlank { houseCode }, nuovoCodice)
-        },
         onEditPhotoClick = {
             photoPickerLauncher.launch(
                 PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly)

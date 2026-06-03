@@ -77,9 +77,6 @@ fun HouseProfileView(
     isLoading: Boolean,
     houseAddress: String,
     houseCode: String,
-    isUpdatingCode: Boolean = false,
-    codeUpdateError: String? = null,
-    onUpdateCodeClick: (String) -> Unit = {},
     onEditPhotoClick: () -> Unit = {},
     onLeaveHouseClick: () -> Unit = {},
     onLogoutClick: () -> Unit = {},
@@ -137,9 +134,6 @@ fun HouseProfileView(
                 HouseInfoCard(
                     houseAddress = houseAddress,
                     houseCode = houseCode,
-                    isUpdatingCode = isUpdatingCode,
-                    codeUpdateError = codeUpdateError,
-                    onUpdateCodeClick = onUpdateCodeClick,
                     onLeaveHouseClick = onLeaveHouseClick
                 )
 
@@ -295,9 +289,6 @@ fun ProfileHeaderCardHouse(
 fun HouseInfoCard(
     houseAddress: String,
     houseCode: String,
-    isUpdatingCode: Boolean,
-    codeUpdateError: String?,
-    onUpdateCodeClick: (String) -> Unit,
     onLeaveHouseClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
@@ -309,8 +300,6 @@ fun HouseInfoCard(
     val codeBoxBg = if (isDark) Color(0xFF2D2342) else Color(0xFFEBE5F7)
     val btnBgColorActual = if (isDark) Color(0xFF2D2342) else Color(0xFFEBE5F7)
     val btnTextColor = if (isDark) Color(0xFFFF6961) else Color(0xFFD32F2F)
-
-    var editableCode by remember(houseCode) { mutableStateOf(houseCode) }
 
     Box(
         modifier = modifier
@@ -352,95 +341,33 @@ fun HouseInfoCard(
                         fontSize = 14.sp
                     )
 
-                    BasicTextField(
-                        value = editableCode,
-                        onValueChange = { editableCode = it.replace("\n", "").replace("\r", "").uppercase() },
-                        textStyle = TextStyle(
-                            color = if (isDark) Color.White else Color.Black,
-                            fontWeight = FontWeight.Black,
-                            fontSize = 18.sp
-                        ),
-                        singleLine = true,
-                        modifier = Modifier.fillMaxWidth(),
-                        decorationBox = { innerTextField ->
-                            Box {
-                                if (editableCode.isEmpty()) {
-                                    Text(
-                                        text = houseCode,
-                                        color = Color.Gray.copy(alpha = 0.5f),
-                                        fontWeight = FontWeight.Black,
-                                        fontSize = 18.sp
-                                    )
-                                }
-                                innerTextField()
-                            }
-                        }
+                    Text(
+                        text = houseCode,
+                        color = if (isDark) Color.White else Color.Black,
+                        fontWeight = FontWeight.Black,
+                        fontSize = 18.sp
                     )
-
-                    if (codeUpdateError != null) {
-                        Text(
-                            text = codeUpdateError,
-                            color = Color(0xFFFF6961),
-                            fontWeight = FontWeight.Bold,
-                            fontSize = 12.sp,
-                            modifier = Modifier.padding(top = 4.dp)
-                        )
-                    }
                 }
 
                 Spacer(modifier = Modifier.width(16.dp))
 
-                if (editableCode != houseCode) {
-                    Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                        Box(
-                            modifier = Modifier
-                                .size(40.dp)
-                                .clip(CircleShape)
-                                .background(Color(0xFFFF6961).copy(alpha = 0.2f))
-                                .clickable { editableCode = houseCode },
-                            contentAlignment = Alignment.Center
-                        ) {
-                            Icon(Icons.Default.Close, contentDescription = "Annulla", tint = Color(0xFFFF6961), modifier = Modifier.size(20.dp))
-                        }
-
-                        Box(
-                            modifier = Modifier
-                                .size(40.dp)
-                                .clip(CircleShape)
-                                .background(Color(0xFF34D399).copy(alpha = 0.2f))
-                                .clickable {
-                                    if (editableCode.isNotBlank() && !isUpdatingCode) {
-                                        onUpdateCodeClick(editableCode)
-                                    }
-                                },
-                            contentAlignment = Alignment.Center
-                        ) {
-                            if (isUpdatingCode) {
-                                CircularProgressIndicator(color = Color(0xFF34D399), modifier = Modifier.size(20.dp), strokeWidth = 2.dp)
-                            } else {
-                                Icon(Icons.Default.Check, contentDescription = "Salva", tint = Color(0xFF34D399), modifier = Modifier.size(20.dp))
-                            }
-                        }
-                    }
-                } else {
-                    Box(
-                        modifier = Modifier
-                            .size(48.dp)
-                            .clip(CircleShape)
-                            .background(if (isDark) Color.DarkGray else Color.White)
-                            .clickable {
-                                clipboardManager.setText(AnnotatedString(editableCode))
-                                Toast.makeText(context, "Codice copiato!", Toast.LENGTH_SHORT).show()
-                            },
-                        contentAlignment = Alignment.Center
-                    ) {
-                        Icon(
-                            imageVector = Icons.Default.ContentCopy,
-                            contentDescription = "Copia codice",
-                            tint = if (isDark) Color.White else Color.Black,
-                            modifier = Modifier.size(20.dp)
-                        )
-                    }
+                Box(
+                    modifier = Modifier
+                        .size(48.dp)
+                        .clip(CircleShape)
+                        .background(if (isDark) Color.DarkGray else Color.White)
+                        .clickable {
+                            clipboardManager.setText(AnnotatedString(houseCode))
+                            Toast.makeText(context, "Codice copiato!", Toast.LENGTH_SHORT).show()
+                        },
+                    contentAlignment = Alignment.Center
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.ContentCopy,
+                        contentDescription = "Copia codice",
+                        tint = if (isDark) Color.White else Color.Black,
+                        modifier = Modifier.size(20.dp)
+                    )
                 }
             }
 
