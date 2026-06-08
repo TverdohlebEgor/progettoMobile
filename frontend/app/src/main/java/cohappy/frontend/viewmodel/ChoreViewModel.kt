@@ -339,9 +339,9 @@ class ChoreViewModel(
                     val assignmentMap = if (!finalDates.isNullOrEmpty()) {
                         val map = mutableMapOf<LocalDate, String>()
                         finalDates.forEach { date ->
-                            // Come richiesto, al momento della creazione la faccenda NON viene assegnata a nessuno.
-                            // Sarà assegnata in seguito o al momento del completamento.
-                            map[date] = "null"
+                            // Se l'utente ha selezionato un assegnatario (assignedTo), lo usiamo.
+                            // Altrimenti impostiamo "null" per renderla aperta a tutti.
+                            map[date] = assignedTo ?: "null"
                         }
                         map
                     } else {

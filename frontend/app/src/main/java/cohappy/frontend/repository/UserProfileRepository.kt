@@ -46,7 +46,8 @@ class UserProfileRepository {
             if (response.isSuccessful && response.body() != null) {
                 Result.success(response.body()!!)
             } else {
-                Result.failure(ServerErrorException(SERVER_ERROR))
+                val errorMsg = response.errorBody()?.string() ?: SERVER_ERROR
+                Result.failure(ServerErrorException(errorMsg))
             }
         } catch (e: Exception) {
             Result.failure(e)

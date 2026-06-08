@@ -16,4 +16,8 @@ class CreateAdRepository {
     suspend fun modifyAdvertisement(dto: cohappy.frontend.client.dto.request.ModifyHouseAdvertisementDTO): Response<String> {
         return ClientSingleton.houseApi.modifyHouseAdvertisement(dto)
     }
+
+    suspend fun modifyHouse(dto: cohappy.frontend.client.dto.request.ModifyHouseDTO): Response<String> {
+        return ClientSingleton.houseApi.modifyHouse(dto)
+    }
 }

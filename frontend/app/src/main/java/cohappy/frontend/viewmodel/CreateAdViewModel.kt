@@ -9,6 +9,7 @@ import androidx.lifecycle.viewModelScope
 import cohappy.frontend.client.dto.enum.HouseStateEnum
 import cohappy.frontend.client.dto.request.CreateHouseAdvertisementDTO
 import cohappy.frontend.client.dto.request.ModifyHouseAdvertisementDTO
+import cohappy.frontend.client.dto.request.ModifyHouseDTO
 import cohappy.frontend.client.dto.response.GetHouseAdvertesimentDTO
 import cohappy.frontend.repository.CreateAdRepository
 import kotlinx.coroutines.launch
@@ -99,6 +100,13 @@ class CreateAdViewModel(private val repository: CreateAdRepository = CreateAdRep
                 }
 
                 if (response.isSuccessful) {
+                    // Sincronizziamo il costo anche sulla casa
+                    repository.modifyHouse(
+                        ModifyHouseDTO(
+                            houseCode = houseCode,
+                            costPerMonth = priceDouble.toInt()
+                        )
+                    )
                     isSuccess = true
                 } else {
                     errorMessage = "Errore del server: ${response.code()}"

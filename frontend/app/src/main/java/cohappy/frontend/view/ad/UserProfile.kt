@@ -193,7 +193,7 @@ fun HouseSetupSection(
                 ) {
                     BasicTextField(
                         value = houseCode,
-                        onValueChange = { houseCode = it.uppercase() },
+                        onValueChange = { houseCode = it },
                         textStyle = LocalTextStyle.current.copy(
                             color = Color.Black,
                             fontWeight = FontWeight.Bold,

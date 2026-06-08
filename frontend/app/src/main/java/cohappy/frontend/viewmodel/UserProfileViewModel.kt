@@ -78,7 +78,7 @@ class UserProfileViewModel : ViewModel() {
     }
 
     fun joinHouse(houseCode: String, userToken: String) {
-        val codicePulito = houseCode.trim().uppercase()
+        val codicePulito = houseCode.trim()
         if (codicePulito.isBlank()) {
             houseJoinError = "Inserisci un codice valido"
             return
@@ -129,7 +129,7 @@ class UserProfileViewModel : ViewModel() {
                     joinedHouseCode = codicePulito
                     navigateToHouse = true
                 } else {
-                    houseJoinError = "Errore durante l'aggiunta alla casa"
+                    houseJoinError = result.exceptionOrNull()?.message ?: "Errore durante l'aggiunta alla casa"
                 }
             } catch (e: Exception) {
                 Log.e("UserProfileVM", "Errore Join House", e)

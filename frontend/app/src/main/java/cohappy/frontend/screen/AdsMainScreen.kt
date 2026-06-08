@@ -12,6 +12,7 @@ import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -28,21 +29,37 @@ import dev.chrisbanes.haze.haze
 fun AdsMainScreen(
     sharedPref: SharedPreferences,
     onLoginSuccess: () -> Unit,
-    //onLoginClick: (String, String) -> Unit,
     onRegisterClick: () -> Unit,
     onAnnuncioClick: (String) -> Unit,
-    //onProfiloAnnunciClick: () -> Unit,
     onChatAnnunciClick: (String) -> Unit,
     isLoggedIn: Boolean,
     onLogoutClick: () -> Unit = {},
     onCreateHouseClick :() -> Unit,
     onJoinConfirmClick: (String) -> Unit,
+    onHouseDetected: (String) -> Unit = {},
     userToken: String? = null
 ) {
     var activeTab by remember { mutableStateOf("annunci") }
     val isDark = isSystemInDarkTheme()
     val BgColor = if (isDark) Color.Black else Color.White
     val hazeState = remember { HazeState() }
+
+    // Controllo automatico se l'utente è già in una casa ma il codice non è salvato in locale
+    LaunchedEffect(isLoggedIn, userToken) {
+        if (isLoggedIn && userToken != null && sharedPref.getString("HOUSE_CODE", null) == null) {
+            try {
+                val response = cohappy.frontend.client.ClientSingleton.userApi.getUserProfile(userToken)
+                if (response.isSuccessful) {
+                    val houseCode = response.body()?.houseCode
+                    if (houseCode != null) {
+                        onHouseDetected(houseCode)
+                    }
+                }
+            } catch (e: Exception) {
+                // Silently fail or handle error
+            }
+        }
+    }
 
     Scaffold(
         bottomBar = {

@@ -23,6 +23,18 @@ class LoginRepository(
                 sharedPref.edit {
                     putString("USER_TOKEN", userCodePulito)
                 }
+
+                // Carica il profilo per vedere se è già in una casa
+                val profileResponse = ClientSingleton.userApi.getUserProfile(userCodePulito)
+                if (profileResponse.isSuccessful) {
+                    val profile = profileResponse.body()
+                    if (profile?.houseCode != null) {
+                        sharedPref.edit {
+                            putString("HOUSE_CODE", profile.houseCode)
+                        }
+                    }
+                }
+
                 return Result.success(userCodePulito)
             } else {
                 if (apiResponse.code() == 404) {

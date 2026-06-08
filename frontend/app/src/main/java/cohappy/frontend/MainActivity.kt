@@ -71,11 +71,15 @@ class MainActivity : ComponentActivity() {
                                 sharedPref = sharedPref,
                                 onNavigateToAnnunci = {
                                     val newToken = sharedPref.getString("USER_TOKEN", null)
+                                    val houseCode = sharedPref.getString("HOUSE_CODE", null)
                                     if (newToken != null) {
                                         isLoggedIn = true
                                         userToken = newToken
                                     }
-                                    navController.navigate("annunci") {
+                                    
+                                    val destinazione = if (houseCode != null) "home_gestionale" else "annunci"
+                                    
+                                    navController.navigate(destinazione) {
                                         popUpTo("iniziale") { inclusive = true }
                                     }
                                 },
@@ -102,9 +106,15 @@ class MainActivity : ComponentActivity() {
                                 sharedPref = sharedPref,
                                 onLoginSuccess = {
                                     val newToken = sharedPref.getString("USER_TOKEN", null)
+                                    val houseCode = sharedPref.getString("HOUSE_CODE", null)
                                     if (newToken != null) {
                                         isLoggedIn = true
                                         userToken = newToken
+                                    }
+                                    if (houseCode != null) {
+                                        navController.navigate("home_gestionale") {
+                                            popUpTo(0) { inclusive = true }
+                                        }
                                     }
                                 },
                                 onRegisterClick = { navController.navigate("registration") },
@@ -125,6 +135,12 @@ class MainActivity : ComponentActivity() {
                                 },
                                 onCreateHouseClick = { navController.navigate("create_house") },
                                 onJoinConfirmClick = { code ->
+                                    sharedPref.edit().putString("HOUSE_CODE", code).apply()
+                                    navController.navigate("home_gestionale") {
+                                        popUpTo(0) { inclusive = true }
+                                    }
+                                },
+                                onHouseDetected = { code ->
                                     sharedPref.edit().putString("HOUSE_CODE", code).apply()
                                     navController.navigate("home_gestionale") {
                                         popUpTo(0) { inclusive = true }
